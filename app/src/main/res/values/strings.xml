@@ -1,3 +1,9 @@
 <resources>
     <string name="app_name">WanCompose</string>
+
+    <string name="bottom_tab_home">首页</string>
+    <string name="bottom_tab_system">体系</string>
+    <string name="bottom_tab_official_account">公众号</string>
+    <string name="bottom_tab_project">项目</string>
+    <string name="bottom_tab_mine">我的</string>
 </resources>
