@@ -12,13 +12,16 @@ import io.ktor.client.plugins.logging.Logging
 import io.ktor.client.plugins.resources.Resources
 import io.ktor.http.URLProtocol
 import io.ktor.serialization.kotlinx.json.json
+import kotlinx.serialization.json.Json
 
 object Ktor {
 
     val client = HttpClient(Android) {
         install(Resources)
         install(ContentNegotiation) {
-            json()
+            json(json = Json {
+                ignoreUnknownKeys = true
+            })
         }
         install(HttpTimeout) {
             requestTimeoutMillis = 5000

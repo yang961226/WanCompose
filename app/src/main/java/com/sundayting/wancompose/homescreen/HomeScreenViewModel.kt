@@ -5,8 +5,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.sundayting.wancompose.network.Ktor
 import dagger.hilt.android.lifecycle.HiltViewModel
-import io.ktor.client.request.get
-import io.ktor.client.statement.bodyAsText
+import io.ktor.client.call.body
+import io.ktor.client.plugins.resources.get
 import io.ktor.resources.Resource
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -32,14 +32,18 @@ class HomeScreenViewModel @Inject constructor() : ViewModel() {
         viewModelScope.launch {
             runCatching {
                 val article = Ktor.client.get(
-                    "https://www.wanandroid.com/banner/json"
-//                    Article.List.Id.Json(
-//                        Article.List.Id(
-//                            Article.List(), 0
-//                        )
-//                    )
+                    Article.List.Id.Json(
+                        Article.List.Id(
+                            Article.List(), 0
+                        )
+                    )
                 )
-                Log.d("临时测试", article.bodyAsText())
+                val resultBean: HomePageArticleBean = article.body()
+                resultBean.data?.let { it ->
+                    it.list.forEach { articleBean ->
+                        Log.d("临时测试", articleBean.title)
+                    }
+                }
             }
         }
 
