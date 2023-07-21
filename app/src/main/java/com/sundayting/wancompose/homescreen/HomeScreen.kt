@@ -1,4 +1,4 @@
-package com.sundayting.wancompose
+package com.sundayting.wancompose.homescreen
 
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
@@ -29,6 +29,9 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
+import com.sundayting.wancompose.R
+import com.sundayting.wancompose.WanComposeDestination
 import com.sundayting.wancompose.ui.title.TitleBar
 import kotlinx.coroutines.launch
 
@@ -38,7 +41,9 @@ object HomeScreen : WanComposeDestination {
         get() = "首页"
 
     @Composable
-    override fun Screen() {
+    fun Screen(
+        viewModel: HomeScreenViewModel = hiltViewModel(),
+    ) {
         Column(
             Modifier
                 .fillMaxSize()

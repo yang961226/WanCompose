@@ -15,7 +15,10 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
+import com.sundayting.wancompose.homescreen.HomeScreen
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -29,9 +32,6 @@ class MainActivity : ComponentActivity() {
 interface WanComposeDestination {
 
     val route: String
-
-    @Composable
-    fun Screen()
 
 }
 
