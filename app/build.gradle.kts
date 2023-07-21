@@ -3,7 +3,7 @@ import org.jetbrains.kotlin.gradle.dsl.KotlinCompile
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
-    kotlin("plugin.serialization").version("1.8.22")
+    kotlin("plugin.serialization") version ("1.8.22")
     kotlin("kapt")
     id("com.google.dagger.hilt.android")
 }
@@ -101,6 +101,7 @@ dependencies {
     implementation("io.ktor:ktor-serialization-kotlinx-json:$ktorVersion")
     implementation("io.ktor:ktor-client-logging:$ktorVersion")
     implementation("io.ktor:ktor-client-resources:$ktorVersion")
+    implementation("io.ktor:ktor-client-android:$ktorVersion")
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.5.1")
 
     implementation("com.google.dagger:hilt-android:2.44")

@@ -2,20 +2,21 @@ package com.sundayting.wancompose.network
 
 import android.util.Log
 import io.ktor.client.HttpClient
-import io.ktor.client.engine.cio.CIO
+import io.ktor.client.engine.android.Android
 import io.ktor.client.plugins.HttpTimeout
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.client.plugins.defaultRequest
 import io.ktor.client.plugins.logging.LogLevel
 import io.ktor.client.plugins.logging.Logger
 import io.ktor.client.plugins.logging.Logging
+import io.ktor.client.plugins.resources.Resources
 import io.ktor.http.URLProtocol
-import io.ktor.resources.Resource
 import io.ktor.serialization.kotlinx.json.json
 
 object Ktor {
 
-    val client = HttpClient(CIO) {
+    val client = HttpClient(Android) {
+        install(Resources)
         install(ContentNegotiation) {
             json()
         }
@@ -34,22 +35,6 @@ object Ktor {
             host = "www.wanandroid.com"
             url { protocol = URLProtocol.HTTPS }
         }
-    }
-
-    @Resource("/article")
-    class Article {
-        @Resource("list")
-        class List(val parent: Article = Article()) {
-
-            @Resource("{id}")
-            class Id(val parent: List = List(), val id: Long) {
-                @Resource("json")
-                class Json(val parent: Id)
-            }
-
-        }
-
-
     }
 
 }
