@@ -2,7 +2,9 @@ package com.sundayting.wancompose.network
 
 import android.util.Log
 import io.ktor.client.HttpClient
+import io.ktor.client.call.body
 import io.ktor.client.engine.android.Android
+import io.ktor.client.plugins.HttpResponseValidator
 import io.ktor.client.plugins.HttpTimeout
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.client.plugins.defaultRequest
@@ -17,6 +19,15 @@ import kotlinx.serialization.json.Json
 object Ktor {
 
     val client = HttpClient(Android) {
+        expectSuccess = true
+        HttpResponseValidator {
+            validateResponse { response ->
+                val result: WanNetResult<Any> = response.body()
+                if (result.errorCode == -1001) {
+                    throw WanNotLoginException()
+                }
+            }
+        }
         install(Resources)
         install(ContentNegotiation) {
             json(json = Json {

@@ -1,4 +1,4 @@
-package com.sundayting.wancompose.homescreen
+package com.sundayting.wancompose.homescreen.repo
 
 import com.sundayting.wancompose.network.WanNetResult
 import kotlinx.serialization.SerialName
@@ -20,7 +20,7 @@ data class ArticleResultBean(
 
 @Serializable
 data class HomePageArticleBean(
-    override val data: ArticleResultBean?,
+    override val data: ArticleResultBean,
     override val errorCode: Int,
     override val errorMsg: String,
 ) : WanNetResult<ArticleResultBean>()
