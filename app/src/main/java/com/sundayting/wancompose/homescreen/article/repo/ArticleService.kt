@@ -1,4 +1,4 @@
-package com.sundayting.wancompose.homescreen.repo
+package com.sundayting.wancompose.homescreen.article.repo
 
 interface ArticleService {
 

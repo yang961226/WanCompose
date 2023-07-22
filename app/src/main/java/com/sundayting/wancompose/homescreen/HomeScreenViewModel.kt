@@ -3,7 +3,7 @@ package com.sundayting.wancompose.homescreen
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.sundayting.wancompose.homescreen.repo.ArticleRepository
+import com.sundayting.wancompose.homescreen.article.repo.ArticleRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import io.ktor.resources.Resource
 import kotlinx.coroutines.launch

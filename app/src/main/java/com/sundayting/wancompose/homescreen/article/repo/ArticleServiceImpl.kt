@@ -1,4 +1,4 @@
-package com.sundayting.wancompose.homescreen.repo
+package com.sundayting.wancompose.homescreen.article.repo
 
 import com.sundayting.wancompose.homescreen.HomeScreenViewModel
 import com.sundayting.wancompose.network.Ktor
