@@ -9,9 +9,12 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.sundayting.wancompose.homescreen.article.repo.ArticleRepository
 import com.sundayting.wancompose.homescreen.article.repo.toArticleUiBean
+import com.sundayting.wancompose.homescreen.article.repo.toBannerUiBean
+import com.sundayting.wancompose.homescreen.article.ui.ArticleList
 import com.sundayting.wancompose.homescreen.article.ui.ArticleList.ArticleUiBean
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.joinAll
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -25,6 +28,9 @@ class HomeScreenViewModel @Inject constructor(
 
         private val _articleList = mutableStateListOf<ArticleUiBean>()
         val articleList: List<ArticleUiBean> = _articleList
+
+        private val _bannerList = mutableStateListOf<ArticleList.BannerUiBean>()
+        val bannerList: List<ArticleList.BannerUiBean> = _bannerList
 
         var refreshing by mutableStateOf(false)
         var loadingMore by mutableStateOf(false)
@@ -60,18 +66,35 @@ class HomeScreenViewModel @Inject constructor(
                 articleListState.loadingMore = true
             }
             loadJob = viewModelScope.launch {
-                val result = runCatching {
-                    repo.fetchHomePageArticle(curPage)
-                }
-                result.onSuccess { bean ->
-                    curPage++
-                    bean.data?.let { data ->
-                        articleListState.addArticle(
-                            data.list.map { it.toArticleUiBean() },
-                            isRefresh
-                        )
+                joinAll(
+                    launch {
+                        if (isRefresh) {
+                            val result = kotlin.runCatching {
+                                repo.fetchHomePageBanner()
+                            }
+                            result.onSuccess { bean ->
+                                bean.data?.let { data ->
+                                    _bannerList.clear()
+                                    _bannerList.addAll(data.map { it.toBannerUiBean() })
+                                }
+                            }
+                        }
+                    },
+                    launch {
+                        val result = runCatching {
+                            repo.fetchHomePageArticle(curPage)
+                        }
+                        result.onSuccess { bean ->
+                            curPage++
+                            bean.data?.let { data ->
+                                articleListState.addArticle(
+                                    data.list.map { it.toArticleUiBean() },
+                                    isRefresh
+                                )
+                            }
+                        }
                     }
-                }
+                )
             }.apply {
                 invokeOnCompletion {
                     articleListState.refreshing = false

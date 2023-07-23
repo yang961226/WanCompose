@@ -5,9 +5,11 @@ import javax.inject.Singleton
 
 @Singleton
 class ArticleRepository @Inject constructor(
-    private val articleService: ArticleService,
+    private val homePageService: HomePageService,
 ) {
 
-    suspend fun fetchHomePageArticle(page: Int) = articleService.fetchHomePageArticle(page)
+    suspend fun fetchHomePageArticle(page: Int) = homePageService.fetchHomePageArticle(page)
+
+    suspend fun fetchHomePageBanner() = homePageService.fetchHomePageBanner()
 
 }

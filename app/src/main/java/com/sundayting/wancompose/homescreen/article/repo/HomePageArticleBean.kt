@@ -32,6 +32,21 @@ data class HomePageArticleBean(
     override val errorMsg: String,
 ) : WanNetResult<ArticleResultBean?>()
 
+
+@Serializable
+data class HomePageBannerResultBean(
+    val imagePath: String,
+    val url: String,
+    val id: Int,
+)
+
+@Serializable
+data class HomePageBannerBean(
+    override val data: List<HomePageBannerResultBean>?,
+    override val errorCode: Int,
+    override val errorMsg: String,
+) : WanNetResult<List<HomePageBannerResultBean>>()
+
 fun ArticleBean.toArticleUiBean(
     isStick: Boolean = false,
 ): ArticleList.ArticleUiBean {
@@ -48,6 +63,14 @@ fun ArticleBean.toArticleUiBean(
             author = author,
             sharedUser = shareUser
         ),
+        id = id
+    )
+}
+
+fun HomePageBannerResultBean.toBannerUiBean(): ArticleList.BannerUiBean {
+    return ArticleList.BannerUiBean(
+        imgUrl = imagePath,
+        linkUrl = url,
         id = id
     )
 }

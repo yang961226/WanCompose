@@ -3,6 +3,7 @@ package com.sundayting.wancompose.homescreen.article.ui
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -11,6 +12,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.material.pullrefresh.PullRefreshIndicator
 import androidx.compose.material.pullrefresh.pullRefresh
 import androidx.compose.material.pullrefresh.rememberPullRefreshState
@@ -27,11 +29,15 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.compose.ConstraintLayout
+import coil.compose.AsyncImage
+import coil.request.ImageRequest
 import com.sundayting.wancompose.R
 import com.sundayting.wancompose.common.ui.ktx.onBottomReached
 import com.sundayting.wancompose.homescreen.HomeScreenViewModel.ArticleListState
@@ -63,6 +69,12 @@ object ArticleList {
 
     }
 
+    data class BannerUiBean(
+        val imgUrl: String,
+        val linkUrl: String,
+        val id: Int,
+    )
+
     @Composable
     fun ArticleScreen(
         modifier: Modifier = Modifier,
@@ -79,6 +91,7 @@ object ArticleList {
             }
             ArticleListContent(
                 modifier = Modifier.matchParentSize(),
+                bannerList = articleListState.bannerList,
                 list = articleListState.articleList,
                 state = lazyListState,
                 isLoadingMore = articleListState.loadingMore
@@ -99,11 +112,35 @@ private val stickColor = Color(0xFFeab38d)
 @Composable
 private fun ArticleListContent(
     modifier: Modifier = Modifier,
+    bannerList: List<ArticleList.BannerUiBean>,
     list: List<ArticleList.ArticleUiBean>,
     state: LazyListState = rememberLazyListState(),
     isLoadingMore: Boolean = false,
 ) {
     LazyColumn(modifier, state = state) {
+        if (bannerList.isNotEmpty()) {
+            item {
+                HorizontalPager(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .aspectRatio(2f / 1f),
+                    pageCount = bannerList.size,
+                    key = { bannerList[it].id }
+                ) {
+                    val banner = bannerList[it]
+                    AsyncImage(
+                        modifier = Modifier.fillMaxSize(),
+                        model = ImageRequest
+                            .Builder(LocalContext.current)
+                            .crossfade(true)
+                            .data(banner.imgUrl)
+                            .build(),
+                        contentDescription = null,
+                        contentScale = ContentScale.Crop
+                    )
+                }
+            }
+        }
         items(list, key = { it.id }) {
             ArticleListSingleBean(
                 modifier = Modifier
@@ -235,7 +272,9 @@ private fun ArticleListSingleBean(
 @Composable
 @Preview(showBackground = true)
 private fun PreviewArticleListContent() {
-    ArticleListContent(Modifier.fillMaxSize(), list = remember {
+    ArticleListContent(Modifier.fillMaxSize(), bannerList = remember {
+        listOf()
+    }, list = remember {
         (0L..100L).map {
             ArticleList.ArticleUiBean(
                 title = "我是标题我是标题我是标题我是标题我是标题我是标题",

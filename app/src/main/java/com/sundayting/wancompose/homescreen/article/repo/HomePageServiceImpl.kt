@@ -11,7 +11,9 @@ import io.ktor.resources.Resource
 import javax.inject.Inject
 import javax.inject.Singleton
 
-class ArticleServiceImpl @Inject constructor() : ArticleService {
+class HomePageServiceImpl @Inject constructor() : HomePageService {
+
+    private val client = Ktor.client
 
     @Resource("/article")
     class Article {
@@ -28,8 +30,7 @@ class ArticleServiceImpl @Inject constructor() : ArticleService {
     }
 
     override suspend fun fetchHomePageArticle(page: Int): HomePageArticleBean {
-
-        return Ktor.client.get(
+        return client.get(
             Article.List.Id.Json(
                 Article.List.Id(
                     Article.List(), page
@@ -37,15 +38,27 @@ class ArticleServiceImpl @Inject constructor() : ArticleService {
             )
         ).body()
     }
+
+    @Resource("/banner")
+    class Banner {
+        @Resource("json")
+        class Json(val parent: Banner = Banner())
+    }
+
+    override suspend fun fetchHomePageBanner(): HomePageBannerBean {
+        return client.get(
+            Banner.Json(Banner())
+        ).body()
+    }
 }
 
 @Module
 @InstallIn(SingletonComponent::class)
-abstract class ArticleServiceModule {
+abstract class HomePageServiceModule {
 
     @Singleton
     @Binds
-    abstract fun bindArticleService(
-        articleServiceImpl: ArticleServiceImpl,
-    ): ArticleService
+    abstract fun bindHomePageService(
+        homePageServiceImpl: HomePageServiceImpl,
+    ): HomePageService
 }
