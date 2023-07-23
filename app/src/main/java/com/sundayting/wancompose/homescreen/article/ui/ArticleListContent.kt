@@ -39,9 +39,19 @@ object ArticleList {
         val id: Long,
         val isStick: Boolean = false,
         val isNew: Boolean = false,
-        val chapterName: String,
-        val shareUser: String,
+        val chapter: Chapter,
+        val authorOrSharedUser: AuthorOrSharedUser,
     ) {
+
+        data class Chapter(
+            val chapterName: String,
+            val superChapterName: String,
+        )
+
+        data class AuthorOrSharedUser(
+            val author: String = "",
+            val sharedUser: String = "",
+        )
 
         var isLike by mutableStateOf(false)
 
@@ -103,7 +113,13 @@ private fun ArticleListSingleBean(
                 )
             }
             Text(
-                text = bean.shareUser,
+                text = remember(bean.authorOrSharedUser) {
+                    if (bean.authorOrSharedUser.author.isNotEmpty()) {
+                        "作者：${bean.authorOrSharedUser.author}"
+                    } else {
+                        "分享者：${bean.authorOrSharedUser.sharedUser}"
+                    }
+                },
                 style = TextStyle(
                     color = Color.Black.copy(0.6f)
                 )
@@ -143,7 +159,9 @@ private fun ArticleListSingleBean(
                 )
             }
             Text(
-                text = bean.chapterName,
+                text = remember(bean.chapter) {
+                    "分类：${bean.chapter.superChapterName} / ${bean.chapter.chapterName}"
+                },
                 style = TextStyle(
                     color = Color.Black.copy(0.6f)
                 )
@@ -168,25 +186,6 @@ private fun ArticleListSingleBean(
 
 @Composable
 @Preview(showBackground = true)
-private fun PreviewArticleListSingleBean() {
-    ArticleListSingleBean(
-        modifier = Modifier.fillMaxWidth(),
-        bean = remember {
-            ArticleList.ArticleUiBean(
-                title = "我是标题我是标题我是标题我是标题我是标题我是标题",
-                date = "1小时之前",
-                isNew = true,
-                isStick = true,
-                chapterName = "干货满满",
-                shareUser = "网易",
-                id = 1104
-            )
-        }
-    )
-}
-
-@Composable
-@Preview(showBackground = true)
 private fun PreviewArticleListContent() {
     ArticleListContent(Modifier.fillMaxSize(), list = remember {
         (0L..100L).map {
@@ -195,8 +194,13 @@ private fun PreviewArticleListContent() {
                 date = "1小时之前",
                 isNew = true,
                 isStick = true,
-                chapterName = "干货满满",
-                shareUser = "网易",
+                chapter = ArticleList.ArticleUiBean.Chapter(
+                    superChapterName = "广场Tab",
+                    chapterName = "自助"
+                ),
+                authorOrSharedUser = ArticleList.ArticleUiBean.AuthorOrSharedUser(
+                    author = "小茗同学",
+                ),
                 id = it
             )
         }

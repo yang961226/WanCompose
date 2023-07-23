@@ -13,7 +13,9 @@ data class ArticleBean(
     val niceDate: String,
     val fresh: Boolean,
     val shareUser: String,
+    val author: String,
     val chapterName: String,
+    val superChapterName: String,
 )
 
 @Serializable
@@ -38,8 +40,14 @@ fun ArticleBean.toArticleUiBean(
         date = niceDate,
         isStick = isStick,
         isNew = fresh,
-        chapterName = chapterName,
-        shareUser = shareUser,
+        chapter = ArticleList.ArticleUiBean.Chapter(
+            chapterName = chapterName,
+            superChapterName = superChapterName,
+        ),
+        authorOrSharedUser = ArticleList.ArticleUiBean.AuthorOrSharedUser(
+            author = author,
+            sharedUser = shareUser
+        ),
         id = id
     )
 }
