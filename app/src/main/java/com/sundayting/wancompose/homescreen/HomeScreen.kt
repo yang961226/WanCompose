@@ -35,8 +35,8 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.sundayting.wancompose.R
 import com.sundayting.wancompose.WanComposeDestination
+import com.sundayting.wancompose.common.ui.title.TitleBar
 import com.sundayting.wancompose.homescreen.article.ui.ArticleList
-import com.sundayting.wancompose.ui.title.TitleBar
 import kotlinx.coroutines.launch
 
 object HomeScreen : WanComposeDestination {
@@ -84,7 +84,7 @@ object HomeScreen : WanComposeDestination {
                 modifier = Modifier.align(Alignment.Center),
                 text = stringResource(id = R.string.bottom_tab_home),
                 style = TextStyle(
-                    fontSize = 16.sp,
+                    fontSize = 20.sp,
                     color = Color.White
                 )
             )

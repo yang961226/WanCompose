@@ -14,6 +14,7 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.pullrefresh.PullRefreshIndicator
 import androidx.compose.material.pullrefresh.pullRefresh
 import androidx.compose.material.pullrefresh.rememberPullRefreshState
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Divider
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -32,6 +33,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.compose.ConstraintLayout
 import com.sundayting.wancompose.R
+import com.sundayting.wancompose.common.ui.ktx.onBottomReached
 import com.sundayting.wancompose.homescreen.HomeScreenViewModel.ArticleListState
 
 object ArticleList {
@@ -71,9 +73,15 @@ object ArticleList {
             rememberPullRefreshState(articleListState.refreshing, articleListState::refresh)
 
         Box(modifier.pullRefresh(pullRefreshState)) {
+            val lazyListState = rememberLazyListState()
+            lazyListState.onBottomReached {
+                articleListState.loadMore()
+            }
             ArticleListContent(
                 modifier = Modifier.matchParentSize(),
-                list = articleListState.articleList
+                list = articleListState.articleList,
+                state = lazyListState,
+                isLoadingMore = articleListState.loadingMore
             )
             PullRefreshIndicator(
                 articleListState.refreshing,
@@ -93,6 +101,7 @@ private fun ArticleListContent(
     modifier: Modifier = Modifier,
     list: List<ArticleList.ArticleUiBean>,
     state: LazyListState = rememberLazyListState(),
+    isLoadingMore: Boolean = false,
 ) {
     LazyColumn(modifier, state = state) {
         items(list, key = { it.id }) {
@@ -103,6 +112,18 @@ private fun ArticleListContent(
                 bean = it
             )
             Divider(Modifier.fillMaxWidth())
+        }
+        if (isLoadingMore) {
+            item {
+                Box(
+                    Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 10.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    CircularProgressIndicator()
+                }
+            }
         }
     }
 }

@@ -1,4 +1,4 @@
-package com.sundayting.wancompose.ui.title
+package com.sundayting.wancompose.common.ui.title
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box

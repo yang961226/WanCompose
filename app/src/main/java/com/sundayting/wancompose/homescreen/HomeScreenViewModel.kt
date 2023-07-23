@@ -29,6 +29,8 @@ class HomeScreenViewModel @Inject constructor(
         var refreshing by mutableStateOf(false)
         var loadingMore by mutableStateOf(false)
 
+        private var curPage = 0
+
         private fun addArticle(list: List<ArticleUiBean>, refreshFirst: Boolean = false) {
             if (refreshFirst) {
                 _articleList.clear()
@@ -47,17 +49,22 @@ class HomeScreenViewModel @Inject constructor(
         private var loadJob: Job? = null
 
         private fun load(isRefresh: Boolean) {
+            if (isRefresh.not() && loadJob?.isActive == true) {
+                return
+            }
             loadJob?.cancel()
             if (isRefresh) {
+                curPage = 0
                 articleListState.refreshing = true
             } else {
                 articleListState.loadingMore = true
             }
             loadJob = viewModelScope.launch {
                 val result = runCatching {
-                    repo.fetchHomePageArticle(0)
+                    repo.fetchHomePageArticle(curPage)
                 }
                 result.onSuccess { bean ->
+                    curPage++
                     bean.data?.let { data ->
                         articleListState.addArticle(
                             data.list.map { it.toArticleUiBean() },
