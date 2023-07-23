@@ -11,7 +11,6 @@ import com.sundayting.wancompose.homescreen.article.repo.ArticleRepository
 import com.sundayting.wancompose.homescreen.article.repo.toArticleUiBean
 import com.sundayting.wancompose.homescreen.article.ui.ArticleList.ArticleUiBean
 import dagger.hilt.android.lifecycle.HiltViewModel
-import io.ktor.resources.Resource
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -22,7 +21,7 @@ class HomeScreenViewModel @Inject constructor(
 ) : ViewModel() {
 
     @Stable
-    class HomeScreenState {
+    inner class ArticleListState {
 
         private val _articleList = mutableStateListOf<ArticleUiBean>()
         val articleList: List<ArticleUiBean> = _articleList
@@ -30,67 +29,57 @@ class HomeScreenViewModel @Inject constructor(
         var refreshing by mutableStateOf(false)
         var loadingMore by mutableStateOf(false)
 
-        fun addArticle(list: List<ArticleUiBean>, refreshFirst: Boolean = false) {
+        private fun addArticle(list: List<ArticleUiBean>, refreshFirst: Boolean = false) {
             if (refreshFirst) {
                 _articleList.clear()
             }
             _articleList.addAll(list)
         }
 
-    }
-
-    val homeScreenState = HomeScreenState()
-
-    @Resource("/article")
-    class Article {
-        @Resource("list")
-        class List(val parent: Article = Article()) {
-
-            @Resource("{id}")
-            class Id(val parent: List = List(), val id: Int) {
-                @Resource("json")
-                class Json(val parent: Id)
-            }
-
+        fun refresh() {
+            load(true)
         }
-    }
 
-    init {
-        refresh()
-    }
-
-    private var loadJob: Job? = null
-
-    fun refresh() {
-        load(true)
-    }
-
-    fun loadMore() {
-        load(false)
-    }
-
-    private fun load(isRefresh: Boolean) {
-        loadJob?.cancel()
-        if (isRefresh) {
-            homeScreenState.refreshing = true
-        } else {
-            homeScreenState.loadingMore = true
+        fun loadMore() {
+            load(false)
         }
-        loadJob = viewModelScope.launch {
-            val result = runCatching {
-                repo.fetchHomePageArticle(0)
+
+        private var loadJob: Job? = null
+
+        private fun load(isRefresh: Boolean) {
+            loadJob?.cancel()
+            if (isRefresh) {
+                articleListState.refreshing = true
+            } else {
+                articleListState.loadingMore = true
             }
-            result.onSuccess { bean ->
-                bean.data?.let { data ->
-                    homeScreenState.addArticle(data.list.map { it.toArticleUiBean() }, isRefresh)
+            loadJob = viewModelScope.launch {
+                val result = runCatching {
+                    repo.fetchHomePageArticle(0)
+                }
+                result.onSuccess { bean ->
+                    bean.data?.let { data ->
+                        articleListState.addArticle(
+                            data.list.map { it.toArticleUiBean() },
+                            isRefresh
+                        )
+                    }
+                }
+            }.apply {
+                invokeOnCompletion {
+                    articleListState.refreshing = false
+                    articleListState.loadingMore = false
                 }
             }
-        }.apply {
-            invokeOnCompletion {
-                homeScreenState.refreshing = false
-                homeScreenState.loadingMore = false
-            }
         }
+
     }
+
+    val articleListState = ArticleListState()
+
+    init {
+        articleListState.refresh()
+    }
+
 
 }

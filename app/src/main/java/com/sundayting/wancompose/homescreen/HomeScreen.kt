@@ -17,6 +17,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.PagerState
 import androidx.compose.foundation.pager.rememberPagerState
+import androidx.compose.material3.Divider
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
@@ -28,7 +29,9 @@ import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.sundayting.wancompose.R
 import com.sundayting.wancompose.WanComposeDestination
@@ -60,7 +63,7 @@ object HomeScreen : WanComposeDestination {
                     .fillMaxSize()
                     .weight(1f, false),
                 pagerState = pagerState,
-                homeScreenState = viewModel.homeScreenState
+                articleListState = viewModel.articleListState
             )
             HomeBottomNavigation.Content(
                 modifier = Modifier.fillMaxWidth(),
@@ -79,7 +82,20 @@ object HomeScreen : WanComposeDestination {
         TitleBar(modifier) {
             Text(
                 modifier = Modifier.align(Alignment.Center),
-                text = "首页",
+                text = stringResource(id = R.string.bottom_tab_home),
+                style = TextStyle(
+                    fontSize = 16.sp,
+                    color = Color.White
+                )
+            )
+            Image(
+                painter = painterResource(id = R.drawable.ic_search),
+                contentDescription = null,
+                modifier = Modifier
+                    .padding(end = 20.dp)
+                    .size(20.dp)
+                    .align(Alignment.CenterEnd),
+                colorFilter = ColorFilter.tint(Color.White)
             )
         }
     }
@@ -88,7 +104,7 @@ object HomeScreen : WanComposeDestination {
     private fun HomeContent(
         modifier: Modifier = Modifier,
         pagerState: PagerState = rememberPagerState(),
-        homeScreenState: HomeScreenViewModel.HomeScreenState,
+        articleListState: HomeScreenViewModel.ArticleListState,
     ) {
 
         HorizontalPager(
@@ -97,11 +113,11 @@ object HomeScreen : WanComposeDestination {
             state = pagerState
         ) { page ->
             if (page == 0) {
-                ArticleList.ArticleListContent(
+                ArticleList.ArticleScreen(
                     modifier = Modifier
                         .fillMaxSize()
                         .background(Color.White),
-                    list = homeScreenState.articleList
+                    articleListState = articleListState,
                 )
             } else {
                 Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
@@ -121,23 +137,23 @@ object HomeScreen : WanComposeDestination {
 
         private val list = listOf(
             BottomBean(
-                resId = R.drawable.ic_launcher_background,
+                resId = R.drawable.ic_home,
                 titleId = R.string.bottom_tab_home
             ),
             BottomBean(
-                resId = R.drawable.ic_launcher_background,
+                resId = R.drawable.ic_system,
                 titleId = R.string.bottom_tab_system
             ),
             BottomBean(
-                resId = R.drawable.ic_launcher_background,
+                resId = R.drawable.ic_project,
                 titleId = R.string.bottom_tab_project
             ),
             BottomBean(
-                resId = R.drawable.ic_launcher_background,
+                resId = R.drawable.ic_official_account,
                 titleId = R.string.bottom_tab_official_account
             ),
             BottomBean(
-                resId = R.drawable.ic_launcher_background,
+                resId = R.drawable.ic_mine,
                 titleId = R.string.bottom_tab_mine
             ),
         )
@@ -149,19 +165,24 @@ object HomeScreen : WanComposeDestination {
             onPageChanged: (Int) -> Unit = {},
         ) {
 
+            Divider(Modifier.fillMaxWidth(), color = Color.Gray.copy(0.2f))
             Row(
                 modifier
                     .fillMaxWidth()
-                    .background(Color.Blue)
-                    .padding(vertical = 10.dp, horizontal = 20.dp),
+                    .background(Color(0xFFf7f7f7))
+                    .padding(horizontal = 10.dp),
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 list.forEachIndexed { index, bottomBean ->
                     HomeBottomNavigationItem(
-                        modifier = Modifier.clickable {
-                            onPageChanged(index)
-                        },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .weight(1f, false)
+                            .clickable {
+                                onPageChanged(index)
+                            }
+                            .padding(vertical = 10.dp),
                         bean = bottomBean,
                         isSelected = index == page
                     )
@@ -184,14 +205,20 @@ object HomeScreen : WanComposeDestination {
                 Image(
                     painter = painterResource(id = bean.resId),
                     contentDescription = null,
-                    modifier = Modifier.size(35.dp),
+                    modifier = Modifier.size(25.dp),
                     contentScale = ContentScale.Crop,
                     colorFilter = remember(isSelected) {
-                        if (isSelected) ColorFilter.tint(Color.Red) else null
+                        if (isSelected) ColorFilter.tint(Color(0xFF5380ec)) else ColorFilter.tint(
+                            Color(0xFF999999)
+                        )
                     }
                 )
                 Text(
                     text = stringResource(id = bean.titleId),
+                    style = TextStyle(
+                        fontSize = 12.sp,
+                        color = Color(0xFF999999)
+                    )
                 )
             }
 

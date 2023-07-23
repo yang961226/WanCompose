@@ -93,6 +93,8 @@ dependencies {
 
     implementation("com.google.accompanist:accompanist-systemuicontroller:0.30.1")
 
+    implementation("androidx.compose.material:material:1.4.3")
+
     val ktorVersion = "2.3.2"
     implementation("io.ktor:ktor-client-core:$ktorVersion")
     implementation("io.ktor:ktor-client-cio:$ktorVersion")

@@ -1,6 +1,7 @@
 package com.sundayting.wancompose.homescreen.article.ui
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -10,6 +11,9 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.material.pullrefresh.PullRefreshIndicator
+import androidx.compose.material.pullrefresh.pullRefresh
+import androidx.compose.material.pullrefresh.rememberPullRefreshState
 import androidx.compose.material3.Divider
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -28,7 +32,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.compose.ConstraintLayout
 import com.sundayting.wancompose.R
-import com.sundayting.wancompose.homescreen.article.ui.ArticleList.ArticleListContent
+import com.sundayting.wancompose.homescreen.HomeScreenViewModel.ArticleListState
 
 object ArticleList {
 
@@ -58,27 +62,50 @@ object ArticleList {
     }
 
     @Composable
-    fun ArticleListContent(
+    fun ArticleScreen(
         modifier: Modifier = Modifier,
-        list: List<ArticleUiBean>,
-        state: LazyListState = rememberLazyListState(),
+        articleListState: ArticleListState,
     ) {
-        LazyColumn(modifier, state = state) {
-            items(list, key = { it.id }) {
-                ArticleListSingleBean(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(10.dp),
-                    bean = it
-                )
-                Divider(Modifier.fillMaxWidth())
-            }
+
+        val pullRefreshState =
+            rememberPullRefreshState(articleListState.refreshing, articleListState::refresh)
+
+        Box(modifier.pullRefresh(pullRefreshState)) {
+            ArticleListContent(
+                modifier = Modifier.matchParentSize(),
+                list = articleListState.articleList
+            )
+            PullRefreshIndicator(
+                articleListState.refreshing,
+                pullRefreshState,
+                Modifier.align(Alignment.TopCenter)
+            )
         }
+
     }
 }
 
 private val newColor = Color(0xFF789bc5)
 private val stickColor = Color(0xFFeab38d)
+
+@Composable
+private fun ArticleListContent(
+    modifier: Modifier = Modifier,
+    list: List<ArticleList.ArticleUiBean>,
+    state: LazyListState = rememberLazyListState(),
+) {
+    LazyColumn(modifier, state = state) {
+        items(list, key = { it.id }) {
+            ArticleListSingleBean(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(10.dp),
+                bean = it
+            )
+            Divider(Modifier.fillMaxWidth())
+        }
+    }
+}
 
 @Composable
 private fun ArticleListSingleBean(
