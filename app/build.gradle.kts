@@ -3,9 +3,9 @@ import org.jetbrains.kotlin.gradle.dsl.KotlinCompile
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
-    kotlin("plugin.serialization") version ("1.8.22")
     kotlin("kapt")
     id("com.google.dagger.hilt.android")
+    kotlin("plugin.serialization") version ("1.8.22")
 }
 
 android {

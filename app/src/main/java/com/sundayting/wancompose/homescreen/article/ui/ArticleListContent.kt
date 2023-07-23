@@ -2,14 +2,21 @@ package com.sundayting.wancompose.homescreen.article.ui
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.material3.Divider
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -21,6 +28,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.compose.ConstraintLayout
 import com.sundayting.wancompose.R
+import com.sundayting.wancompose.homescreen.article.ui.ArticleList.ArticleListContent
 
 object ArticleList {
 
@@ -28,6 +36,7 @@ object ArticleList {
     class ArticleUiBean(
         val title: String,
         val date: String,
+        val id: Long,
         val isStick: Boolean = false,
         val isNew: Boolean = false,
         val chapterName: String,
@@ -39,11 +48,23 @@ object ArticleList {
     }
 
     @Composable
-    fun ArticleListContent() {
-
+    fun ArticleListContent(
+        modifier: Modifier = Modifier,
+        list: List<ArticleUiBean>,
+        state: LazyListState = rememberLazyListState(),
+    ) {
+        LazyColumn(modifier, state = state) {
+            items(list, key = { it.id }) {
+                ArticleListSingleBean(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(10.dp),
+                    bean = it
+                )
+                Divider(Modifier.fillMaxWidth())
+            }
+        }
     }
-
-
 }
 
 private val newColor = Color(0xFF789bc5)
@@ -150,15 +171,36 @@ private fun ArticleListSingleBean(
 private fun PreviewArticleListSingleBean() {
     ArticleListSingleBean(
         modifier = Modifier.fillMaxWidth(),
-        bean = ArticleList.ArticleUiBean(
-            title = "我是标题我是标题我是标题我是标题我是标题我是标题",
-            date = "1小时之前",
-            isNew = true,
-            isStick = true,
-            chapterName = "干货满满",
-            shareUser = "网易"
-        )
+        bean = remember {
+            ArticleList.ArticleUiBean(
+                title = "我是标题我是标题我是标题我是标题我是标题我是标题",
+                date = "1小时之前",
+                isNew = true,
+                isStick = true,
+                chapterName = "干货满满",
+                shareUser = "网易",
+                id = 1104
+            )
+        }
     )
+}
+
+@Composable
+@Preview(showBackground = true)
+private fun PreviewArticleListContent() {
+    ArticleListContent(Modifier.fillMaxSize(), list = remember {
+        (0L..100L).map {
+            ArticleList.ArticleUiBean(
+                title = "我是标题我是标题我是标题我是标题我是标题我是标题",
+                date = "1小时之前",
+                isNew = true,
+                isStick = true,
+                chapterName = "干货满满",
+                shareUser = "网易",
+                id = it
+            )
+        }
+    })
 }
 
 

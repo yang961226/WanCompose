@@ -32,6 +32,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.sundayting.wancompose.R
 import com.sundayting.wancompose.WanComposeDestination
+import com.sundayting.wancompose.homescreen.article.ui.ArticleList
 import com.sundayting.wancompose.ui.title.TitleBar
 import kotlinx.coroutines.launch
 
@@ -58,7 +59,8 @@ object HomeScreen : WanComposeDestination {
                 modifier = Modifier
                     .fillMaxSize()
                     .weight(1f, false),
-                pagerState = pagerState
+                pagerState = pagerState,
+                homeScreenState = viewModel.homeScreenState
             )
             HomeBottomNavigation.Content(
                 modifier = Modifier.fillMaxWidth(),
@@ -86,16 +88,27 @@ object HomeScreen : WanComposeDestination {
     private fun HomeContent(
         modifier: Modifier = Modifier,
         pagerState: PagerState = rememberPagerState(),
+        homeScreenState: HomeScreenViewModel.HomeScreenState,
     ) {
 
         HorizontalPager(
             modifier = modifier,
             pageCount = 5,
             state = pagerState
-        ) {
-            Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                Text("第${it}页")
+        ) { page ->
+            if (page == 0) {
+                ArticleList.ArticleListContent(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .background(Color.White),
+                    list = homeScreenState.articleList
+                )
+            } else {
+                Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                    Text("第${page}页")
+                }
             }
+
         }
     }
 
