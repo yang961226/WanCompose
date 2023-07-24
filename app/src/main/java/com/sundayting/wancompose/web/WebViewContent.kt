@@ -1,7 +1,8 @@
 package com.sundayting.wancompose.web
 
+import android.net.Uri
+import android.webkit.WebResourceRequest
 import android.webkit.WebView
-import android.webkit.WebViewClient
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
@@ -11,7 +12,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -25,28 +25,17 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.viewinterop.AndroidView
 import androidx.navigation.NavController
 import androidx.navigation.NavType
 import androidx.navigation.navArgument
+import com.google.accompanist.web.AccompanistWebViewClient
+import com.google.accompanist.web.WebView
+import com.google.accompanist.web.WebViewState
 import com.sundayting.wancompose.R
 import com.sundayting.wancompose.WanComposeDestination
 import com.sundayting.wancompose.common.ui.title.TitleBar
 import java.net.URLEncoder
 import java.nio.charset.StandardCharsets
-
-
-@Stable
-class WebState(
-    val url: String,
-)
-
-@Composable
-fun rememberWebState(
-    url: String,
-): WebState {
-    return remember { WebState(url) }
-}
 
 object WebViewScreen : WanComposeDestination {
     override val route: String
@@ -77,7 +66,7 @@ object WebViewScreen : WanComposeDestination {
     @Composable
     fun Screen(
         modifier: Modifier = Modifier,
-        state: WebState,
+        webViewState: WebViewState,
         navController: NavController,
     ) {
 
@@ -92,18 +81,30 @@ object WebViewScreen : WanComposeDestination {
                 onClickClose = navController::popBackStack
             )
 
-            AndroidView(modifier = Modifier.fillMaxSize(), factory = {
-                val client = object : WebViewClient() {
-                    override fun onPageFinished(view: WebView, url: String) {
-                        title = view.title.orEmpty()
+            WebView(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .weight(1f, false),
+                state = webViewState,
+                client = object : AccompanistWebViewClient() {
+                    override fun shouldOverrideUrlLoading(
+                        view: WebView,
+                        request: WebResourceRequest,
+                    ): Boolean {
+                        var uri = request.url
+                        val scheme = uri.scheme
+                        if (scheme == "http") {
+                            uri = Uri.parse("https://" + uri.host + uri.path)
+                        }
+                        view.loadUrl(uri.toString())
+                        return true
+                    }
+
+                    override fun onPageFinished(view: WebView?, url: String?) {
+                        title = view?.title.orEmpty()
                     }
                 }
-                WebView(it).apply {
-                    webViewClient = client
-                }
-            }, update = {
-                it.loadUrl(state.url)
-            })
+            )
         }
 
 

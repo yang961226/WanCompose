@@ -17,11 +17,11 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
+import com.google.accompanist.web.rememberWebViewState
 import com.sundayting.wancompose.homescreen.HomeScreen
 import com.sundayting.wancompose.web.WebViewScreen
 import com.sundayting.wancompose.web.WebViewScreen.navigateToWebViewScreen
 import com.sundayting.wancompose.web.WebViewScreen.urlArg
-import com.sundayting.wancompose.web.rememberWebState
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -75,7 +75,7 @@ fun WanComposeApp() {
         ) { entry ->
             WebViewScreen.Screen(
                 Modifier.fillMaxSize(),
-                rememberWebState(url = entry.arguments?.getString(urlArg) ?: ""),
+                rememberWebViewState(url = entry.arguments?.getString(urlArg) ?: ""),
                 navController = navController
             )
         }
