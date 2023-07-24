@@ -1,6 +1,7 @@
 package com.sundayting.wancompose.homescreen.article.ui
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.interaction.collectIsDraggedAsState
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.aspectRatio
@@ -12,7 +13,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.material.pullrefresh.PullRefreshIndicator
 import androidx.compose.material.pullrefresh.pullRefresh
 import androidx.compose.material.pullrefresh.rememberPullRefreshState
@@ -20,6 +20,7 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Divider
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -39,8 +40,11 @@ import androidx.constraintlayout.compose.ConstraintLayout
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.sundayting.wancompose.R
+import com.sundayting.wancompose.common.ui.infinitepager.InfiniteLoopHorizontalPager
+import com.sundayting.wancompose.common.ui.infinitepager.rememberInfiniteLoopPagerState
 import com.sundayting.wancompose.common.ui.ktx.onBottomReached
 import com.sundayting.wancompose.homescreen.HomeScreenViewModel.ArticleListState
+import kotlinx.coroutines.delay
 
 object ArticleList {
 
@@ -120,12 +124,25 @@ private fun ArticleListContent(
     LazyColumn(modifier, state = state) {
         if (bannerList.isNotEmpty()) {
             item {
-                HorizontalPager(
+
+                val pagerState = rememberInfiniteLoopPagerState()
+
+                val isDragging by pagerState.interactionSource.collectIsDraggedAsState()
+                LaunchedEffect(isDragging) {
+                    if (!isDragging) {
+                        while (true) {
+                            delay(3000L)
+                            pagerState.animateScrollToPage(pagerState.currentPage + 1)
+                        }
+                    }
+                }
+
+                InfiniteLoopHorizontalPager(
                     modifier = Modifier
                         .fillMaxWidth()
                         .aspectRatio(2f / 1f),
                     pageCount = bannerList.size,
-                    key = { bannerList[it].id }
+                    state = pagerState
                 ) {
                     val banner = bannerList[it]
                     AsyncImage(
