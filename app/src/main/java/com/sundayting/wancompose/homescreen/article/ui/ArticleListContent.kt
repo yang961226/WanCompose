@@ -121,12 +121,11 @@ private fun ArticleListContent(
     state: LazyListState = rememberLazyListState(),
     isLoadingMore: Boolean = false,
 ) {
+
+    val pagerState = rememberInfiniteLoopPagerState()
     LazyColumn(modifier, state = state) {
         if (bannerList.isNotEmpty()) {
             item {
-
-                val pagerState = rememberInfiniteLoopPagerState()
-
                 val isDragging by pagerState.interactionSource.collectIsDraggedAsState()
                 LaunchedEffect(isDragging) {
                     if (!isDragging) {
