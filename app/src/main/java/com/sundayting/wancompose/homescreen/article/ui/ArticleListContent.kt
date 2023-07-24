@@ -1,6 +1,7 @@
 package com.sundayting.wancompose.homescreen.article.ui
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.collectIsDraggedAsState
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
@@ -41,6 +42,7 @@ import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.sundayting.wancompose.R
 import com.sundayting.wancompose.common.ui.infinitepager.InfiniteLoopHorizontalPager
+import com.sundayting.wancompose.common.ui.infinitepager.currentPageInInfinitePage
 import com.sundayting.wancompose.common.ui.infinitepager.rememberInfiniteLoopPagerState
 import com.sundayting.wancompose.common.ui.ktx.onBottomReached
 import com.sundayting.wancompose.homescreen.HomeScreenViewModel.ArticleListState
@@ -57,6 +59,7 @@ object ArticleList {
         val isNew: Boolean = false,
         val chapter: Chapter,
         val authorOrSharedUser: AuthorOrSharedUser,
+        val link: String = "",
     ) {
 
         data class Chapter(
@@ -83,6 +86,7 @@ object ArticleList {
     fun ArticleScreen(
         modifier: Modifier = Modifier,
         articleListState: ArticleListState,
+        toWebLink: (url: String) -> Unit = {},
     ) {
 
         val pullRefreshState =
@@ -98,7 +102,8 @@ object ArticleList {
                 bannerList = articleListState.bannerList,
                 list = articleListState.articleList,
                 state = lazyListState,
-                isLoadingMore = articleListState.loadingMore
+                isLoadingMore = articleListState.loadingMore,
+                toWebLink = toWebLink
             )
             PullRefreshIndicator(
                 articleListState.refreshing,
@@ -120,6 +125,7 @@ private fun ArticleListContent(
     list: List<ArticleList.ArticleUiBean>,
     state: LazyListState = rememberLazyListState(),
     isLoadingMore: Boolean = false,
+    toWebLink: (url: String) -> Unit = {},
 ) {
 
     val pagerState = rememberInfiniteLoopPagerState()
@@ -145,7 +151,13 @@ private fun ArticleListContent(
                 ) {
                     val banner = bannerList[it]
                     AsyncImage(
-                        modifier = Modifier.fillMaxSize(),
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .clickable {
+                                val clickedBanner =
+                                    bannerList[pagerState.currentPageInInfinitePage(bannerList.size)]
+                                toWebLink(clickedBanner.linkUrl)
+                            },
                         model = ImageRequest
                             .Builder(LocalContext.current)
                             .crossfade(true)
@@ -161,6 +173,9 @@ private fun ArticleListContent(
             ArticleListSingleBean(
                 modifier = Modifier
                     .fillMaxWidth()
+                    .clickable {
+                        toWebLink(it.link)
+                    }
                     .padding(10.dp),
                 bean = it
             )
@@ -304,7 +319,7 @@ private fun PreviewArticleListContent() {
                 authorOrSharedUser = ArticleList.ArticleUiBean.AuthorOrSharedUser(
                     author = "小茗同学",
                 ),
-                id = it
+                id = it,
             )
         }
     })

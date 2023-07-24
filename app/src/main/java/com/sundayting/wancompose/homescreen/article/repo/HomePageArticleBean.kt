@@ -16,6 +16,7 @@ data class ArticleBean(
     val author: String,
     val chapterName: String,
     val superChapterName: String,
+    val link: String,
 )
 
 @Serializable
@@ -63,7 +64,8 @@ fun ArticleBean.toArticleUiBean(
             author = author,
             sharedUser = shareUser
         ),
-        id = id
+        id = id,
+        link = link
     )
 }
 

@@ -44,7 +44,6 @@ fun InfiniteLoopHorizontalPager(
     ),
     pageContent: @Composable (page: Int) -> Unit,
 ) {
-    state.assertInfiniteState()
     HorizontalPager(
         modifier = modifier,
         pageCount = Int.MAX_VALUE,
@@ -75,11 +74,6 @@ fun PagerState.settledPageInInfinitePage(pageCount: Int): Int {
 
 fun PagerState.targetPageInInfinitePage(pageCount: Int): Int {
     return (targetPage - InfiniteInitialPage).myMod(pageCount)
-}
-
-
-private fun PagerState.assertInfiniteState() {
-    assert(initialPage == InfiniteInitialPage) { "请用rememberInfiniteLoopPagerState()创建PagerState" }
 }
 
 

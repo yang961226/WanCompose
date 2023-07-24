@@ -46,11 +46,12 @@ object HomeScreen : WanComposeDestination {
 
     @Composable
     fun Screen(
+        modifier: Modifier = Modifier,
         viewModel: HomeScreenViewModel = hiltViewModel(),
+        toWebLink: (String) -> Unit = {},
     ) {
         Column(
-            Modifier
-                .fillMaxSize()
+            modifier
                 .navigationBarsPadding()
         ) {
 
@@ -63,7 +64,8 @@ object HomeScreen : WanComposeDestination {
                     .fillMaxSize()
                     .weight(1f, false),
                 pagerState = pagerState,
-                articleListState = viewModel.articleListState
+                articleListState = viewModel.articleListState,
+                toWebLink = toWebLink,
             )
             HomeBottomNavigation.Content(
                 modifier = Modifier.fillMaxWidth(),
@@ -105,6 +107,7 @@ object HomeScreen : WanComposeDestination {
         modifier: Modifier = Modifier,
         pagerState: PagerState = rememberPagerState(),
         articleListState: HomeScreenViewModel.ArticleListState,
+        toWebLink: (String) -> Unit = {},
     ) {
 
         HorizontalPager(
@@ -118,6 +121,7 @@ object HomeScreen : WanComposeDestination {
                         .fillMaxSize()
                         .background(Color.White),
                     articleListState = articleListState,
+                    toWebLink = toWebLink
                 )
             } else {
                 Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
