@@ -17,8 +17,8 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.PagerState
 import androidx.compose.foundation.pager.rememberPagerState
-import androidx.compose.material3.Divider
-import androidx.compose.material3.Text
+import androidx.compose.material.Divider
+import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -49,6 +49,7 @@ object HomeScreen : WanComposeDestination {
         modifier: Modifier = Modifier,
         viewModel: HomeScreenViewModel = hiltViewModel(),
         toWebLink: (String) -> Unit = {},
+        toLogin: () -> Unit = {},
     ) {
         Column(
             modifier
@@ -71,9 +72,14 @@ object HomeScreen : WanComposeDestination {
                 modifier = Modifier.fillMaxWidth(),
                 page = pagerState.currentPage,
                 onPageChanged = {
-                    scope.launch {
-                        pagerState.animateScrollToPage(it)
+                    if (it == 4) {
+                        toLogin()
+                    } else {
+                        scope.launch {
+                            pagerState.animateScrollToPage(it)
+                        }
                     }
+
                 }
             )
         }
