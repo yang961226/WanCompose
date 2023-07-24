@@ -5,6 +5,7 @@ import io.ktor.client.HttpClient
 import io.ktor.client.engine.android.Android
 import io.ktor.client.plugins.HttpTimeout
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
+import io.ktor.client.plugins.cookies.HttpCookies
 import io.ktor.client.plugins.defaultRequest
 import io.ktor.client.plugins.logging.LogLevel
 import io.ktor.client.plugins.logging.Logger
@@ -19,6 +20,7 @@ object Ktor {
     val client = HttpClient(Android) {
         expectSuccess = true
         install(Resources)
+        install(HttpCookies)
         install(ContentNegotiation) {
             json(json = Json {
                 ignoreUnknownKeys = true

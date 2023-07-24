@@ -39,6 +39,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.compose.ConstraintLayout
 import coil.compose.AsyncImage
+import coil.request.CachePolicy
 import coil.request.ImageRequest
 import com.sundayting.wancompose.R
 import com.sundayting.wancompose.common.ui.infinitepager.InfiniteLoopHorizontalPager
@@ -160,6 +161,7 @@ private fun ArticleListContent(
                             },
                         model = ImageRequest
                             .Builder(LocalContext.current)
+                            .diskCachePolicy(CachePolicy.ENABLED)
                             .crossfade(true)
                             .data(banner.imgUrl)
                             .build(),
