@@ -9,11 +9,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.BottomNavigation
-import androidx.compose.material.BottomNavigationItem
-import androidx.compose.material.Icon
 import androidx.compose.material.ModalBottomSheetLayout
 import androidx.compose.material.ModalBottomSheetValue
 import androidx.compose.material.Scaffold
@@ -29,11 +25,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.core.view.WindowCompat
-import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
@@ -98,33 +91,7 @@ fun WanComposeApp() {
                 if (currentDestination?.route?.let { curRoute ->
                         HomeScreen.pageList.any { it.route == curRoute }
                     } == true) {
-                    BottomNavigation(backgroundColor = Color(0xFF5380ec)) {
-                        HomeScreen.bottomItemList.forEach { bottomItem ->
-                            BottomNavigationItem(
-                                unselectedContentColor = Color.White,
-                                selected = false,
-                                onClick = {
-                                    navController.navigate(bottomItem.page.route) {
-                                        popUpTo(navController.graph.findStartDestination().id) {
-                                            saveState = true
-                                        }
-                                        launchSingleTop = true
-                                        restoreState = true
-                                    }
-                                },
-                                icon = {
-                                    Icon(
-                                        painter = painterResource(id = bottomItem.resId),
-                                        contentDescription = null,
-                                        modifier = Modifier.size(25.dp)
-                                    )
-                                },
-                                label = {
-                                    Text(stringResource(id = bottomItem.titleId))
-                                }
-                            )
-                        }
-                    }
+                    HomeScreen.Navigation(navController = navController)
                 }
             }
         ) {

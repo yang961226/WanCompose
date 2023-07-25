@@ -17,9 +17,14 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.PagerState
 import androidx.compose.foundation.pager.rememberPagerState
+import androidx.compose.material.BottomNavigation
+import androidx.compose.material.BottomNavigationItem
 import androidx.compose.material.Divider
+import androidx.compose.material.Icon
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
@@ -33,9 +38,11 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.composable
+import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.navigation
 import com.sundayting.wancompose.R
 import com.sundayting.wancompose.WanComposeDestination
@@ -94,6 +101,49 @@ object HomeScreen : WanComposeDestination {
             page = HomeScreenPage.Mine
         ),
     )
+
+    @Composable
+    fun Navigation(
+        navController: NavHostController,
+    ) {
+
+        val entry by navController.currentBackStackEntryAsState()
+        val curRoute by remember {
+            derivedStateOf {
+                entry?.destination?.route
+            }
+        }
+        BottomNavigation(
+            backgroundColor = Color.White,
+        ) {
+            bottomItemList.forEach { bottomItem ->
+                BottomNavigationItem(
+                    selectedContentColor = Color(0xFF5380ec),
+                    unselectedContentColor = Color.Gray,
+                    selected = bottomItem.page.route == curRoute,
+                    onClick = {
+                        navController.navigate(bottomItem.page.route) {
+                            popUpTo(navController.graph.findStartDestination().id) {
+                                saveState = true
+                            }
+                            launchSingleTop = true
+                            restoreState = true
+                        }
+                    },
+                    icon = {
+                        Icon(
+                            painter = painterResource(id = bottomItem.resId),
+                            contentDescription = null,
+                            modifier = Modifier.size(25.dp)
+                        )
+                    },
+                    label = {
+                        Text(stringResource(id = bottomItem.titleId))
+                    }
+                )
+            }
+        }
+    }
 
     fun NavGraphBuilder.homeNavGraph(
         navController: NavHostController,
