@@ -125,7 +125,7 @@ object HomeScreen : WanComposeDestination {
                             .background(Color(0xFF5380ec))
                     ) {
                         Text(
-                            "标题", style = TextStyle(
+                            stringResource(id = R.string.bottom_tab_home), style = TextStyle(
                                 fontSize = 16.sp, color = Color.White
                             ), modifier = Modifier.align(Alignment.Center)
                         )

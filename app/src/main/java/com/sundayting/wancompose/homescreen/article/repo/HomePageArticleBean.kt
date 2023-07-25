@@ -39,6 +39,7 @@ data class HomePageBannerResultBean(
     val imagePath: String,
     val url: String,
     val id: Int,
+    val title: String,
 )
 
 @Serializable
@@ -73,6 +74,7 @@ fun HomePageBannerResultBean.toBannerUiBean(): ArticleList.BannerUiBean {
     return ArticleList.BannerUiBean(
         imgUrl = imagePath,
         linkUrl = url,
-        id = id
+        id = id,
+        title = title,
     )
 }

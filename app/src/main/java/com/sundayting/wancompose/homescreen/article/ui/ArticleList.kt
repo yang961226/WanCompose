@@ -1,6 +1,7 @@
 package com.sundayting.wancompose.homescreen.article.ui
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.collectIsDraggedAsState
 import androidx.compose.foundation.layout.Box
@@ -27,6 +28,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -35,8 +37,10 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.AsyncImage
@@ -82,6 +86,7 @@ object ArticleList {
         val imgUrl: String,
         val linkUrl: String,
         val id: Int,
+        val title: String,
     )
 
     @Composable
@@ -144,32 +149,65 @@ private fun ArticleListContent(
                     }
                 }
 
-                InfiniteLoopHorizontalPager(
-                    modifier = Modifier
+                Box(
+                    Modifier
                         .fillMaxWidth()
-                        .aspectRatio(2f / 1f),
-                    pageCount = bannerList.size,
-                    state = pagerState
+                        .aspectRatio(2f / 1f)
                 ) {
-                    val banner = bannerList[it]
-                    AsyncImage(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .clickable {
-                                val clickedBanner =
-                                    bannerList[pagerState.currentPageInInfinitePage(bannerList.size)]
-                                toWebLink(clickedBanner.linkUrl)
-                            },
-                        model = ImageRequest
-                            .Builder(LocalContext.current)
-                            .diskCachePolicy(CachePolicy.ENABLED)
-                            .crossfade(true)
-                            .data(banner.imgUrl)
-                            .build(),
-                        contentDescription = null,
-                        contentScale = ContentScale.Crop
-                    )
+
+                    var curTitle by remember { mutableStateOf<String?>(null) }
+
+                    LaunchedEffect(Unit) {
+                        snapshotFlow { pagerState.currentPageInInfinitePage(bannerList.size) }.collect {
+                            curTitle = bannerList.getOrNull(it)?.title
+                        }
+                    }
+
+                    InfiniteLoopHorizontalPager(
+                        modifier = Modifier.matchParentSize(),
+                        pageCount = bannerList.size,
+                        state = pagerState
+                    ) {
+                        val banner = bannerList[it]
+                        AsyncImage(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .clickable {
+                                    val clickedBanner =
+                                        bannerList[pagerState.currentPageInInfinitePage(bannerList.size)]
+                                    toWebLink(clickedBanner.linkUrl)
+                                },
+                            model = ImageRequest
+                                .Builder(LocalContext.current)
+                                .diskCachePolicy(CachePolicy.ENABLED)
+                                .crossfade(true)
+                                .data(banner.imgUrl)
+                                .build(),
+                            contentDescription = null,
+                            contentScale = ContentScale.Crop
+                        )
+                    }
+
+                    Box(
+                        Modifier
+                            .align(Alignment.BottomCenter)
+                            .background(Color.Black.copy(0.2f))
+                            .padding(2.dp)
+                            .fillMaxWidth()
+                    ) {
+                        Text(
+                            text = curTitle.orEmpty(),
+                            style = TextStyle(
+                                fontSize = 14.sp,
+                                color = Color.White
+                            ),
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis,
+                            modifier = Modifier.fillMaxWidth(0.5f)
+                        )
+                    }
                 }
+
             }
         }
         items(list, key = { it.id }) {
