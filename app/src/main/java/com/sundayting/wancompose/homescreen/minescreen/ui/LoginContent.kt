@@ -1,5 +1,10 @@
 package com.sundayting.wancompose.homescreen.minescreen.ui
 
+import androidx.compose.animation.core.InfiniteRepeatableSpec
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -36,7 +41,9 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.composed
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.Path
@@ -50,10 +57,16 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.sundayting.wancompose.R
+import com.sundayting.wancompose.WanViewModel
 import kotlinx.coroutines.launch
 
 @Composable
-fun LoginContent(modifier: Modifier = Modifier, pagerState: PagerState = rememberPagerState()) {
+fun LoginContent(
+    modifier: Modifier = Modifier,
+    loadingOrRegisterState: WanViewModel.LoginOrRegisterState,
+    pagerState: PagerState = rememberPagerState(),
+    onClickLogin: (username: String, password: String) -> Unit = { _, _ -> },
+) {
     Box(
         modifier
             .fillMaxWidth()
@@ -98,6 +111,23 @@ fun LoginContent(modifier: Modifier = Modifier, pagerState: PagerState = remembe
                 painter = painterResource(id = R.drawable.ic_login_icon),
                 contentDescription = null,
                 modifier = Modifier
+                    .composed {
+                        if (loadingOrRegisterState.isLoading) {
+                            val rotateTransition = rememberInfiniteTransition(label = "")
+                            val degree by rotateTransition.animateFloat(
+                                initialValue = 0f,
+                                targetValue = 360f,
+                                animationSpec = InfiniteRepeatableSpec(
+                                    animation = tween(durationMillis = 2500),
+                                    repeatMode = RepeatMode.Restart
+                                ),
+                                label = ""
+                            )
+                            Modifier.rotate(degree)
+                        } else {
+                            Modifier
+                        }
+                    }
                     .size(120.dp)
             )
             Text(
@@ -133,7 +163,7 @@ fun LoginContent(modifier: Modifier = Modifier, pagerState: PagerState = remembe
                             scope.launch {
                                 pagerState.animateScrollToPage(1)
                             }
-                        })
+                        }, onClickConfirm = onClickLogin)
                     }
 
                     1 -> {
@@ -156,7 +186,7 @@ private val titleColor = Color(0xFF4e82e1)
 @Composable
 private fun LoginPage(
     modifier: Modifier = Modifier,
-    onClickConfirm: () -> Unit = {},
+    onClickConfirm: (username: String, password: String) -> Unit = { _, _ -> },
     onToRegister: () -> Unit = {},
 ) {
     Column(modifier, horizontalAlignment = Alignment.CenterHorizontally) {
@@ -180,14 +210,14 @@ private fun LoginPage(
             )
         }
 
-        var account by remember { mutableStateOf("") }
+        var username by remember { mutableStateOf("") }
         var password by remember { mutableStateOf("") }
 
         Spacer(Modifier.height(20.dp))
 
         OutlinedTextField(
-            value = account,
-            onValueChange = { account = it },
+            value = username,
+            onValueChange = { username = it },
             maxLines = 1,
             label = { Text(stringResource(id = R.string.please_input_account)) },
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
@@ -233,13 +263,15 @@ private fun LoginPage(
 
         val buttonEnable by remember {
             derivedStateOf {
-                account.isNotEmpty() && password.isNotEmpty()
+                username.isNotEmpty() && password.isNotEmpty()
             }
         }
 
         Button(
             enabled = buttonEnable,
-            onClick = { }, colors = ButtonDefaults.buttonColors(
+            onClick = {
+                onClickConfirm(username, password)
+            }, colors = ButtonDefaults.buttonColors(
                 backgroundColor = titleColor
             ),
             shape = RoundedCornerShape(50),
@@ -385,5 +417,7 @@ private fun RegisterPage(
 @Composable
 @Preview
 private fun PreviewLoginContent() {
-    LoginContent()
+    LoginContent(
+        loadingOrRegisterState = WanViewModel.LoginOrRegisterState()
+    )
 }

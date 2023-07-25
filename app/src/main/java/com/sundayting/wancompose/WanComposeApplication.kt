@@ -6,5 +6,16 @@ import dagger.hilt.android.HiltAndroidApp
 @HiltAndroidApp
 class WanComposeApplication : Application() {
 
+    companion object {
+
+        lateinit var instance: WanComposeApplication
+
+    }
+
+    override fun onCreate() {
+        super.onCreate()
+        instance = this
+    }
+
 
 }

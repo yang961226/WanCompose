@@ -22,6 +22,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.core.view.WindowCompat
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -55,7 +56,9 @@ interface WanComposeDestination {
 
 
 @Composable
-fun WanComposeApp() {
+fun WanComposeApp(
+    viewModel: WanViewModel = viewModel(),
+) {
 
     val coroutineScope = rememberCoroutineScope()
 
@@ -69,7 +72,13 @@ fun WanComposeApp() {
         sheetState = modalSheetState,
         sheetShape = RoundedCornerShape(topStart = 12.dp, topEnd = 12.dp),
         sheetContent = {
-            LoginContent(Modifier.fillMaxWidth(), bottomSheetPagerState)
+            LoginContent(
+                Modifier.fillMaxWidth(),
+                viewModel.loginOrRegisterState,
+                onClickLogin = { username, password ->
+                    viewModel.login(username, password)
+                }
+            )
         },
     ) {
         val navController = rememberNavController()
