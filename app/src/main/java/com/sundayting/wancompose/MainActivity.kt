@@ -3,8 +3,6 @@ package com.sundayting.wancompose
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.annotation.DrawableRes
-import androidx.annotation.StringRes
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -62,34 +60,6 @@ interface WanComposeDestination {
 
 }
 
-private data class BottomItem(
-    @DrawableRes val resId: Int,
-    @StringRes val titleId: Int,
-)
-
-private val list = listOf(
-    BottomItem(
-        resId = R.drawable.ic_home,
-        titleId = R.string.bottom_tab_home
-    ),
-    BottomItem(
-        resId = R.drawable.ic_system,
-        titleId = R.string.bottom_tab_system
-    ),
-    BottomItem(
-        resId = R.drawable.ic_project,
-        titleId = R.string.bottom_tab_project
-    ),
-    BottomItem(
-        resId = R.drawable.ic_official_account,
-        titleId = R.string.bottom_tab_official_account
-    ),
-    BottomItem(
-        resId = R.drawable.ic_mine,
-        titleId = R.string.bottom_tab_mine
-    ),
-)
-
 
 @Composable
 fun WanComposeApp() {
@@ -125,26 +95,20 @@ fun WanComposeApp() {
             bottomBar = {
                 val navBackStackEntry by navController.currentBackStackEntryAsState()
                 val currentDestination = navBackStackEntry?.destination
-                if (currentDestination?.route?.let {
-                        it == "1" || it == "2" || it == "5" || it == "3" || it == "4"
+                if (currentDestination?.route?.let { curRoute ->
+                        HomeScreen.pageList.any { it.route == curRoute }
                     } == true) {
                     BottomNavigation(backgroundColor = Color(0xFF5380ec)) {
-                        list.forEachIndexed { index, bottomItem ->
+                        HomeScreen.bottomItemList.forEach { bottomItem ->
                             BottomNavigationItem(
                                 unselectedContentColor = Color.White,
                                 selected = false,
                                 onClick = {
-                                    navController.navigate("${index + 1}") {
-                                        // Pop up to the start destination of the graph to
-                                        // avoid building up a large stack of destinations
-                                        // on the back stack as users select items
+                                    navController.navigate(bottomItem.page.route) {
                                         popUpTo(navController.graph.findStartDestination().id) {
                                             saveState = true
                                         }
-                                        // Avoid multiple copies of the same destination when
-                                        // reselecting the same item
                                         launchSingleTop = true
-                                        // Restore state when reselecting a previously selected item
                                         restoreState = true
                                     }
                                 },

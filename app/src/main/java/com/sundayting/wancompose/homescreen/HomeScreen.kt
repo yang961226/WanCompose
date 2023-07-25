@@ -48,11 +48,58 @@ object HomeScreen : WanComposeDestination {
     override val route: String
         get() = "首页"
 
+    sealed class HomeScreenPage(
+        val route: String,
+    ) {
+
+        object ArticleList : HomeScreenPage("文章列表")
+        object System : HomeScreenPage("体系")
+        object Mine : HomeScreenPage("我的")
+
+
+        data class BottomItem(
+            @DrawableRes val resId: Int,
+            @StringRes val titleId: Int,
+            val page: HomeScreenPage,
+        )
+
+    }
+
+    val pageList = listOf(
+        HomeScreenPage.ArticleList, HomeScreenPage.System, HomeScreenPage.Mine
+    )
+
+    val bottomItemList = listOf(
+        HomeScreenPage.BottomItem(
+            resId = R.drawable.ic_home,
+            titleId = R.string.bottom_tab_home,
+            page = HomeScreenPage.ArticleList
+        ),
+        HomeScreenPage.BottomItem(
+            resId = R.drawable.ic_system,
+            titleId = R.string.bottom_tab_system,
+            page = HomeScreenPage.System
+        ),
+//    BottomItem(
+//        resId = R.drawable.ic_project,
+//        titleId = R.string.bottom_tab_project
+//    ),
+//    BottomItem(
+//        resId = R.drawable.ic_official_account,
+//        titleId = R.string.bottom_tab_official_account
+//    ),
+        HomeScreenPage.BottomItem(
+            resId = R.drawable.ic_mine,
+            titleId = R.string.bottom_tab_mine,
+            page = HomeScreenPage.Mine
+        ),
+    )
+
     fun NavGraphBuilder.homeNavGraph(
         navController: NavHostController,
     ) {
-        navigation(route = HomeScreen.route, startDestination = "1") {
-            composable("1") {
+        navigation(route = HomeScreen.route, startDestination = HomeScreenPage.ArticleList.route) {
+            composable(HomeScreenPage.ArticleList.route) {
                 Column(Modifier.fillMaxSize()) {
                     TitleBar(
                         Modifier
@@ -70,26 +117,14 @@ object HomeScreen : WanComposeDestination {
                     }
                 }
             }
-            composable("2") {
+            composable(HomeScreenPage.System.route) {
                 Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                     Text("我是2")
                 }
             }
-            composable("3") {
+            composable(HomeScreenPage.Mine.route) {
                 Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                     Text("我是3")
-                }
-            }
-            composable("4") {
-                Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                    Text("我是4")
-                }
-            }
-            composable("5") {
-                Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                    Text("我是5", modifier = Modifier.clickable {
-                        navController.navigate("otherPage")
-                    })
                 }
             }
         }
