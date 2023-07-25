@@ -3,10 +3,12 @@ package com.sundayting.wancompose
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.animation.core.snap
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.ModalBottomSheetLayout
 import androidx.compose.material.ModalBottomSheetValue
@@ -62,12 +64,13 @@ fun WanComposeApp() {
         confirmValueChange = { it != ModalBottomSheetValue.HalfExpanded },
         skipHalfExpanded = true
     )
+    val bottomSheetPagerState = rememberPagerState()
     ModalBottomSheetLayout(
         sheetState = modalSheetState,
         sheetShape = RoundedCornerShape(topStart = 12.dp, topEnd = 12.dp),
         sheetContent = {
-            LoginContent(Modifier.fillMaxWidth())
-        }
+            LoginContent(Modifier.fillMaxWidth(), bottomSheetPagerState)
+        },
     ) {
         val navController = rememberNavController()
         val uiController = rememberSystemUiController()
@@ -82,13 +85,17 @@ fun WanComposeApp() {
                 val navBackStackEntry by navController.currentBackStackEntryAsState()
                 val currentDestination = navBackStackEntry?.destination
                 if (currentDestination?.route?.let { curRoute ->
-                        HomeScreen.pageList.any { it.route == curRoute }
+                        HomeScreen.pageList.any { it.page.route == curRoute }
                     } == true) {
                     HomeScreen.Navigation(
                         navController = navController,
                         onClickBottom = { bottomItem ->
                             if (bottomItem.page == HomeScreen.HomeScreenPage.Mine) {
                                 coroutineScope.launch {
+                                    bottomSheetPagerState.animateScrollToPage(
+                                        0,
+                                        animationSpec = snap()
+                                    )
                                     modalSheetState.show()
                                 }
                             } else {

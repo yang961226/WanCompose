@@ -17,6 +17,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.PagerState
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
@@ -52,7 +53,7 @@ import com.sundayting.wancompose.R
 import kotlinx.coroutines.launch
 
 @Composable
-fun LoginContent(modifier: Modifier = Modifier) {
+fun LoginContent(modifier: Modifier = Modifier, pagerState: PagerState = rememberPagerState()) {
     Box(
         modifier
             .fillMaxWidth()
@@ -115,7 +116,7 @@ fun LoginContent(modifier: Modifier = Modifier) {
                     fontSize = 12.sp
                 ),
             )
-            val horizontalPagerState = rememberPagerState()
+
             val scope = rememberCoroutineScope()
 
             HorizontalPager(
@@ -124,13 +125,13 @@ fun LoginContent(modifier: Modifier = Modifier) {
                     .padding(top = 50.dp)
                     .fillMaxWidth()
                     .height(350.dp),
-                state = horizontalPagerState
+                state = pagerState
             ) { page ->
                 when (page) {
                     0 -> {
                         LoginPage(Modifier.fillMaxSize(), onToRegister = {
                             scope.launch {
-                                horizontalPagerState.animateScrollToPage(1)
+                                pagerState.animateScrollToPage(1)
                             }
                         })
                     }
@@ -138,7 +139,7 @@ fun LoginContent(modifier: Modifier = Modifier) {
                     1 -> {
                         RegisterPage(Modifier.fillMaxSize(), onToLogin = {
                             scope.launch {
-                                horizontalPagerState.animateScrollToPage(0)
+                                pagerState.animateScrollToPage(0)
                             }
                         })
                     }
