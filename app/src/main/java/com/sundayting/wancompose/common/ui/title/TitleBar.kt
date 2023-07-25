@@ -25,7 +25,7 @@ fun TitleBar(
             .fillMaxWidth()
             .background(backgroundColor)
             .statusBarsPadding()
-            .height(35.dp),
+            .height(45.dp),
     ) {
         content()
     }

@@ -33,6 +33,10 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavGraphBuilder
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.composable
+import androidx.navigation.navigation
 import com.sundayting.wancompose.R
 import com.sundayting.wancompose.WanComposeDestination
 import com.sundayting.wancompose.common.ui.title.TitleBar
@@ -43,6 +47,53 @@ object HomeScreen : WanComposeDestination {
 
     override val route: String
         get() = "首页"
+
+    fun NavGraphBuilder.homeNavGraph(
+        navController: NavHostController,
+    ) {
+        navigation(route = HomeScreen.route, startDestination = "1") {
+            composable("1") {
+                Column(Modifier.fillMaxSize()) {
+                    TitleBar(
+                        Modifier
+                            .fillMaxWidth()
+                            .background(Color(0xFF5380ec))
+                    ) {
+                        Text(
+                            "标题", style = TextStyle(
+                                fontSize = 16.sp, color = Color.White
+                            ), modifier = Modifier.align(Alignment.Center)
+                        )
+                    }
+                    Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                        Text("我是1")
+                    }
+                }
+            }
+            composable("2") {
+                Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                    Text("我是2")
+                }
+            }
+            composable("3") {
+                Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                    Text("我是3")
+                }
+            }
+            composable("4") {
+                Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                    Text("我是4")
+                }
+            }
+            composable("5") {
+                Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                    Text("我是5", modifier = Modifier.clickable {
+                        navController.navigate("otherPage")
+                    })
+                }
+            }
+        }
+    }
 
     @Composable
     fun Screen(
