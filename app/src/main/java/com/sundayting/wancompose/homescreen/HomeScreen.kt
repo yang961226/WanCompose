@@ -11,12 +11,8 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.pager.HorizontalPager
-import androidx.compose.foundation.pager.PagerState
-import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material.BottomNavigation
 import androidx.compose.material.BottomNavigationItem
 import androidx.compose.material.Divider
@@ -26,7 +22,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -37,8 +32,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.composable
@@ -48,7 +41,7 @@ import com.sundayting.wancompose.R
 import com.sundayting.wancompose.WanComposeDestination
 import com.sundayting.wancompose.common.ui.title.TitleBar
 import com.sundayting.wancompose.homescreen.article.ui.ArticleList
-import kotlinx.coroutines.launch
+import com.sundayting.wancompose.web.WebViewScreen.navigateToWebViewScreen
 
 object HomeScreen : WanComposeDestination {
 
@@ -105,6 +98,7 @@ object HomeScreen : WanComposeDestination {
     @Composable
     fun Navigation(
         navController: NavHostController,
+        onClickBottom: (HomeScreenPage.BottomItem) -> Unit = {},
     ) {
 
         val entry by navController.currentBackStackEntryAsState()
@@ -122,13 +116,7 @@ object HomeScreen : WanComposeDestination {
                     unselectedContentColor = Color.Gray,
                     selected = bottomItem.page.route == curRoute,
                     onClick = {
-                        navController.navigate(bottomItem.page.route) {
-                            popUpTo(navController.graph.findStartDestination().id) {
-                                saveState = true
-                            }
-                            launchSingleTop = true
-                            restoreState = true
-                        }
+                        onClickBottom(bottomItem)
                     },
                     icon = {
                         Icon(
@@ -162,9 +150,12 @@ object HomeScreen : WanComposeDestination {
                             ), modifier = Modifier.align(Alignment.Center)
                         )
                     }
-                    Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                        Text("我是1")
-                    }
+                    ArticleList.Screen(
+                        modifier = Modifier.fillMaxSize(),
+                        toWebLink = {
+                            navController.navigateToWebViewScreen(it)
+                        }
+                    )
                 }
             }
             composable(HomeScreenPage.System.route) {
@@ -180,46 +171,46 @@ object HomeScreen : WanComposeDestination {
         }
     }
 
-    @Composable
-    fun Screen(
-        modifier: Modifier = Modifier,
-        viewModel: HomeScreenViewModel = hiltViewModel(),
-        toWebLink: (String) -> Unit = {},
-        toLogin: () -> Unit = {},
-    ) {
-        Column(
-            modifier
-                .navigationBarsPadding()
-        ) {
-
-            val pagerState = rememberPagerState()
-            val scope = rememberCoroutineScope()
-
-            HomeTitle()
-            HomeContent(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .weight(1f, false),
-                pagerState = pagerState,
-                articleListState = viewModel.articleListState,
-                toWebLink = toWebLink,
-            )
-            HomeBottomNavigation.Content(
-                modifier = Modifier.fillMaxWidth(),
-                page = pagerState.currentPage,
-                onPageChanged = {
-                    if (it == 4) {
-                        toLogin()
-                    } else {
-                        scope.launch {
-                            pagerState.animateScrollToPage(it)
-                        }
-                    }
-
-                }
-            )
-        }
-    }
+//    @Composable
+//    fun Screen(
+//        modifier: Modifier = Modifier,
+//        viewModel: HomeScreenViewModel = hiltViewModel(),
+//        toWebLink: (String) -> Unit = {},
+//        toLogin: () -> Unit = {},
+//    ) {
+//        Column(
+//            modifier
+//                .navigationBarsPadding()
+//        ) {
+//
+//            val pagerState = rememberPagerState()
+//            val scope = rememberCoroutineScope()
+//
+//            HomeTitle()
+//            HomeContent(
+//                modifier = Modifier
+//                    .fillMaxSize()
+//                    .weight(1f, false),
+//                pagerState = pagerState,
+//                articleListState = viewModel.articleListState,
+//                toWebLink = toWebLink,
+//            )
+//            HomeBottomNavigation.Content(
+//                modifier = Modifier.fillMaxWidth(),
+//                page = pagerState.currentPage,
+//                onPageChanged = {
+//                    if (it == 4) {
+//                        toLogin()
+//                    } else {
+//                        scope.launch {
+//                            pagerState.animateScrollToPage(it)
+//                        }
+//                    }
+//
+//                }
+//            )
+//        }
+//    }
 
     @Composable
     private fun HomeTitle(modifier: Modifier = Modifier) {
@@ -244,35 +235,35 @@ object HomeScreen : WanComposeDestination {
         }
     }
 
-    @Composable
-    private fun HomeContent(
-        modifier: Modifier = Modifier,
-        pagerState: PagerState = rememberPagerState(),
-        articleListState: HomeScreenViewModel.ArticleListState,
-        toWebLink: (String) -> Unit = {},
-    ) {
-
-        HorizontalPager(
-            modifier = modifier,
-            pageCount = 5,
-            state = pagerState
-        ) { page ->
-            if (page == 0) {
-                ArticleList.ArticleScreen(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .background(Color.White),
-                    articleListState = articleListState,
-                    toWebLink = toWebLink
-                )
-            } else {
-                Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                    Text("第${page}页")
-                }
-            }
-
-        }
-    }
+//    @Composable
+//    private fun HomeContent(
+//        modifier: Modifier = Modifier,
+//        pagerState: PagerState = rememberPagerState(),
+//        articleListState: HomeScreenViewModel.ArticleListState,
+//        toWebLink: (String) -> Unit = {},
+//    ) {
+//
+//        HorizontalPager(
+//            modifier = modifier,
+//            pageCount = 5,
+//            state = pagerState
+//        ) { page ->
+//            if (page == 0) {
+//                ArticleList.ArticleScreen(
+//                    modifier = Modifier
+//                        .fillMaxSize()
+//                        .background(Color.White),
+//                    articleListState = articleListState,
+//                    toWebLink = toWebLink
+//                )
+//            } else {
+//                Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+//                    Text("第${page}页")
+//                }
+//            }
+//
+//        }
+//    }
 
     private object HomeBottomNavigation {
 

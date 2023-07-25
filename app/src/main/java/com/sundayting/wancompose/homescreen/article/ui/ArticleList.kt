@@ -38,6 +38,7 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.compose.ConstraintLayout
+import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.AsyncImage
 import coil.request.CachePolicy
 import coil.request.ImageRequest
@@ -46,7 +47,7 @@ import com.sundayting.wancompose.common.ui.infinitepager.InfiniteLoopHorizontalP
 import com.sundayting.wancompose.common.ui.infinitepager.currentPageInInfinitePage
 import com.sundayting.wancompose.common.ui.infinitepager.rememberInfiniteLoopPagerState
 import com.sundayting.wancompose.common.ui.ktx.onBottomReached
-import com.sundayting.wancompose.homescreen.HomeScreenViewModel.ArticleListState
+import com.sundayting.wancompose.homescreen.article.ArticleListViewModel
 import kotlinx.coroutines.delay
 
 object ArticleList {
@@ -84,30 +85,30 @@ object ArticleList {
     )
 
     @Composable
-    fun ArticleScreen(
+    fun Screen(
         modifier: Modifier = Modifier,
-        articleListState: ArticleListState,
+        viewModel: ArticleListViewModel = hiltViewModel(),
         toWebLink: (url: String) -> Unit = {},
     ) {
 
         val pullRefreshState =
-            rememberPullRefreshState(articleListState.refreshing, articleListState::refresh)
+            rememberPullRefreshState(viewModel.refreshing, viewModel::refresh)
 
         Box(modifier.pullRefresh(pullRefreshState)) {
             val lazyListState = rememberLazyListState()
             lazyListState.onBottomReached {
-                articleListState.loadMore()
+                viewModel.loadMore()
             }
             ArticleListContent(
                 modifier = Modifier.matchParentSize(),
-                bannerList = articleListState.bannerList,
-                list = articleListState.articleList,
+                bannerList = viewModel.bannerList,
+                list = viewModel.articleList,
                 state = lazyListState,
-                isLoadingMore = articleListState.loadingMore,
+                isLoadingMore = viewModel.loadingMore,
                 toWebLink = toWebLink
             )
             PullRefreshIndicator(
-                articleListState.refreshing,
+                viewModel.refreshing,
                 pullRefreshState,
                 Modifier.align(Alignment.TopCenter)
             )
