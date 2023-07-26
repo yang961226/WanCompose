@@ -27,7 +27,13 @@ class NetResultResponseConverterFactory : Converter.Factory {
             return object : Converter.SuspendResponseConverter<HttpResponse, Any> {
                 override suspend fun convert(response: HttpResponse): Any {
                     return try {
-                        NetResult.success(response.body(typeData.typeArgs.first().typeInfo))
+                        val result =
+                            response.body<WanNetResult<*>>(typeData.typeArgs.first().typeInfo)
+                        if (result.errorCode == -1001) {
+                            return NetResult.error(Exception())
+                        } else {
+                            NetResult.success(result)
+                        }
                     } catch (ex: Throwable) {
                         NetResult.error(ex)
                     }

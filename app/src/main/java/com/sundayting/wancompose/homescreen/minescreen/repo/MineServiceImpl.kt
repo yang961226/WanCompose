@@ -1,6 +1,5 @@
 package com.sundayting.wancompose.homescreen.minescreen.repo
 
-import com.sundayting.wancompose.network.NetResult
 import io.ktor.client.HttpClient
 import io.ktor.resources.Resource
 import kotlinx.serialization.Serializable
@@ -10,7 +9,7 @@ import javax.inject.Singleton
 @Singleton
 class MineServiceImpl @Inject constructor(
     private val client: HttpClient,
-) : MineService {
+) {
 
 
     @Resource("/user")
@@ -36,9 +35,9 @@ class MineServiceImpl @Inject constructor(
         val password: String,
     )
 
-    override suspend fun login(username: String, password: String): NetResult<Any> {
-        TODO("Not yet implemented")
-    }
+//    override suspend fun login(username: String, password: String): NetResult<Any> {
+//        TODO("Not yet implemented")
+//    }
 
 //    override suspend fun login(username: String, password: String): MineService.LoginBean {
 //        return client.post(

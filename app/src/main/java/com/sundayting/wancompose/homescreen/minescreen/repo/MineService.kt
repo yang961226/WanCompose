@@ -8,20 +8,21 @@ import de.jensklingenberg.ktorfit.http.POST
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.JsonElement
 
+@Serializable
+class LoginBean(
+    override val data: JsonElement?,
+    override val errorCode: Int,
+    override val errorMsg: String,
+) : WanNetResult<JsonElement>()
+
 interface MineService {
 
-    @Serializable
-    class LoginBean(
-        override val data: JsonElement?,
-        override val errorCode: Int,
-        override val errorMsg: String,
-    ) : WanNetResult<JsonElement>()
 
     @POST("user/login")
     @FormUrlEncoded
     suspend fun login(
         @Field("username") username: String,
         @Field("password") password: String,
-    ): NetResult<Any>
+    ): NetResult<LoginBean>
 
 }
