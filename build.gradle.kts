@@ -4,3 +4,7 @@ plugins {
     id("org.jetbrains.kotlin.android") version "1.8.22" apply false
     id("com.google.dagger.hilt.android") version "2.44" apply false
 }
+
+//configure<de.jensklingenberg.ktorfit.gradle.KtorfitGradleConfiguration> {
+//    version = "1.4.3"
+//}

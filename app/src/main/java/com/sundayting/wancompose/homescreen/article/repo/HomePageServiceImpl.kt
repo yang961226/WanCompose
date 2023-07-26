@@ -1,14 +1,16 @@
 package com.sundayting.wancompose.homescreen.article.repo
 
-import com.sundayting.wancompose.network.Ktor
+import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.plugins.resources.get
 import io.ktor.resources.Resource
 import javax.inject.Inject
+import javax.inject.Singleton
 
-class HomePageServiceImpl @Inject constructor() : HomePageService {
-
-    private val client = Ktor.client
+@Singleton
+class HomePageServiceImpl @Inject constructor(
+    private val client: HttpClient,
+) : HomePageService {
 
     @Resource("/article")
     private class Article {

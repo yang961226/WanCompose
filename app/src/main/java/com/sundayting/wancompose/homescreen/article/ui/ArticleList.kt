@@ -192,7 +192,7 @@ private fun ArticleListContent(
                         Modifier
                             .align(Alignment.BottomCenter)
                             .background(Color.Black.copy(0.2f))
-                            .padding(2.dp)
+                            .padding(vertical = 2.dp, horizontal = 5.dp)
                             .fillMaxWidth()
                     ) {
                         Text(

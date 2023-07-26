@@ -3,11 +3,12 @@ package com.sundayting.wancompose
 import com.sundayting.wancompose.homescreen.article.repo.HomePageService
 import com.sundayting.wancompose.homescreen.article.repo.HomePageServiceImpl
 import com.sundayting.wancompose.homescreen.minescreen.repo.MineService
-import com.sundayting.wancompose.homescreen.minescreen.repo.MineServiceImpl
 import dagger.Binds
 import dagger.Module
+import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
+import de.jensklingenberg.ktorfit.Ktorfit
 import javax.inject.Singleton
 
 @Module
@@ -20,10 +21,25 @@ abstract class CommonServiceModule {
         homePageServiceImpl: HomePageServiceImpl,
     ): HomePageService
 
+//    @Singleton
+//    @Binds
+//    abstract fun bindMineService(
+//        mineServiceImpl: MineServiceImpl,
+//    ): MineService
+
+
+}
+
+@Module
+@InstallIn(SingletonComponent::class)
+object CommonModule2 {
+
+    @Provides
     @Singleton
-    @Binds
-    abstract fun bindMineService(
-        mineServiceImpl: MineServiceImpl,
-    ): MineService
+    fun providerMineService(
+        ktorfit: Ktorfit,
+    ): MineService {
+        return ktorfit.create()
+    }
 
 }

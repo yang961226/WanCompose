@@ -1,6 +1,10 @@
 package com.sundayting.wancompose.homescreen.minescreen.repo
 
+import com.sundayting.wancompose.network.NetResult
 import com.sundayting.wancompose.network.WanNetResult
+import de.jensklingenberg.ktorfit.http.Field
+import de.jensklingenberg.ktorfit.http.FormUrlEncoded
+import de.jensklingenberg.ktorfit.http.POST
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.JsonElement
 
@@ -13,9 +17,11 @@ interface MineService {
         override val errorMsg: String,
     ) : WanNetResult<JsonElement>()
 
+    @POST("user/login")
+    @FormUrlEncoded
     suspend fun login(
-        username: String,
-        password: String,
-    ): LoginBean
+        @Field("username") username: String,
+        @Field("password") password: String,
+    ): NetResult<Any>
 
 }

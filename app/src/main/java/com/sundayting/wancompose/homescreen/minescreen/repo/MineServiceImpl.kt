@@ -1,18 +1,16 @@
 package com.sundayting.wancompose.homescreen.minescreen.repo
 
-import com.sundayting.wancompose.network.Ktor
-import io.ktor.client.call.body
-import io.ktor.client.plugins.resources.post
-import io.ktor.client.request.setBody
-import io.ktor.http.ContentType
-import io.ktor.http.contentType
+import com.sundayting.wancompose.network.NetResult
+import io.ktor.client.HttpClient
 import io.ktor.resources.Resource
 import kotlinx.serialization.Serializable
 import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-class MineServiceImpl @Inject constructor() : MineService {
+class MineServiceImpl @Inject constructor(
+    private val client: HttpClient,
+) : MineService {
 
 
     @Resource("/user")
@@ -38,13 +36,22 @@ class MineServiceImpl @Inject constructor() : MineService {
         val password: String,
     )
 
-    override suspend fun login(username: String, password: String): MineService.LoginBean {
-        return Ktor.client.post(
-            User.Login(User())
-        ) {
-            contentType(ContentType.Application.Json)
-            setBody(LoginBody(username, password))
-        }.body()
+    override suspend fun login(username: String, password: String): NetResult<Any> {
+        TODO("Not yet implemented")
     }
+
+//    override suspend fun login(username: String, password: String): MineService.LoginBean {
+//        return client.post(
+//            User.Login(User())
+//        ) {
+//            contentType(ContentType.Application.FormUrlEncoded)
+//            setBody(FormDataContent(
+//                Parameters.build {
+//                    append("username", username)
+//                    append("password", password)
+//                }
+//            ))
+//        }.body()
+//    }
 
 }

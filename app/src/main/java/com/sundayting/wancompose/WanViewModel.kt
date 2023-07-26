@@ -8,7 +8,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.sundayting.wancompose.homescreen.minescreen.repo.MineRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -29,7 +28,6 @@ class WanViewModel @Inject constructor(
     fun login(username: String, password: String) {
         viewModelScope.launch {
             loginOrRegisterState.isLoading = true
-            delay(10000L)
             val result = runCatching {
                 mineRepository.login(username, password)
             }

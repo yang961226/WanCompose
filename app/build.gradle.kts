@@ -5,7 +5,15 @@ plugins {
     id("org.jetbrains.kotlin.android")
     kotlin("kapt")
     id("com.google.dagger.hilt.android")
+    id("com.google.devtools.ksp") version "1.8.21-1.0.11"
     kotlin("plugin.serialization") version ("1.8.22")
+    id("de.jensklingenberg.ktorfit") version "1.0.0"
+}
+
+val ktorfitVersion = "1.4.3"
+
+configure<de.jensklingenberg.ktorfit.gradle.KtorfitGradleConfiguration> {
+    version = ktorfitVersion
 }
 
 android {
@@ -107,6 +115,9 @@ dependencies {
     implementation("io.ktor:ktor-client-logging:$ktorVersion")
     implementation("io.ktor:ktor-client-resources:$ktorVersion")
     implementation("io.ktor:ktor-client-android:$ktorVersion")
+    implementation("de.jensklingenberg.ktorfit:ktorfit-lib:$ktorfit")
+    implementation("de.jensklingenberg.ktorfit:ktorfit-lib:$ktorfitVersion")
+    ksp("de.jensklingenberg.ktorfit:ktorfit-ksp:$ktorfitVersion")
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.5.1")
     implementation("androidx.constraintlayout:constraintlayout-compose:1.0.1")
 
