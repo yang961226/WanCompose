@@ -1,4 +1,4 @@
-package com.sundayting.wancompose.homescreen.article.repo
+package com.sundayting.wancompose.page.homescreen.article.repo
 
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body

@@ -1,4 +1,4 @@
-package com.sundayting.wancompose.homescreen.article.ui
+package com.sundayting.wancompose.page.homescreen.article.ui
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -51,7 +51,7 @@ import com.sundayting.wancompose.common.ui.infinitepager.InfiniteLoopHorizontalP
 import com.sundayting.wancompose.common.ui.infinitepager.currentPageInInfinitePage
 import com.sundayting.wancompose.common.ui.infinitepager.rememberInfiniteLoopPagerState
 import com.sundayting.wancompose.common.ui.ktx.onBottomReached
-import com.sundayting.wancompose.homescreen.article.ArticleListViewModel
+import com.sundayting.wancompose.page.homescreen.article.ArticleListViewModel
 import kotlinx.coroutines.delay
 
 object ArticleList {

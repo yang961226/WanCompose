@@ -1,4 +1,4 @@
-package com.sundayting.wancompose.homescreen.minescreen.repo
+package com.sundayting.wancompose.page.homescreen.minescreen.repo
 
 import javax.inject.Inject
 import javax.inject.Singleton

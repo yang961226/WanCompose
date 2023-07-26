@@ -1,4 +1,4 @@
-package com.sundayting.wancompose.homescreen.minescreen.ui
+package com.sundayting.wancompose.page.homescreen.minescreen.ui
 
 import androidx.compose.animation.core.InfiniteRepeatableSpec
 import androidx.compose.animation.core.RepeatMode

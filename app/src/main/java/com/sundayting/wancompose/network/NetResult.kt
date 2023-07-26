@@ -29,7 +29,7 @@ class NetResultResponseConverterFactory : Converter.Factory {
                     return try {
                         val result =
                             response.body<WanNetResult<*>>(typeData.typeArgs.first().typeInfo)
-                        if (result.errorCode == -1001) {
+                        if (result.errorCode != 0) {
                             return NetResult.error(Exception())
                         } else {
                             NetResult.success(result)

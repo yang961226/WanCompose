@@ -1,4 +1,4 @@
-package com.sundayting.wancompose.web
+package com.sundayting.wancompose.page.webscreen
 
 import android.net.Uri
 import android.webkit.WebResourceRequest
@@ -43,7 +43,7 @@ object WebViewScreen : WanComposeDestination {
 
     const val urlArg = "urlKey"
 
-    val routeWithArgs = "${route}/{${urlArg}}"
+    val routeWithArgs = "$route/{$urlArg}"
 
     val arguments = listOf(
         navArgument(urlArg) { type = NavType.StringType }

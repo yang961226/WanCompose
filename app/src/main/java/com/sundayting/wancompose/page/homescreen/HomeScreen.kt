@@ -1,4 +1,4 @@
-package com.sundayting.wancompose.homescreen
+package com.sundayting.wancompose.page.homescreen
 
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
@@ -32,8 +32,8 @@ import androidx.navigation.navigation
 import com.sundayting.wancompose.R
 import com.sundayting.wancompose.WanComposeDestination
 import com.sundayting.wancompose.common.ui.title.TitleBar
-import com.sundayting.wancompose.homescreen.article.ui.ArticleList
-import com.sundayting.wancompose.web.WebViewScreen.navigateToWebViewScreen
+import com.sundayting.wancompose.page.homescreen.article.ui.ArticleList
+import com.sundayting.wancompose.page.webscreen.WebViewScreen.navigateToWebViewScreen
 
 object HomeScreen : WanComposeDestination {
 

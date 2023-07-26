@@ -1,8 +1,8 @@
 package com.sundayting.wancompose
 
-import com.sundayting.wancompose.homescreen.article.repo.HomePageService
-import com.sundayting.wancompose.homescreen.article.repo.HomePageServiceImpl
-import com.sundayting.wancompose.homescreen.minescreen.repo.MineService
+import com.sundayting.wancompose.page.homescreen.article.repo.HomePageService
+import com.sundayting.wancompose.page.homescreen.article.repo.HomePageServiceImpl
+import com.sundayting.wancompose.page.homescreen.minescreen.repo.MineService
 import dagger.Binds
 import dagger.Module
 import dagger.Provides

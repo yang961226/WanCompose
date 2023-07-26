@@ -31,10 +31,10 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import com.google.accompanist.web.rememberWebViewState
-import com.sundayting.wancompose.homescreen.HomeScreen
-import com.sundayting.wancompose.homescreen.minescreen.ui.LoginContent
-import com.sundayting.wancompose.web.WebViewScreen
-import com.sundayting.wancompose.web.WebViewScreen.urlArg
+import com.sundayting.wancompose.page.homescreen.HomeScreen
+import com.sundayting.wancompose.page.homescreen.minescreen.ui.LoginContent
+import com.sundayting.wancompose.page.webscreen.WebViewScreen
+import com.sundayting.wancompose.page.webscreen.WebViewScreen.urlArg
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 

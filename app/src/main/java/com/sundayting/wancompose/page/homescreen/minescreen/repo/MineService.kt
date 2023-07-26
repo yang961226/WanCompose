@@ -1,4 +1,4 @@
-package com.sundayting.wancompose.homescreen.minescreen.repo
+package com.sundayting.wancompose.page.homescreen.minescreen.repo
 
 import com.sundayting.wancompose.network.NetResult
 import com.sundayting.wancompose.network.WanNetResult

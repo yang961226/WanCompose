@@ -1,7 +1,7 @@
-package com.sundayting.wancompose.homescreen.article.repo
+package com.sundayting.wancompose.page.homescreen.article.repo
 
-import com.sundayting.wancompose.homescreen.article.ui.ArticleList
 import com.sundayting.wancompose.network.WanNetResult
+import com.sundayting.wancompose.page.homescreen.article.ui.ArticleList
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 

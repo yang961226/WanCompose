@@ -1,4 +1,4 @@
-package com.sundayting.wancompose.homescreen.article
+package com.sundayting.wancompose.page.homescreen.article
 
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
@@ -6,10 +6,10 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.sundayting.wancompose.homescreen.article.repo.ArticleRepository
-import com.sundayting.wancompose.homescreen.article.repo.toArticleUiBean
-import com.sundayting.wancompose.homescreen.article.repo.toBannerUiBean
-import com.sundayting.wancompose.homescreen.article.ui.ArticleList
+import com.sundayting.wancompose.page.homescreen.article.repo.ArticleRepository
+import com.sundayting.wancompose.page.homescreen.article.repo.toArticleUiBean
+import com.sundayting.wancompose.page.homescreen.article.repo.toBannerUiBean
+import com.sundayting.wancompose.page.homescreen.article.ui.ArticleList
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.joinAll
