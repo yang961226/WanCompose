@@ -2,6 +2,7 @@ package com.sundayting.wancompose
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
+import androidx.activity.compose.BackHandler
 import androidx.activity.compose.setContent
 import androidx.compose.animation.core.snap
 import androidx.compose.foundation.layout.fillMaxSize
@@ -72,6 +73,11 @@ fun WanComposeApp(
         sheetState = modalSheetState,
         sheetShape = RoundedCornerShape(topStart = 12.dp, topEnd = 12.dp),
         sheetContent = {
+            BackHandler(enabled = modalSheetState.isVisible) {
+                coroutineScope.launch {
+                    modalSheetState.hide()
+                }
+            }
             LoginContent(
                 Modifier.fillMaxWidth(),
                 viewModel.loginOrRegisterState,
