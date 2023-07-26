@@ -1,12 +1,12 @@
 package com.sundayting.wancompose
 
+import android.util.Log
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.sundayting.wancompose.network.NetResult
 import com.sundayting.wancompose.page.homescreen.minescreen.repo.MineRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
@@ -29,10 +29,8 @@ class WanViewModel @Inject constructor(
     fun login(username: String, password: String) {
         viewModelScope.launch {
             loginOrRegisterState.isLoading = true
-            val result = mineRepository.login(username, password)
-            if (result is NetResult.Success) {
-                val a = result.data.data
-            }
+            val userInfo = mineRepository.loginAndAutoInsertData(username, password)
+            Log.d("临时测试", "$userInfo")
         }.apply {
             invokeOnCompletion {
                 loginOrRegisterState.isLoading = false
