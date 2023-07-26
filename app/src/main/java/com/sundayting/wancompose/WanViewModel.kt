@@ -15,7 +15,10 @@ import javax.inject.Inject
 @HiltViewModel
 class WanViewModel @Inject constructor(
     private val mineRepository: MineRepository,
-) : ViewModel() {
+
+    ) : ViewModel() {
+
+    val curLoginUserFlow = mineRepository.curUserFlow
 
     val loginOrRegisterState = LoginOrRegisterState()
 

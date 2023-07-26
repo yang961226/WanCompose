@@ -9,6 +9,11 @@ import com.sundayting.wancompose.function.UserLoginFunction.CURRENT_LOGIN_ID_KEY
 import com.sundayting.wancompose.function.UserLoginFunction.UserInfoBean
 import com.sundayting.wancompose.network.NetResult
 import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.mapLatest
+import kotlinx.coroutines.joinAll
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -22,6 +27,10 @@ class MineRepository @Inject constructor(
     private val userDao = database.userDao()
     private val dataStore = context.dataStore
 
+    val curUserFlow = dataStore.data.mapLatest { it[CURRENT_LOGIN_ID_KEY] }.flatMapLatest {
+        database.userDao().currentUser(it ?: 0)
+    }
+
     private suspend fun login(
         username: String,
         password: String,
@@ -33,31 +42,40 @@ class MineRepository @Inject constructor(
         username: String,
         password: String,
     ): UserInfoBean? {
-        val loginResult = login(username, password)
-        return if (loginResult is NetResult.Success) {
-            val fetchUserInfoResult = fetchUserInfo()
-            if (fetchUserInfoResult is NetResult.Success) {
-                fetchUserInfoResult.data.data.also {
-                    if (it != null) {
-                        userDao.insertUser(
-                            UserLoginFunction.UserEntity(
-                                id = it.userInfo.id,
-                                nick = it.userInfo.nickname,
-                                coinCount = it.coinInfo.coinCount,
-                                level = it.coinInfo.level,
-                                rank = it.coinInfo.rank
+        return coroutineScope {
+            val loginResult = login(username, password)
+            return@coroutineScope if (loginResult is NetResult.Success) {
+                val fetchUserInfoResult = fetchUserInfo()
+                if (fetchUserInfoResult is NetResult.Success) {
+                    fetchUserInfoResult.data.data.also {
+                        if (it != null) {
+                            joinAll(
+                                launch {
+                                    userDao.clear()
+                                    userDao.insertUser(
+                                        UserLoginFunction.UserEntity(
+                                            id = it.userInfo.id,
+                                            nick = it.userInfo.nickname,
+                                            coinCount = it.coinInfo.coinCount,
+                                            level = it.coinInfo.level,
+                                            rank = it.coinInfo.rank
+                                        )
+                                    )
+                                },
+                                launch {
+                                    dataStore.edit { mp ->
+                                        mp[CURRENT_LOGIN_ID_KEY] = it.userInfo.id
+                                    }
+                                }
                             )
-                        )
-                        dataStore.edit { mp ->
-                            mp[CURRENT_LOGIN_ID_KEY]
                         }
                     }
+                } else {
+                    null
                 }
             } else {
                 null
             }
-        } else {
-            null
         }
     }
 
