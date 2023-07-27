@@ -1,6 +1,5 @@
 package com.sundayting.wancompose
 
-import android.util.Log
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -33,7 +32,6 @@ class WanViewModel @Inject constructor(
         viewModelScope.launch {
             loginOrRegisterState.isLoading = true
             val userInfo = mineRepository.loginAndAutoInsertData(username, password)
-            Log.d("临时测试", "$userInfo")
         }.apply {
             invokeOnCompletion {
                 loginOrRegisterState.isLoading = false

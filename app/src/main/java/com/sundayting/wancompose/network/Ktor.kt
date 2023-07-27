@@ -114,8 +114,6 @@ class LoginCookieStorage @Inject constructor(
                 name = it.key.name,
                 value = it.value.toString()
             )
-        }.onEach {
-            Log.d("临时测试", "key:${it.name} value:${it.value}")
         }
     }
 
