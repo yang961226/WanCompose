@@ -73,7 +73,10 @@ object UserLoginFunction {
         suspend fun insertUser(userEntity: UserEntity)
 
         @Query("SELECT * FROM UserEntity WHERE id IN (:userId)")
-        fun currentUser(userId: Int): Flow<UserEntity?>
+        fun currentUserFlow(userId: Int): Flow<UserEntity?>
+
+        @Query("SELECT * FROM UserEntity WHERE id IN (:userId)")
+        fun currentUser(userId: Int): UserEntity?
 
         @Query("DELETE FROM UserEntity")
         suspend fun clear()

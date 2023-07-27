@@ -25,6 +25,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.core.view.WindowCompat
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -81,6 +82,8 @@ fun WanComposeApp(
         skipHalfExpanded = true
     )
     val bottomSheetPagerState = rememberPagerState()
+    val uiController = rememberSystemUiController()
+    uiController.setStatusBarColor(Color.Transparent)
 
     LaunchedEffect(isLogin) {
         if (isLogin) {
@@ -110,8 +113,6 @@ fun WanComposeApp(
             },
         ) {
             val navController = rememberNavController()
-            val uiController = rememberSystemUiController()
-
 
             Scaffold(
                 modifier = Modifier
@@ -125,16 +126,9 @@ fun WanComposeApp(
                         HomeScreen.Navigation(
                             navController = navController,
                             onClickBottom = { bottomItem ->
-                                if (bottomItem.page == HomeScreen.HomeScreenPage.Mine) {
-                                    coroutineScope.launch {
-                                        bottomSheetPagerState.animateScrollToPage(
-                                            0,
-                                            animationSpec = snap()
-                                        )
-                                        modalSheetState.show()
-                                    }
-                                } else {
-                                    navController.navigate(bottomItem.page.route) {
+
+                                fun toDestination(route: String) {
+                                    navController.navigate(route) {
                                         popUpTo(navController.graph.findStartDestination().id) {
                                             saveState = true
                                         }
@@ -143,6 +137,21 @@ fun WanComposeApp(
                                     }
                                 }
 
+                                if (bottomItem.page == HomeScreen.HomeScreenPage.Mine) {
+                                    if (isLogin) {
+                                        toDestination(bottomItem.page.route)
+                                    } else {
+                                        coroutineScope.launch {
+                                            bottomSheetPagerState.animateScrollToPage(
+                                                0,
+                                                animationSpec = snap()
+                                            )
+                                            modalSheetState.show()
+                                        }
+                                    }
+                                } else {
+                                    toDestination(bottomItem.page.route)
+                                }
                             })
                     }
                 }

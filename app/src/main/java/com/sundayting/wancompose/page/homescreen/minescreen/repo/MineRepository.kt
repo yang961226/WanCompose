@@ -9,11 +9,12 @@ import com.sundayting.wancompose.function.UserLoginFunction.CURRENT_LOGIN_ID_KEY
 import com.sundayting.wancompose.function.UserLoginFunction.UserInfoBean
 import com.sundayting.wancompose.network.NetResult
 import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.coroutineScope
-import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.mapLatest
 import kotlinx.coroutines.joinAll
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -27,8 +28,10 @@ class MineRepository @Inject constructor(
     private val userDao = database.userDao()
     private val dataStore = context.dataStore
 
-    val curUserFlow = dataStore.data.mapLatest { it[CURRENT_LOGIN_ID_KEY] }.flatMapLatest {
-        database.userDao().currentUser(it ?: 0)
+    val curUserFlow = dataStore.data.mapLatest {
+        withContext(Dispatchers.IO) {
+            database.userDao().currentUser(it[CURRENT_LOGIN_ID_KEY] ?: 0)
+        }
     }
 
     private suspend fun login(

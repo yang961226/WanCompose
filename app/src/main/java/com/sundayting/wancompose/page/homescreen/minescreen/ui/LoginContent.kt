@@ -25,6 +25,7 @@ import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.PagerState
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.Button
 import androidx.compose.material.ButtonDefaults
@@ -44,13 +45,17 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
@@ -154,7 +159,7 @@ fun LoginContent(
                 modifier = Modifier
                     .padding(top = 50.dp)
                     .fillMaxWidth()
-                    .height(350.dp),
+                    .height(400.dp),
                 state = pagerState
             ) { page ->
                 when (page) {
@@ -163,7 +168,13 @@ fun LoginContent(
                             scope.launch {
                                 pagerState.animateScrollToPage(1)
                             }
-                        }, onClickConfirm = onClickLogin)
+                        }, onClickConfirm = { username, password ->
+                            if (username.isEmpty() || password.isEmpty()) {
+
+                            } else {
+                                onClickLogin(username, password)
+                            }
+                        })
                     }
 
                     1 -> {
@@ -183,12 +194,19 @@ fun LoginContent(
 
 private val titleColor = Color(0xFF4e82e1)
 
+private fun String.removeEmptyAndNewLine(): String {
+    return replace("\n", "").replace(" ", "")
+}
+
 @Composable
 private fun LoginPage(
     modifier: Modifier = Modifier,
     onClickConfirm: (username: String, password: String) -> Unit = { _, _ -> },
     onToRegister: () -> Unit = {},
 ) {
+
+    val keyboardController = LocalSoftwareKeyboardController.current
+
     Column(modifier, horizontalAlignment = Alignment.CenterHorizontally) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
@@ -213,14 +231,33 @@ private fun LoginPage(
         var username by remember { mutableStateOf("") }
         var password by remember { mutableStateOf("") }
 
+        val inputFinished by remember {
+            derivedStateOf {
+                username.isNotEmpty() && password.isNotEmpty()
+            }
+        }
+
+
+        val focusRequester = remember { FocusRequester() }
+
         Spacer(Modifier.height(20.dp))
 
         OutlinedTextField(
+            modifier = Modifier
+                .focusRequester(focusRequester),
             value = username,
-            onValueChange = { username = it },
-            maxLines = 1,
+            onValueChange = { username = it.removeEmptyAndNewLine() },
+            singleLine = true,
             label = { Text(stringResource(id = R.string.please_input_account)) },
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
+            keyboardOptions = KeyboardOptions(
+                keyboardType = KeyboardType.Text,
+                imeAction = ImeAction.Next
+            ),
+            keyboardActions = KeyboardActions(
+                onNext = {
+                    focusRequester.requestFocus()
+                }
+            ),
             leadingIcon = {
                 Icon(
                     painter = painterResource(id = R.drawable.ic_account_icon),
@@ -233,15 +270,26 @@ private fun LoginPage(
                 cursorColor = titleColor,
                 focusedLabelColor = titleColor,
                 focusedBorderColor = titleColor,
-            )
+            ),
+            shape = RoundedCornerShape(50),
         )
 
         OutlinedTextField(
+            modifier = Modifier.focusRequester(focusRequester),
             value = password,
-            onValueChange = { password = it },
-            maxLines = 1,
-            label = { Text(stringResource(id = R.string.please_input_account)) },
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
+            onValueChange = { password = it.removeEmptyAndNewLine() },
+            singleLine = true,
+            label = { Text(stringResource(id = R.string.please_input_password)) },
+            keyboardOptions = KeyboardOptions(
+                keyboardType = KeyboardType.Password,
+                imeAction = if (inputFinished) ImeAction.Done else ImeAction.None
+            ),
+            keyboardActions = KeyboardActions(
+                onDone = {
+                    keyboardController?.hide()
+                    onClickConfirm(username, password)
+                }
+            ),
             visualTransformation = PasswordVisualTransformation(),
             leadingIcon = {
                 Icon(
@@ -256,19 +304,14 @@ private fun LoginPage(
                 cursorColor = titleColor,
                 focusedLabelColor = titleColor,
                 focusedBorderColor = titleColor,
-            )
+            ),
+            shape = RoundedCornerShape(50)
         )
 
         Spacer(Modifier.height(20.dp))
 
-        val buttonEnable by remember {
-            derivedStateOf {
-                username.isNotEmpty() && password.isNotEmpty()
-            }
-        }
-
         Button(
-            enabled = buttonEnable,
+            enabled = inputFinished,
             onClick = {
                 onClickConfirm(username, password)
             }, colors = ButtonDefaults.buttonColors(
@@ -323,8 +366,8 @@ private fun RegisterPage(
 
         OutlinedTextField(
             value = account,
-            onValueChange = { account = it },
-            maxLines = 1,
+            onValueChange = { account = it.removeEmptyAndNewLine() },
+            singleLine = true,
             label = { Text(stringResource(id = R.string.please_input_account)) },
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
             leadingIcon = {
@@ -344,9 +387,9 @@ private fun RegisterPage(
 
         OutlinedTextField(
             value = password,
-            onValueChange = { password = it },
-            maxLines = 1,
-            label = { Text(stringResource(id = R.string.please_input_account)) },
+            onValueChange = { password = it.removeEmptyAndNewLine() },
+            singleLine = true,
+            label = { Text(stringResource(id = R.string.please_input_password)) },
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
             visualTransformation = PasswordVisualTransformation(),
             leadingIcon = {
@@ -367,8 +410,8 @@ private fun RegisterPage(
 
         OutlinedTextField(
             value = passwordAgain,
-            onValueChange = { passwordAgain = it },
-            maxLines = 1,
+            onValueChange = { passwordAgain = it.removeEmptyAndNewLine() },
+            singleLine = true,
             label = { Text(stringResource(id = R.string.please_input_password_again)) },
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
             visualTransformation = PasswordVisualTransformation(),
