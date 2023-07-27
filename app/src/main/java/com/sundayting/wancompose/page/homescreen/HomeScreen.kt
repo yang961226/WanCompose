@@ -2,6 +2,8 @@ package com.sundayting.wancompose.page.homescreen
 
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
+import androidx.compose.animation.EnterTransition
+import androidx.compose.animation.ExitTransition
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -26,9 +28,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
-import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
-import androidx.navigation.navigation
+import com.google.accompanist.navigation.animation.composable
+import com.google.accompanist.navigation.animation.navigation
 import com.sundayting.wancompose.R
 import com.sundayting.wancompose.WanComposeDestination
 import com.sundayting.wancompose.common.ui.title.TitleBar
@@ -116,7 +118,16 @@ object HomeScreen : WanComposeDestination {
     fun NavGraphBuilder.homeNavGraph(
         navController: NavHostController,
     ) {
-        navigation(route = HomeScreen.route, startDestination = HomeScreenPage.ArticleList.route) {
+        navigation(
+            route = HomeScreen.route,
+            startDestination = HomeScreenPage.ArticleList.route,
+            enterTransition = {
+                EnterTransition.None
+            },
+            exitTransition = {
+                ExitTransition.None
+            }
+        ) {
             composable(HomeScreenPage.ArticleList.route) {
                 Column(Modifier.fillMaxSize()) {
                     TitleBar(

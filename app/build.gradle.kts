@@ -136,6 +136,8 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.5.1")
     implementation("androidx.constraintlayout:constraintlayout-compose:1.0.1")
 
+    implementation("com.google.accompanist:accompanist-navigation-animation:0.30.1")
+
     implementation("com.google.dagger:hilt-android:2.44")
     kapt("com.google.dagger:hilt-android-compiler:2.44")
     implementation("androidx.hilt:hilt-navigation-compose:1.0.0")

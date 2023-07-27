@@ -32,10 +32,10 @@ import androidx.compose.ui.unit.dp
 import androidx.core.view.WindowCompat
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavGraph.Companion.findStartDestination
-import androidx.navigation.compose.NavHost
-import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
-import androidx.navigation.compose.rememberNavController
+import com.google.accompanist.navigation.animation.AnimatedNavHost
+import com.google.accompanist.navigation.animation.composable
+import com.google.accompanist.navigation.animation.rememberAnimatedNavController
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import com.google.accompanist.web.rememberWebViewState
 import com.sundayting.wancompose.function.UserLoginFunction.UserEntity
@@ -120,7 +120,7 @@ fun WanComposeApp(
                 )
             },
         ) {
-            val navController = rememberNavController()
+            val navController = rememberAnimatedNavController()
             val navBackStackEntry by navController.currentBackStackEntryAsState()
             val currentDestination = navBackStackEntry?.destination
             LaunchedEffect(isLogin, currentDestination) {
@@ -177,7 +177,7 @@ fun WanComposeApp(
                     }
                 }
             ) {
-                NavHost(
+                AnimatedNavHost(
                     modifier = Modifier.padding(it),
                     startDestination = HomeScreen.route,
                     navController = navController
