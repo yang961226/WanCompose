@@ -16,4 +16,5 @@
     <string name="please_input_account">请输入用户名</string>
     <string name="please_input_password">请输入密码</string>
     <string name="please_input_password_again">请再次输入密码</string>
+    <string name="welcome_back_tip">欢迎回来,%s</string>
 </resources>

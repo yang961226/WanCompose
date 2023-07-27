@@ -1,6 +1,7 @@
 package com.sundayting.wancompose
 
 import android.os.Bundle
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.setContent
@@ -26,6 +27,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.core.view.WindowCompat
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -84,9 +86,15 @@ fun WanComposeApp(
     val bottomSheetPagerState = rememberPagerState()
     val uiController = rememberSystemUiController()
     uiController.setStatusBarColor(Color.Transparent)
-
-    LaunchedEffect(isLogin) {
+    val context = LocalContext.current
+    R.string.bottom_tab_home
+    LaunchedEffect(isLogin, context) {
         if (isLogin) {
+            Toast.makeText(
+                context,
+                context.getString(R.string.welcome_back_tip, loginUser?.nick),
+                Toast.LENGTH_LONG
+            ).show()
             modalSheetState.hide()
         }
     }
