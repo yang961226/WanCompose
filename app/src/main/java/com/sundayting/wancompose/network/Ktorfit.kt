@@ -17,9 +17,10 @@ object KtorfitModule {
     @Singleton
     fun providerKtorfit(
         httpClient: HttpClient,
+        netResultResponseConverterFactory: NetResultResponseConverterFactory,
     ): Ktorfit {
         return Ktorfit.Builder()
-            .converterFactories(NetResultResponseConverterFactory())
+            .converterFactories(netResultResponseConverterFactory)
             .httpClient(httpClient)
             .build()
     }

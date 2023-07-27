@@ -14,8 +14,7 @@ import javax.inject.Inject
 @HiltViewModel
 class WanViewModel @Inject constructor(
     private val mineRepository: MineRepository,
-
-    ) : ViewModel() {
+) : ViewModel() {
 
     val curLoginUserFlow = mineRepository.curUserFlow
 
@@ -31,7 +30,7 @@ class WanViewModel @Inject constructor(
     fun login(username: String, password: String) {
         viewModelScope.launch {
             loginOrRegisterState.isLoading = true
-            val userInfo = mineRepository.loginAndAutoInsertData(username, password)
+            val result = mineRepository.loginAndAutoInsertData(username, password)
         }.apply {
             invokeOnCompletion {
                 loginOrRegisterState.isLoading = false

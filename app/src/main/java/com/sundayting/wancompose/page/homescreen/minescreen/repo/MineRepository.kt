@@ -49,7 +49,7 @@ class MineRepository @Inject constructor(
             return@coroutineScope if (loginResult is NetResult.Success) {
                 val fetchUserInfoResult = fetchUserInfo()
                 if (fetchUserInfoResult is NetResult.Success) {
-                    fetchUserInfoResult.data.data.also {
+                    fetchUserInfoResult.body.data.also {
                         if (it != null) {
                             joinAll(
                                 launch {

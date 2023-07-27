@@ -1,24 +1,48 @@
 package com.sundayting.wancompose.network
 
+import android.content.Context
+import com.sundayting.wancompose.R
+import dagger.hilt.android.qualifiers.ApplicationContext
 import de.jensklingenberg.ktorfit.Ktorfit
 import de.jensklingenberg.ktorfit.converter.Converter
 import de.jensklingenberg.ktorfit.internal.TypeData
 import io.ktor.client.call.body
 import io.ktor.client.statement.HttpResponse
+import javax.inject.Inject
+import javax.inject.Singleton
+import kotlin.contracts.ExperimentalContracts
+import kotlin.contracts.contract
 
 sealed class NetResult<T> {
 
-    data class Success<T>(val data: T) : NetResult<T>()
-    class Error(val ex: Throwable) : NetResult<Nothing>()
+    data class Success<T>(val body: T) : NetResult<T>()
+    class Error(val ex: WanNetError) : NetResult<Nothing>()
 
     companion object {
         fun <T> success(data: T) = Success(data)
-        fun error(ex: Throwable) = Error(ex)
+        fun error(ex: WanNetError) = Error(ex)
     }
 
 }
 
-class NetResultResponseConverterFactory : Converter.Factory {
+@OptIn(ExperimentalContracts::class)
+fun <T> NetResult<T>.isSuccess(): Boolean {
+    contract {
+        returns(true) implies (this@isSuccess is NetResult.Success)
+        returns(false) implies (this@isSuccess is NetResult.Error)
+    }
+    return this is NetResult.Success
+}
+
+class WanNetError(val msg: String, override val cause: Throwable? = null) : Exception()
+
+@Singleton
+class NetResultResponseConverterFactory @Inject constructor(
+    @ApplicationContext context: Context,
+) : Converter.Factory {
+
+    private val commonNetErrorString = context.getString(R.string.net_error)
+
     override fun suspendResponseConverter(
         typeData: TypeData,
         ktorfit: Ktorfit,
@@ -30,12 +54,12 @@ class NetResultResponseConverterFactory : Converter.Factory {
                         val result =
                             response.body<WanNetResult<*>>(typeData.typeArgs.first().typeInfo)
                         if (result.errorCode != 0) {
-                            return NetResult.error(Exception())
+                            return NetResult.error(WanNetError(result.errorMsg))
                         } else {
                             NetResult.success(result)
                         }
                     } catch (ex: Throwable) {
-                        NetResult.error(ex)
+                        NetResult.error(WanNetError(commonNetErrorString, ex))
                     }
                 }
             }
