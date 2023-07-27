@@ -121,13 +121,26 @@ fun WanComposeApp(
             },
         ) {
             val navController = rememberNavController()
+            val navBackStackEntry by navController.currentBackStackEntryAsState()
+            val currentDestination = navBackStackEntry?.destination
+            LaunchedEffect(isLogin, currentDestination) {
+                if (!isLogin && currentDestination?.route == HomeScreen.HomeScreenPage.Mine.route) {
+                    navController.navigate(HomeScreen.HomeScreenPage.ArticleList.route) {
+                        popUpTo(
+                            navController.graph.findStartDestination().id
+                        ) {
+                            saveState = false
+                        }
+                        launchSingleTop = true
+                        restoreState = false
+                    }
+                }
+            }
 
             Scaffold(
                 modifier = Modifier
                     .navigationBarsPadding(),
                 bottomBar = {
-                    val navBackStackEntry by navController.currentBackStackEntryAsState()
-                    val currentDestination = navBackStackEntry?.destination
                     if (currentDestination?.route?.let { curRoute ->
                             HomeScreen.pageList.any { it.page.route == curRoute }
                         } == true) {
