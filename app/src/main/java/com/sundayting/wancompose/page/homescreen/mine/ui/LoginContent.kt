@@ -1,4 +1,4 @@
-package com.sundayting.wancompose.page.homescreen.minescreen.ui
+package com.sundayting.wancompose.page.homescreen.mine.ui
 
 import androidx.compose.animation.core.InfiniteRepeatableSpec
 import androidx.compose.animation.core.RepeatMode
@@ -63,6 +63,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.sundayting.wancompose.R
 import com.sundayting.wancompose.WanViewModel
+import com.sundayting.wancompose.theme.WanColors
 import kotlinx.coroutines.launch
 
 @Composable
@@ -192,8 +193,6 @@ fun LoginContent(
     }
 }
 
-private val titleColor = Color(0xFF4e82e1)
-
 private fun String.removeEmptyAndNewLine(): String {
     return replace("\n", "").replace(" ", "")
 }
@@ -216,7 +215,7 @@ private fun LoginPage(
                 text = stringResource(id = R.string.to_register),
                 style = TextStyle(
                     fontSize = 12.sp,
-                    color = titleColor
+                    color = WanColors.TopColor
                 )
             )
             Spacer(Modifier.width(5.dp))
@@ -224,7 +223,7 @@ private fun LoginPage(
                 painter = painterResource(id = R.drawable.ic_direction_right),
                 contentDescription = null,
                 modifier = Modifier.size(10.dp),
-                colorFilter = ColorFilter.tint(titleColor)
+                colorFilter = ColorFilter.tint(WanColors.TopColor)
             )
         }
 
@@ -267,9 +266,9 @@ private fun LoginPage(
             },
             colors = TextFieldDefaults.outlinedTextFieldColors(
                 backgroundColor = Color.Transparent,
-                cursorColor = titleColor,
-                focusedLabelColor = titleColor,
-                focusedBorderColor = titleColor,
+                cursorColor = WanColors.TopColor,
+                focusedLabelColor = WanColors.TopColor,
+                focusedBorderColor = WanColors.TopColor,
             ),
             shape = RoundedCornerShape(50),
         )
@@ -301,9 +300,9 @@ private fun LoginPage(
 
             colors = TextFieldDefaults.outlinedTextFieldColors(
                 backgroundColor = Color.Transparent,
-                cursorColor = titleColor,
-                focusedLabelColor = titleColor,
-                focusedBorderColor = titleColor,
+                cursorColor = WanColors.TopColor,
+                focusedLabelColor = WanColors.TopColor,
+                focusedBorderColor = WanColors.TopColor,
             ),
             shape = RoundedCornerShape(50)
         )
@@ -315,7 +314,7 @@ private fun LoginPage(
             onClick = {
                 onClickConfirm(username, password)
             }, colors = ButtonDefaults.buttonColors(
-                backgroundColor = titleColor
+                backgroundColor = WanColors.TopColor
             ),
             shape = RoundedCornerShape(50),
             contentPadding = PaddingValues(horizontal = 100.dp, vertical = 10.dp)
@@ -347,14 +346,14 @@ private fun RegisterPage(
                 painter = painterResource(id = R.drawable.ic_direction_left),
                 contentDescription = null,
                 modifier = Modifier.size(10.dp),
-                colorFilter = ColorFilter.tint(titleColor)
+                colorFilter = ColorFilter.tint(WanColors.TopColor)
             )
             Spacer(Modifier.width(5.dp))
             Text(
                 text = stringResource(id = R.string.to_login),
                 style = TextStyle(
                     fontSize = 12.sp,
-                    color = titleColor
+                    color = WanColors.TopColor
                 )
             )
         }
@@ -379,9 +378,9 @@ private fun RegisterPage(
             },
             colors = TextFieldDefaults.outlinedTextFieldColors(
                 backgroundColor = Color.Transparent,
-                cursorColor = titleColor,
-                focusedLabelColor = titleColor,
-                focusedBorderColor = titleColor,
+                cursorColor = WanColors.TopColor,
+                focusedLabelColor = WanColors.TopColor,
+                focusedBorderColor = WanColors.TopColor,
             )
         )
 
@@ -402,9 +401,9 @@ private fun RegisterPage(
 
             colors = TextFieldDefaults.outlinedTextFieldColors(
                 backgroundColor = Color.Transparent,
-                cursorColor = titleColor,
-                focusedLabelColor = titleColor,
-                focusedBorderColor = titleColor,
+                cursorColor = WanColors.TopColor,
+                focusedLabelColor = WanColors.TopColor,
+                focusedBorderColor = WanColors.TopColor,
             )
         )
 
@@ -425,9 +424,9 @@ private fun RegisterPage(
 
             colors = TextFieldDefaults.outlinedTextFieldColors(
                 backgroundColor = Color.Transparent,
-                cursorColor = titleColor,
-                focusedLabelColor = titleColor,
-                focusedBorderColor = titleColor,
+                cursorColor = WanColors.TopColor,
+                focusedLabelColor = WanColors.TopColor,
+                focusedBorderColor = WanColors.TopColor,
             )
         )
 
@@ -441,7 +440,7 @@ private fun RegisterPage(
 
         Button(
             onClick = { }, colors = ButtonDefaults.buttonColors(
-                backgroundColor = titleColor
+                backgroundColor = WanColors.TopColor
             ),
             enabled = buttonEnable,
             shape = RoundedCornerShape(50),

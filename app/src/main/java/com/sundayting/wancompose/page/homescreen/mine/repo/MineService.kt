@@ -1,4 +1,4 @@
-package com.sundayting.wancompose.page.homescreen.minescreen.repo
+package com.sundayting.wancompose.page.homescreen.mine.repo
 
 import com.sundayting.wancompose.function.UserLoginFunction
 import com.sundayting.wancompose.function.UserLoginFunction.UserInfoNetBean

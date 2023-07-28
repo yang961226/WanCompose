@@ -40,7 +40,7 @@ import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import com.google.accompanist.web.rememberWebViewState
 import com.sundayting.wancompose.function.UserLoginFunction.UserEntity
 import com.sundayting.wancompose.page.homescreen.HomeScreen
-import com.sundayting.wancompose.page.homescreen.minescreen.ui.LoginContent
+import com.sundayting.wancompose.page.homescreen.mine.ui.LoginContent
 import com.sundayting.wancompose.page.webscreen.WebViewScreen
 import com.sundayting.wancompose.page.webscreen.WebViewScreen.urlArg
 import dagger.hilt.android.AndroidEntryPoint

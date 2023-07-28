@@ -36,6 +36,7 @@ import com.sundayting.wancompose.WanComposeDestination
 import com.sundayting.wancompose.common.ui.title.TitleBar
 import com.sundayting.wancompose.page.homescreen.article.ui.ArticleList
 import com.sundayting.wancompose.page.webscreen.WebViewScreen.navigateToWebViewScreen
+import com.sundayting.wancompose.theme.WanColors
 
 object HomeScreen : WanComposeDestination {
 
@@ -133,7 +134,7 @@ object HomeScreen : WanComposeDestination {
                     TitleBar(
                         Modifier
                             .fillMaxWidth()
-                            .background(Color(0xFF5380ec))
+                            .background(WanColors.TopColor)
                     ) {
                         Text(
                             stringResource(id = R.string.bottom_tab_home), style = TextStyle(

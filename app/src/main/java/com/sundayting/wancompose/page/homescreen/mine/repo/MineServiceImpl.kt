@@ -1,4 +1,4 @@
-package com.sundayting.wancompose.page.homescreen.minescreen.repo
+package com.sundayting.wancompose.page.homescreen.mine.repo
 
 import io.ktor.client.HttpClient
 import io.ktor.resources.Resource
