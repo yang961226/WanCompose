@@ -1,9 +1,11 @@
 package com.sundayting.wancompose.page.homescreen.mine
 
+import androidx.annotation.DrawableRes
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -16,9 +18,11 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
@@ -106,6 +110,57 @@ object MineScreen : WanComposeDestination {
                 }
             }
         }
+    }
+
+}
+
+@Composable
+@Preview(showBackground = true)
+private fun PreviewMineScreenSingleLine() {
+    MineScreenSingleLine(title = "我是标题", resId = R.drawable.ic_login_icon)
+}
+
+@Composable
+private fun MineScreenSingleLine(
+    modifier: Modifier = Modifier,
+    title: String,
+    @DrawableRes resId: Int,
+    endContent: @Composable (RowScope.() -> Unit)? = null,
+) {
+
+    Row(
+        modifier.padding(10.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Image(
+            painter = painterResource(id = resId),
+            contentDescription = null,
+            modifier = Modifier
+                .padding(end = 10.dp)
+                .size(20.dp),
+            colorFilter = ColorFilter.tint(WanColors.TopColor)
+        )
+        Text(
+            text = title,
+            style = TextStyle(
+                fontSize = 15.sp,
+                color = Color.Black
+            ),
+        )
+        Spacer(
+            Modifier
+                .fillMaxWidth()
+                .weight(1f, false)
+        )
+        if (endContent != null) {
+            endContent()
+        }
+        Image(
+            painter = painterResource(id = R.drawable.ic_arrow_right),
+            contentDescription = null,
+            modifier = Modifier.size(15.dp),
+            colorFilter = ColorFilter.tint(Color.Gray.copy(0.8f))
+        )
     }
 
 }
