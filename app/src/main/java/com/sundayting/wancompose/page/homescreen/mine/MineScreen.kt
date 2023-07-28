@@ -37,7 +37,7 @@ object MineScreen : WanComposeDestination {
         get() = "个人页"
 
     @Composable
-    fun Screen(modifier: Modifier, userEntity: UserEntity) {
+    fun Screen(modifier: Modifier = Modifier, userEntity: UserEntity?) {
         val scrollState = rememberScrollState()
         Column(
             modifier
@@ -48,7 +48,7 @@ object MineScreen : WanComposeDestination {
                 Modifier
                     .fillMaxWidth()
                     .background(WanColors.TopColor)
-                    .padding(vertical = 30.dp)
+                    .padding(top = 50.dp, bottom = 30.dp)
             ) {
                 val (
                     headContent,
@@ -69,7 +69,7 @@ object MineScreen : WanComposeDestination {
                 )
 
                 Text(
-                    text = userEntity.nick,
+                    text = userEntity?.nick.orEmpty(),
                     style = TextStyle(
                         color = Color.White,
                         fontSize = 18.sp
@@ -87,7 +87,7 @@ object MineScreen : WanComposeDestination {
                     }
                 ) {
                     Text(
-                        text = stringResource(id = R.string.level_d, userEntity.level),
+                        text = stringResource(id = R.string.level_d, userEntity?.level ?: 0),
                         style = TextStyle(
                             fontSize = 14.sp,
                             color = Color.White.copy(0.8f)
@@ -97,7 +97,7 @@ object MineScreen : WanComposeDestination {
                     Spacer(Modifier.width(5.dp))
 
                     Text(
-                        text = stringResource(id = R.string.rank_d, userEntity.rank),
+                        text = stringResource(id = R.string.rank_d, userEntity?.rank ?: 0),
                         style = TextStyle(
                             fontSize = 14.sp,
                             color = Color.White.copy(0.8f)

@@ -31,10 +31,12 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import com.google.accompanist.navigation.animation.composable
 import com.google.accompanist.navigation.animation.navigation
+import com.sundayting.wancompose.LocalLoginUser
 import com.sundayting.wancompose.R
 import com.sundayting.wancompose.WanComposeDestination
 import com.sundayting.wancompose.common.ui.title.TitleBar
 import com.sundayting.wancompose.page.homescreen.article.ui.ArticleList
+import com.sundayting.wancompose.page.homescreen.mine.MineScreen
 import com.sundayting.wancompose.page.webscreen.WebViewScreen.navigateToWebViewScreen
 import com.sundayting.wancompose.theme.WanColors
 
@@ -156,9 +158,10 @@ object HomeScreen : WanComposeDestination {
                 }
             }
             composable(HomeScreenPage.Mine.route) {
-                Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                    Text("我是3")
-                }
+                MineScreen.Screen(
+                    modifier = Modifier.fillMaxSize(),
+                    userEntity = LocalLoginUser.current
+                )
             }
         }
     }

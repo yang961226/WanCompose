@@ -2,10 +2,11 @@ package com.sundayting.wancompose.page.homescreen.mine.repo
 
 import android.content.Context
 import androidx.datastore.preferences.core.edit
+import androidx.room.withTransaction
 import com.sundayting.wancompose.datastore.dataStore
 import com.sundayting.wancompose.db.WanDatabase
-import com.sundayting.wancompose.function.UserLoginFunction
 import com.sundayting.wancompose.function.UserLoginFunction.CURRENT_LOGIN_ID_KEY
+import com.sundayting.wancompose.function.UserLoginFunction.UserEntity
 import com.sundayting.wancompose.function.UserLoginFunction.UserInfoBean
 import com.sundayting.wancompose.network.NetResult
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -20,11 +21,10 @@ import javax.inject.Singleton
 @Singleton
 class MineRepository @Inject constructor(
     private val mineService: MineService,
-    database: WanDatabase,
+    private val database: WanDatabase,
     @ApplicationContext context: Context,
 ) {
 
-    private val userDao = database.userDao()
     private val dataStore = context.dataStore
 
     val curUserFlow = dataStore.data
@@ -53,16 +53,18 @@ class MineRepository @Inject constructor(
                         if (it != null) {
                             joinAll(
                                 launch {
-                                    userDao.clear()
-                                    userDao.insertUser(
-                                        UserLoginFunction.UserEntity(
-                                            id = it.userInfo.id,
-                                            nick = it.userInfo.nickname,
-                                            coinCount = it.coinInfo.coinCount,
-                                            level = it.coinInfo.level,
-                                            rank = it.coinInfo.rank
+                                    database.withTransaction {
+                                        database.userDao().clear()
+                                        database.userDao().insertUser(
+                                            UserEntity(
+                                                id = it.userInfo.id,
+                                                nick = it.userInfo.nickname,
+                                                coinCount = it.coinInfo.coinCount,
+                                                level = it.coinInfo.level,
+                                                rank = it.coinInfo.rank
+                                            )
                                         )
-                                    )
+                                    }
                                 },
                                 launch {
                                     dataStore.edit { mp ->
