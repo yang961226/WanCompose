@@ -18,4 +18,6 @@
     <string name="please_input_password_again">请再次输入密码</string>
     <string name="welcome_back_tip">欢迎回来,%s</string>
     <string name="net_error">网络错误，请重试</string>
+    <string name="level_d">等级：%d</string>
+    <string name="rank_d">排名：%d</string>
 </resources>
