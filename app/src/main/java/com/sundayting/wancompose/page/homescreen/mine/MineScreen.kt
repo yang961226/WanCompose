@@ -3,6 +3,7 @@ package com.sundayting.wancompose.page.homescreen.mine
 import androidx.annotation.DrawableRes
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
@@ -109,6 +110,22 @@ object MineScreen : WanComposeDestination {
                     )
                 }
             }
+            MineScreenSingleLine(
+                title = stringResource(id = R.string.my_points),
+                resId = R.drawable.ic_point
+            )
+            MineScreenSingleLine(
+                title = stringResource(id = R.string.my_share),
+                resId = R.drawable.ic_share
+            )
+            MineScreenSingleLine(
+                title = stringResource(id = R.string.my_collect),
+                resId = R.drawable.ic_like
+            )
+            MineScreenSingleLine(
+                title = stringResource(id = R.string.system_setting),
+                resId = R.drawable.ic_setting
+            )
         }
     }
 
@@ -126,11 +143,14 @@ private fun MineScreenSingleLine(
     title: String,
     @DrawableRes resId: Int,
     endContent: @Composable (RowScope.() -> Unit)? = null,
+    onClick: () -> Unit = {},
 ) {
 
     Row(
-        modifier.padding(10.dp),
-        verticalAlignment = Alignment.CenterVertically
+        modifier
+            .clickable { onClick() }
+            .padding(15.dp),
+        verticalAlignment = Alignment.CenterVertically,
     ) {
         Image(
             painter = painterResource(id = resId),
