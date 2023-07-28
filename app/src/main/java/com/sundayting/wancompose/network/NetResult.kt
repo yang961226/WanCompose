@@ -1,5 +1,6 @@
 package com.sundayting.wancompose.network
 
+import android.app.Application
 import android.content.Context
 import com.sundayting.wancompose.R
 import com.sundayting.wancompose.page.homescreen.mine.repo.MineRepository
@@ -40,10 +41,13 @@ class WanNetError(val msg: String, override val cause: Throwable? = null) : Exce
 @Singleton
 class NetResultResponseConverterFactory @Inject constructor(
     @ApplicationContext context: Context,
-    private val mineRepository: MineRepository,
 ) : Converter.Factory {
 
     private val commonNetErrorString = context.getString(R.string.net_error)
+
+    private val mineRepository by lazy {
+        MineRepository.getInstance(context as Application)
+    }
 
     override fun suspendResponseConverter(
         typeData: TypeData,

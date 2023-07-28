@@ -6,6 +6,8 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.setContent
 import androidx.compose.animation.core.snap
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.navigationBarsPadding
@@ -176,11 +178,11 @@ fun WanComposeApp(
                             })
                     }
                 }
-            ) {
+            ) { it ->
                 AnimatedNavHost(
                     modifier = Modifier.padding(it),
                     startDestination = HomeScreen.route,
-                    navController = navController
+                    navController = navController,
                 ) {
                     with(HomeScreen) {
                         homeNavGraph(navController)
@@ -188,7 +190,11 @@ fun WanComposeApp(
 
                     composable(
                         route = WebViewScreen.routeWithArgs,
-                        arguments = WebViewScreen.arguments
+                        arguments = WebViewScreen.arguments,
+                        enterTransition = {
+                            slideInHorizontally { width -> width }
+                        },
+                        exitTransition = { slideOutHorizontally { width -> width } }
                     ) { entry ->
                         WebViewScreen.Screen(
                             Modifier.fillMaxSize(),

@@ -4,11 +4,10 @@ import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExitTransition
-import androidx.compose.foundation.background
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.BottomNavigation
 import androidx.compose.material.BottomNavigationItem
@@ -23,9 +22,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
@@ -34,11 +31,9 @@ import com.google.accompanist.navigation.animation.navigation
 import com.sundayting.wancompose.LocalLoginUser
 import com.sundayting.wancompose.R
 import com.sundayting.wancompose.WanComposeDestination
-import com.sundayting.wancompose.common.ui.title.TitleBar
 import com.sundayting.wancompose.page.homescreen.article.ui.ArticleList
 import com.sundayting.wancompose.page.homescreen.mine.MineScreen
 import com.sundayting.wancompose.page.webscreen.WebViewScreen.navigateToWebViewScreen
-import com.sundayting.wancompose.theme.WanColors
 
 object HomeScreen : WanComposeDestination {
 
@@ -125,32 +120,27 @@ object HomeScreen : WanComposeDestination {
             route = HomeScreen.route,
             startDestination = HomeScreenPage.ArticleList.route,
             enterTransition = {
-                EnterTransition.None
+                if (pageList.any { it.page.route == initialState.destination.route }) {
+                    EnterTransition.None
+                } else {
+                    slideInHorizontally { -it }
+                }
             },
             exitTransition = {
-                ExitTransition.None
+                if (pageList.any { it.page.route == targetState.destination.route }) {
+                    ExitTransition.None
+                } else {
+                    slideOutHorizontally { -it }
+                }
             }
         ) {
             composable(HomeScreenPage.ArticleList.route) {
-                Column(Modifier.fillMaxSize()) {
-                    TitleBar(
-                        Modifier
-                            .fillMaxWidth()
-                            .background(WanColors.TopColor)
-                    ) {
-                        Text(
-                            stringResource(id = R.string.bottom_tab_home), style = TextStyle(
-                                fontSize = 16.sp, color = Color.White
-                            ), modifier = Modifier.align(Alignment.Center)
-                        )
+                ArticleList.Screen(
+                    modifier = Modifier.fillMaxSize(),
+                    toWebLink = {
+                        navController.navigateToWebViewScreen(it)
                     }
-                    ArticleList.Screen(
-                        modifier = Modifier.fillMaxSize(),
-                        toWebLink = {
-                            navController.navigateToWebViewScreen(it)
-                        }
-                    )
-                }
+                )
             }
             composable(HomeScreenPage.System.route) {
                 Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {

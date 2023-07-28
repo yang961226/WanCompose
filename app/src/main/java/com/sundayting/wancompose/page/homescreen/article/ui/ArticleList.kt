@@ -5,6 +5,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.collectIsDraggedAsState
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
@@ -36,6 +37,7 @@ import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
@@ -51,7 +53,9 @@ import com.sundayting.wancompose.common.ui.infinitepager.InfiniteLoopHorizontalP
 import com.sundayting.wancompose.common.ui.infinitepager.currentPageInInfinitePage
 import com.sundayting.wancompose.common.ui.infinitepager.rememberInfiniteLoopPagerState
 import com.sundayting.wancompose.common.ui.ktx.onBottomReached
+import com.sundayting.wancompose.common.ui.title.TitleBar
 import com.sundayting.wancompose.page.homescreen.article.ArticleListViewModel
+import com.sundayting.wancompose.theme.WanColors
 import kotlinx.coroutines.delay
 
 object ArticleList {
@@ -99,25 +103,43 @@ object ArticleList {
         val pullRefreshState =
             rememberPullRefreshState(viewModel.refreshing, viewModel::refresh)
 
-        Box(modifier.pullRefresh(pullRefreshState)) {
-            val lazyListState = rememberLazyListState()
-            lazyListState.onBottomReached {
-                viewModel.loadMore()
+        Column(modifier) {
+            TitleBar(
+                Modifier
+                    .fillMaxWidth()
+                    .background(WanColors.TopColor)
+            ) {
+                Text(
+                    stringResource(id = R.string.bottom_tab_home), style = TextStyle(
+                        fontSize = 16.sp, color = Color.White
+                    ), modifier = Modifier.align(Alignment.Center)
+                )
             }
-            ArticleListContent(
-                modifier = Modifier.matchParentSize(),
-                bannerList = viewModel.bannerList,
-                list = viewModel.articleList,
-                state = lazyListState,
-                isLoadingMore = viewModel.loadingMore,
-                toWebLink = toWebLink
-            )
-            PullRefreshIndicator(
-                viewModel.refreshing,
-                pullRefreshState,
-                Modifier.align(Alignment.TopCenter)
-            )
+            Box(
+                Modifier
+                    .fillMaxSize()
+                    .pullRefresh(pullRefreshState)
+            ) {
+                val lazyListState = rememberLazyListState()
+                lazyListState.onBottomReached {
+                    viewModel.loadMore()
+                }
+                ArticleListContent(
+                    modifier = Modifier.matchParentSize(),
+                    bannerList = viewModel.bannerList,
+                    list = viewModel.articleList,
+                    state = lazyListState,
+                    isLoadingMore = viewModel.loadingMore,
+                    toWebLink = toWebLink
+                )
+                PullRefreshIndicator(
+                    viewModel.refreshing,
+                    pullRefreshState,
+                    Modifier.align(Alignment.TopCenter)
+                )
+            }
         }
+
 
     }
 }
