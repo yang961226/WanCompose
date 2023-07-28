@@ -5,7 +5,6 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.collectIsDraggedAsState
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
@@ -53,9 +52,8 @@ import com.sundayting.wancompose.common.ui.infinitepager.InfiniteLoopHorizontalP
 import com.sundayting.wancompose.common.ui.infinitepager.currentPageInInfinitePage
 import com.sundayting.wancompose.common.ui.infinitepager.rememberInfiniteLoopPagerState
 import com.sundayting.wancompose.common.ui.ktx.onBottomReached
-import com.sundayting.wancompose.common.ui.title.TitleBar
+import com.sundayting.wancompose.common.ui.title.TitleBarWithContent
 import com.sundayting.wancompose.page.homescreen.article.ArticleListViewModel
-import com.sundayting.wancompose.theme.WanColors
 import kotlinx.coroutines.delay
 
 object ArticleList {
@@ -103,18 +101,16 @@ object ArticleList {
         val pullRefreshState =
             rememberPullRefreshState(viewModel.refreshing, viewModel::refresh)
 
-        Column(modifier) {
-            TitleBar(
-                Modifier
-                    .fillMaxWidth()
-                    .background(WanColors.TopColor)
-            ) {
+        TitleBarWithContent(
+            modifier,
+            titleBarContent = {
                 Text(
                     stringResource(id = R.string.bottom_tab_home), style = TextStyle(
                         fontSize = 16.sp, color = Color.White
                     ), modifier = Modifier.align(Alignment.Center)
                 )
             }
+        ) {
             Box(
                 Modifier
                     .fillMaxSize()
@@ -139,8 +135,6 @@ object ArticleList {
                 )
             }
         }
-
-
     }
 }
 
