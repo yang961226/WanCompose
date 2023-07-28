@@ -40,6 +40,13 @@ class MineRepository @Inject constructor(
 
     private suspend fun fetchUserInfo() = mineService.fetchUserInfo()
 
+    suspend fun clearLoginUser() {
+        dataStore.edit { mp ->
+            mp[CURRENT_LOGIN_ID_KEY] = 0
+        }
+        database.userDao().clear()
+    }
+
     suspend fun loginAndAutoInsertData(
         username: String,
         password: String,

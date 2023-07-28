@@ -2,6 +2,7 @@ package com.sundayting.wancompose.network
 
 import android.content.Context
 import com.sundayting.wancompose.R
+import com.sundayting.wancompose.page.homescreen.mine.repo.MineRepository
 import dagger.hilt.android.qualifiers.ApplicationContext
 import de.jensklingenberg.ktorfit.Ktorfit
 import de.jensklingenberg.ktorfit.converter.Converter
@@ -39,6 +40,7 @@ class WanNetError(val msg: String, override val cause: Throwable? = null) : Exce
 @Singleton
 class NetResultResponseConverterFactory @Inject constructor(
     @ApplicationContext context: Context,
+    private val mineRepository: MineRepository,
 ) : Converter.Factory {
 
     private val commonNetErrorString = context.getString(R.string.net_error)
@@ -54,6 +56,9 @@ class NetResultResponseConverterFactory @Inject constructor(
                         val result =
                             response.body<WanNetResult<*>>(typeData.typeArgs.first().typeInfo)
                         if (result.errorCode != 0) {
+                            if (result.errorCode == -1001) {
+                                mineRepository.clearLoginUser()
+                            }
                             return NetResult.error(WanNetError(result.errorMsg))
                         } else {
                             NetResult.success(result)
