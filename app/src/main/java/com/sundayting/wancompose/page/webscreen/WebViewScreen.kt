@@ -5,9 +5,12 @@ import android.net.Uri
 import android.webkit.WebResourceRequest
 import android.webkit.WebView
 import androidx.annotation.DrawableRes
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.animateDp
 import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.updateTransition
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
@@ -22,9 +25,11 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -48,12 +53,14 @@ import androidx.navigation.NavController
 import androidx.navigation.NavType
 import androidx.navigation.navArgument
 import com.google.accompanist.web.AccompanistWebViewClient
+import com.google.accompanist.web.LoadingState
 import com.google.accompanist.web.WebView
 import com.google.accompanist.web.WebViewState
 import com.sundayting.wancompose.R
 import com.sundayting.wancompose.WanComposeDestination
 import com.sundayting.wancompose.common.ui.title.TitleBar
 import com.sundayting.wancompose.common.ui.title.TitleBarWithContent
+import com.sundayting.wancompose.theme.WanColors
 import java.net.URLEncoder
 import java.nio.charset.StandardCharsets
 
@@ -128,19 +135,25 @@ object WebViewScreen : WanComposeDestination {
                             return true
                         }
 
+
                         override fun onPageFinished(view: WebView?, url: String?) {
                             title = view?.title.orEmpty()
                         }
+
                     }
                 )
 
                 val context = LocalContext.current
+
 
                 WebToolWidget(
                     Modifier.constrainAs(webToolContent) {
                         start.linkTo(parent.start, 30.dp)
                         bottom.linkTo(parent.bottom, 60.dp)
                     },
+                    loadingProgress = remember {
+                        derivedStateOf { (webViewState.loadingState as? LoadingState.Loading)?.progress }
+                    }.value,
                     onClickBack = navController::popBackStack,
                     onClickBookmark = {
 
@@ -209,6 +222,7 @@ private fun PreviewWebToolWidget() {
 @Composable
 private fun WebToolWidget(
     modifier: Modifier = Modifier,
+    loadingProgress: Float? = null,
     onClickBack: () -> Unit = {},
     onClickLike: () -> Unit = {},
     onClickBookmark: () -> Unit = {},
@@ -243,7 +257,18 @@ private fun WebToolWidget(
     }
 
 
-    Box(modifier) {
+    Box(modifier.size(60.dp), contentAlignment = Alignment.Center) {
+        AnimatedVisibility(
+            enter = fadeIn(),
+            exit = fadeOut(),
+            visible = loadingProgress != null && loadingProgress != 1f
+        ) {
+            CircularProgressIndicator(
+                modifier = Modifier.size(60.dp),
+                color = WanColors.TopColor,
+                progress = loadingProgress ?: 0f,
+            )
+        }
         WebToolButton(
             Modifier
                 .offset(y = buttonOneOffset)
