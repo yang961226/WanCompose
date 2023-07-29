@@ -1,5 +1,6 @@
 package com.sundayting.wancompose.page.webscreen
 
+import android.content.Intent
 import android.net.Uri
 import android.webkit.WebResourceRequest
 import android.webkit.WebView
@@ -35,6 +36,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextOverflow
@@ -54,6 +56,7 @@ import com.sundayting.wancompose.common.ui.title.TitleBar
 import com.sundayting.wancompose.common.ui.title.TitleBarWithContent
 import java.net.URLEncoder
 import java.nio.charset.StandardCharsets
+
 
 object WebViewScreen : WanComposeDestination {
     override val route: String
@@ -131,16 +134,24 @@ object WebViewScreen : WanComposeDestination {
                     }
                 )
 
+                val context = LocalContext.current
+
                 WebToolWidget(
                     Modifier.constrainAs(webToolContent) {
                         start.linkTo(parent.start, 30.dp)
                         bottom.linkTo(parent.bottom, 60.dp)
                     },
+                    onClickBack = navController::popBackStack,
                     onClickBookmark = {
 
                     },
                     onClickBrowser = {
-
+                        context.startActivity(
+                            Intent(
+                                Intent.ACTION_VIEW,
+                                Uri.parse(webViewState.lastLoadedUrl)
+                            )
+                        )
                     },
                     onClickLike = {
 
