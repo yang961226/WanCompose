@@ -6,6 +6,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.sundayting.wancompose.network.isSuccess
 import com.sundayting.wancompose.page.homescreen.article.repo.ArticleRepository
 import com.sundayting.wancompose.page.homescreen.article.repo.toArticleUiBean
 import com.sundayting.wancompose.page.homescreen.article.repo.toBannerUiBean
@@ -68,29 +69,18 @@ class ArticleListViewModel @Inject constructor(
             joinAll(
                 launch {
                     if (isRefresh) {
-                        val result = kotlin.runCatching {
-                            repo.fetchHomePageBanner()
-                        }
-                        result.onSuccess { bean ->
-                            bean.data?.let { data ->
-                                _bannerList.clear()
-                                _bannerList.addAll(data.map { it.toBannerUiBean() })
-                            }
+                        val result = repo.fetchHomePageBanner2()
+                        if (result.isSuccess() && result.body.data != null) {
+                            _bannerList.clear()
+                            _bannerList.addAll(result.body.data.map { it.toBannerUiBean() })
                         }
                     }
                 },
                 launch {
-                    val result = runCatching {
-                        repo.fetchHomePageArticle(curPage)
-                    }
-                    result.onSuccess { bean ->
+                    val result = repo.fetchHomePageArticle2(curPage)
+                    if (result.isSuccess() && result.body.data != null) {
                         curPage++
-                        bean.data?.let { data ->
-                            addArticle(
-                                data.list.map { it.toArticleUiBean() },
-                                isRefresh
-                            )
-                        }
+                        addArticle(result.body.data.list.map { it.toArticleUiBean() }, isRefresh)
                     }
                 }
             )
