@@ -13,6 +13,7 @@ import com.sundayting.wancompose.page.homescreen.article.repo.toBannerUiBean
 import com.sundayting.wancompose.page.homescreen.article.ui.ArticleList
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.async
 import kotlinx.coroutines.joinAll
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -44,6 +45,10 @@ class ArticleListViewModel @Inject constructor(
         _articleList.addAll(list)
     }
 
+    private fun addTopArticle(list: List<ArticleList.ArticleUiBean>) {
+        _articleList.addAll(0, list)
+    }
+
     fun refresh() {
         load(true)
     }
@@ -69,7 +74,7 @@ class ArticleListViewModel @Inject constructor(
             joinAll(
                 launch {
                     if (isRefresh) {
-                        val result = repo.fetchHomePageBanner2()
+                        val result = repo.fetchHomePageBanner()
                         if (result.isSuccess() && result.body.data != null) {
                             _bannerList.clear()
                             _bannerList.addAll(result.body.data.map { it.toBannerUiBean() })
@@ -77,12 +82,38 @@ class ArticleListViewModel @Inject constructor(
                     }
                 },
                 launch {
-                    val result = repo.fetchHomePageArticle2(curPage)
-                    if (result.isSuccess() && result.body.data != null) {
-                        curPage++
-                        addArticle(result.body.data.list.map { it.toArticleUiBean() }, isRefresh)
+                    val topArticleListDeferred = async {
+                        if (isRefresh) {
+                            val result = repo.fetchHomePageTopArticle()
+                            if (result.isSuccess() && result.body.data != null) {
+                                result.body.data
+                            } else {
+                                null
+                            }
+                        } else {
+                            null
+                        }
                     }
-                }
+
+                    val articleListDeferred = async {
+                        val result = repo.fetchHomePageArticle(curPage)
+                        if (result.isSuccess() && result.body.data != null) {
+                            result.body.data.list
+                        } else {
+                            null
+                        }
+                    }
+
+                    val topArticleList = topArticleListDeferred.await()
+                    val articleList = articleListDeferred.await()
+
+                    if (articleList != null) {
+                        addArticle(articleList.map { it.toArticleUiBean() }, isRefresh)
+                    }
+                    if (topArticleList != null) {
+                        addTopArticle(topArticleList.map { it.toArticleUiBean(true) })
+                    }
+                },
             )
         }.apply {
             invokeOnCompletion {

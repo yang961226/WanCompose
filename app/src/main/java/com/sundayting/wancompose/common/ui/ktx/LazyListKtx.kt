@@ -21,7 +21,7 @@ fun LazyListState.onBottomReached(
                 ?:
                 // list is empty
                 // return false here if loadMore should not be invoked if the list is empty
-                return@derivedStateOf true
+                return@derivedStateOf false
 
             // Check if last visible item is the last item in the list
             lastVisibleItem.index == layoutInfo.totalItemsCount - 1

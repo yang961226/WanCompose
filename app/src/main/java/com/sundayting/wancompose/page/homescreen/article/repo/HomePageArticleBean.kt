@@ -21,6 +21,7 @@ data class ArticleBean(
 
 @Serializable
 data class ArticleResultBean(
+    @SerialName("curPage")
     val curPage: Int,
     @SerialName("datas")
     val list: List<ArticleBean>,
@@ -32,6 +33,14 @@ data class HomePageArticleBean(
     override val errorCode: Int,
     override val errorMsg: String,
 ) : WanNetResult<ArticleResultBean?>()
+
+
+@Serializable
+data class HomePageTopArticleBean(
+    override val data: List<ArticleBean>?,
+    override val errorCode: Int,
+    override val errorMsg: String,
+) : WanNetResult<List<ArticleBean>??>()
 
 
 @Serializable

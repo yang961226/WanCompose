@@ -6,7 +6,6 @@ import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExitTransition
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.BottomNavigation
@@ -17,7 +16,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
@@ -45,7 +43,7 @@ object HomeScreen : WanComposeDestination {
     ) {
 
         object ArticleList : HomeScreenPage("文章列表")
-        object System : HomeScreenPage("体系")
+//        object System : HomeScreenPage("体系")
         object Mine : HomeScreenPage("我的")
 
 
@@ -63,11 +61,11 @@ object HomeScreen : WanComposeDestination {
             titleId = R.string.bottom_tab_home,
             page = HomeScreenPage.ArticleList
         ),
-        HomeScreenPage.BottomItem(
-            resId = R.drawable.ic_system,
-            titleId = R.string.bottom_tab_system,
-            page = HomeScreenPage.System
-        ),
+//        HomeScreenPage.BottomItem(
+//            resId = R.drawable.ic_system,
+//            titleId = R.string.bottom_tab_system,
+//            page = HomeScreenPage.System
+//        ),
         HomeScreenPage.BottomItem(
             resId = R.drawable.ic_mine,
             titleId = R.string.bottom_tab_mine,
@@ -142,11 +140,11 @@ object HomeScreen : WanComposeDestination {
                     }
                 )
             }
-            composable(HomeScreenPage.System.route) {
-                Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                    Text("我是2")
-                }
-            }
+//            composable(HomeScreenPage.System.route) {
+//                Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+//                    Text("我是2")
+//                }
+//            }
             composable(HomeScreenPage.Mine.route) {
                 MineScreen.Screen(
                     modifier = Modifier.fillMaxSize(),
