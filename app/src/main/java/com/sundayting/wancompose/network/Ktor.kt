@@ -45,7 +45,6 @@ object KtorModule {
         cookiesStorage: CookiesStorage,
     ): HttpClient {
         return HttpClient(Android) {
-            expectSuccess = true
             install(Resources)
             install(HttpCookies) {
                 storage = cookiesStorage

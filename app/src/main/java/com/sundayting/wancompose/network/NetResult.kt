@@ -63,7 +63,7 @@ class NetResultResponseConverterFactory @Inject constructor(
                             if (result.errorCode == -1001) {
                                 mineRepository.clearLoginUser()
                             }
-                            return NetResult.error(WanNetError(result.errorMsg))
+                            NetResult.error(WanNetError(result.errorMsg))
                         } else {
                             NetResult.success(result)
                         }

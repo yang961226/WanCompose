@@ -10,7 +10,7 @@ plugins {
     id("de.jensklingenberg.ktorfit") version "1.0.0"
 }
 
-val ktorfitVersion = "1.4.3"
+val ktorfitVersion = "1.4.4"
 
 configure<de.jensklingenberg.ktorfit.gradle.KtorfitGradleConfiguration> {
     version = ktorfitVersion
