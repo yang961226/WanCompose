@@ -33,9 +33,12 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.ConstraintLayout
+import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
 import com.sundayting.wancompose.R
 import com.sundayting.wancompose.WanComposeDestination
 import com.sundayting.wancompose.function.UserLoginFunction.UserEntity
+import com.sundayting.wancompose.page.setting.SettingScreen.navigateToSettingScreen
 import com.sundayting.wancompose.theme.WanColors
 
 object MineScreen : WanComposeDestination {
@@ -44,7 +47,11 @@ object MineScreen : WanComposeDestination {
         get() = "个人页"
 
     @Composable
-    fun Screen(modifier: Modifier = Modifier, userEntity: UserEntity?) {
+    fun Screen(
+        modifier: Modifier = Modifier,
+        userEntity: UserEntity?,
+        navController: NavController = rememberNavController(),
+    ) {
         val scrollState = rememberScrollState()
         Column(
             modifier
@@ -128,7 +135,7 @@ object MineScreen : WanComposeDestination {
                 title = stringResource(id = R.string.system_setting),
                 resId = R.drawable.ic_setting,
                 onClick = {
-
+                    navController.navigateToSettingScreen()
                 }
             )
         }

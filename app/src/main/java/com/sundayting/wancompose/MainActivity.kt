@@ -43,6 +43,7 @@ import com.google.accompanist.web.rememberWebViewState
 import com.sundayting.wancompose.function.UserLoginFunction.UserEntity
 import com.sundayting.wancompose.page.homescreen.HomeScreen
 import com.sundayting.wancompose.page.homescreen.mine.ui.LoginContent
+import com.sundayting.wancompose.page.setting.SettingScreen
 import com.sundayting.wancompose.page.webscreen.WebViewScreen
 import com.sundayting.wancompose.page.webscreen.WebViewScreen.urlArg
 import dagger.hilt.android.AndroidEntryPoint
@@ -125,8 +126,16 @@ fun WanComposeApp(
             val navController = rememberAnimatedNavController()
             val navBackStackEntry by navController.currentBackStackEntryAsState()
             val currentDestination = navBackStackEntry?.destination
-            LaunchedEffect(isLogin, currentDestination) {
-                if (!isLogin && currentDestination?.route == HomeScreen.HomeScreenPage.Mine.route) {
+
+            //在主页
+            val isInMainPage by remember {
+                derivedStateOf {
+                    HomeScreen.pageList.any { it.page.route == navBackStackEntry?.destination?.route }
+                }
+            }
+            LaunchedEffect(isLogin, isInMainPage) {
+                //如果当前不在主页而且没有登录的情况，则返回到主页
+                if (!isLogin && !isInMainPage) {
                     navController.navigate(HomeScreen.HomeScreenPage.ArticleList.route) {
                         popUpTo(
                             navController.graph.findStartDestination().id
@@ -143,9 +152,7 @@ fun WanComposeApp(
                 modifier = Modifier
                     .navigationBarsPadding(),
                 bottomBar = {
-                    if (currentDestination?.route?.let { curRoute ->
-                            HomeScreen.pageList.any { it.page.route == curRoute }
-                        } == true) {
+                    if (isInMainPage) {
                         HomeScreen.Navigation(
                             navController = navController,
                             onClickBottom = { bottomItem ->
@@ -189,11 +196,20 @@ fun WanComposeApp(
                     }
 
                     composable(
+                        route = SettingScreen.route,
+                        enterTransition = { slideInHorizontally { width -> width } },
+                        exitTransition = { slideOutHorizontally { width -> width } }
+                    ) {
+                        SettingScreen.Screen(
+                            Modifier.fillMaxSize(),
+                            navController = navController
+                        )
+                    }
+
+                    composable(
                         route = WebViewScreen.routeWithArgs,
                         arguments = WebViewScreen.arguments,
-                        enterTransition = {
-                            slideInHorizontally { width -> width }
-                        },
+                        enterTransition = { slideInHorizontally { width -> width } },
                         exitTransition = { slideOutHorizontally { width -> width } }
                     ) { entry ->
                         WebViewScreen.Screen(

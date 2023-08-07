@@ -43,7 +43,6 @@ object HomeScreen : WanComposeDestination {
     ) {
 
         object ArticleList : HomeScreenPage("文章列表")
-//        object System : HomeScreenPage("体系")
         object Mine : HomeScreenPage("我的")
 
 
@@ -61,11 +60,6 @@ object HomeScreen : WanComposeDestination {
             titleId = R.string.bottom_tab_home,
             page = HomeScreenPage.ArticleList
         ),
-//        HomeScreenPage.BottomItem(
-//            resId = R.drawable.ic_system,
-//            titleId = R.string.bottom_tab_system,
-//            page = HomeScreenPage.System
-//        ),
         HomeScreenPage.BottomItem(
             resId = R.drawable.ic_mine,
             titleId = R.string.bottom_tab_mine,
@@ -143,7 +137,8 @@ object HomeScreen : WanComposeDestination {
             composable(HomeScreenPage.Mine.route) {
                 MineScreen.Screen(
                     modifier = Modifier.fillMaxSize(),
-                    userEntity = LocalLoginUser.current
+                    userEntity = LocalLoginUser.current,
+                    navController = navController
                 )
             }
         }
