@@ -6,7 +6,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.sundayting.wancompose.network.isSuccess
 import com.sundayting.wancompose.network.okhttp.isNSuccess
 import com.sundayting.wancompose.page.homescreen.article.repo.ArticleRepository
 import com.sundayting.wancompose.page.homescreen.article.repo.toArticleUiBean
@@ -76,9 +75,11 @@ class ArticleListViewModel @Inject constructor(
                 launch {
                     if (isRefresh) {
                         val result = repo.fetchHomePageBanner()
-                        if (result.isSuccess() && result.body.data != null) {
-                            _bannerList.clear()
-                            _bannerList.addAll(result.body.data.map { it.toBannerUiBean() })
+                        if (result.isNSuccess()) {
+                            result.body.data?.let { list ->
+                                _bannerList.clear()
+                                _bannerList.addAll(list.map { it.toBannerUiBean() })
+                            }
                         }
                     }
                 },

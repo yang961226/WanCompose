@@ -1,6 +1,6 @@
 package com.sundayting.wancompose.network.okhttp
 
-import com.sundayting.wancompose.page.homescreen.article.repo.HomePageService2
+import com.sundayting.wancompose.page.homescreen.article.repo.HomePageService
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -14,8 +14,8 @@ object CommonServiceModule {
     @Provides
     fun provideHomePageService(
         retrofit: Retrofit,
-    ): HomePageService2 {
-        return retrofit.create(HomePageService2::class.java)
+    ): HomePageService {
+        return retrofit.create(HomePageService::class.java)
     }
 
 }

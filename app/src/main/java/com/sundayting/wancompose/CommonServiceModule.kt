@@ -1,6 +1,5 @@
 package com.sundayting.wancompose
 
-import com.sundayting.wancompose.page.homescreen.article.repo.HomePageService
 import com.sundayting.wancompose.page.homescreen.mine.repo.MineService
 import dagger.Module
 import dagger.Provides
@@ -18,14 +17,6 @@ object CommonModule {
     fun providerMineService(
         ktorfit: Ktorfit,
     ): MineService {
-        return ktorfit.create()
-    }
-
-    @Provides
-    @Singleton
-    fun providerHomePageService(
-        ktorfit: Ktorfit,
-    ): HomePageService {
         return ktorfit.create()
     }
 

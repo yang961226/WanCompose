@@ -1,9 +1,7 @@
 package com.sundayting.wancompose.page.homescreen.article.repo
 
 import com.squareup.moshi.Json
-import com.sundayting.wancompose.network.WanNetResult
 import com.sundayting.wancompose.page.homescreen.article.ui.ArticleList
-import kotlinx.serialization.Serializable
 
 data class ArticleBean(
     val id: Long,
@@ -17,27 +15,19 @@ data class ArticleBean(
     val link: String,
 )
 
-data class ArticleResultBean(
+data class ArticleListBean(
     @field:Json(name = "curPage")
     val curPage: Int,
     @field:Json(name = "datas")
     val list: List<ArticleBean>,
 )
 
-@Serializable
-data class HomePageBannerResultBean(
+data class HomePageBannerBean(
     val imagePath: String,
     val url: String,
     val id: Int,
     val title: String,
 )
-
-@Serializable
-data class HomePageBannerBean(
-    override val data: List<HomePageBannerResultBean>?,
-    override val errorCode: Int,
-    override val errorMsg: String,
-) : WanNetResult<List<HomePageBannerResultBean>>()
 
 fun ArticleBean.toArticleUiBean(
     isStick: Boolean = false,
@@ -60,7 +50,7 @@ fun ArticleBean.toArticleUiBean(
     )
 }
 
-fun HomePageBannerResultBean.toBannerUiBean(): ArticleList.BannerUiBean {
+fun HomePageBannerBean.toBannerUiBean(): ArticleList.BannerUiBean {
     return ArticleList.BannerUiBean(
         imgUrl = imagePath,
         linkUrl = url,
