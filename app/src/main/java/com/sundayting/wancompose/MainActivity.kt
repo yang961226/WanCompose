@@ -86,10 +86,10 @@ fun WanComposeApp(
         skipHalfExpanded = true
     )
     val bottomSheetPagerState = rememberPagerState()
-    val uiController = rememberSystemUiController()
-    uiController.setStatusBarColor(Color.Transparent)
+    rememberSystemUiController().apply {
+        setStatusBarColor(Color.Transparent)
+    }
     val context = LocalContext.current
-    R.string.bottom_tab_home
     LaunchedEffect(isLogin, context) {
         if (isLogin) {
             Toast.makeText(

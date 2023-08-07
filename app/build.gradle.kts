@@ -137,6 +137,14 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.5.1")
     implementation("androidx.constraintlayout:constraintlayout-compose:1.0.1")
 
+    val retrofitVersion = "2.9.0"
+    implementation("com.squareup.retrofit2:retrofit:$retrofitVersion")
+
+    val okhttpVersion = "4.11.0"
+    implementation(platform("com.squareup.okhttp3:okhttp-bom:$okhttpVersion"))
+    implementation("com.squareup.okhttp3:logging-interceptor:$okhttpVersion")
+    implementation("com.squareup.retrofit2:converter-moshi:2.9.0")
+
     implementation("com.google.accompanist:accompanist-navigation-animation:0.30.1")
 
     implementation("com.google.dagger:hilt-android:2.44")

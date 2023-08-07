@@ -7,6 +7,7 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.sundayting.wancompose.network.isSuccess
+import com.sundayting.wancompose.network.okhttp.isNSuccess
 import com.sundayting.wancompose.page.homescreen.article.repo.ArticleRepository
 import com.sundayting.wancompose.page.homescreen.article.repo.toArticleUiBean
 import com.sundayting.wancompose.page.homescreen.article.repo.toBannerUiBean
@@ -82,37 +83,37 @@ class ArticleListViewModel @Inject constructor(
                     }
                 },
                 launch {
-                    val topArticleListDeferred = async {
-                        if (isRefresh) {
-                            val result = repo.fetchHomePageTopArticle()
-                            if (result.isSuccess() && result.body.data != null) {
-                                result.body.data
-                            } else {
-                                null
-                            }
-                        } else {
-                            null
-                        }
-                    }
+//                    val topArticleListDeferred = async {
+//                        if (isRefresh) {
+//                            val result = repo.fetchHomePageTopArticle()
+//                            if (result.isSuccess() && result.body.data != null) {
+//                                result.body.data
+//                            } else {
+//                                null
+//                            }
+//                        } else {
+//                            null
+//                        }
+//                    }
 
                     val articleListDeferred = async {
                         val result = repo.fetchHomePageArticle(curPage)
-                        if (result.isSuccess() && result.body.data != null) {
-                            result.body.data.list
+                        if (result.isNSuccess()) {
+                            result.body.data?.list
                         } else {
                             null
                         }
                     }
 
-                    val topArticleList = topArticleListDeferred.await()
+//                    val topArticleList = topArticleListDeferred.await()
                     val articleList = articleListDeferred.await()
 
                     if (articleList != null) {
                         addArticle(articleList.map { it.toArticleUiBean() }, isRefresh)
                     }
-                    if (topArticleList != null) {
-                        addTopArticle(topArticleList.map { it.toArticleUiBean(true) })
-                    }
+//                    if (topArticleList != null) {
+//                        addTopArticle(topArticleList.map { it.toArticleUiBean(true) })
+//                    }
                 },
             )
         }.apply {

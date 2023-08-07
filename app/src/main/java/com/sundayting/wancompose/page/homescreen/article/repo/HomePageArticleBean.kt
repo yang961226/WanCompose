@@ -1,12 +1,10 @@
 package com.sundayting.wancompose.page.homescreen.article.repo
 
+import com.squareup.moshi.Json
 import com.sundayting.wancompose.network.WanNetResult
 import com.sundayting.wancompose.page.homescreen.article.ui.ArticleList
-import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
-
-@Serializable
 data class ArticleBean(
     val id: Long,
     val title: String,
@@ -19,29 +17,12 @@ data class ArticleBean(
     val link: String,
 )
 
-@Serializable
 data class ArticleResultBean(
-    @SerialName("curPage")
+    @field:Json(name = "curPage")
     val curPage: Int,
-    @SerialName("datas")
+    @field:Json(name = "datas")
     val list: List<ArticleBean>,
 )
-
-@Serializable
-data class HomePageArticleBean(
-    override val data: ArticleResultBean?,
-    override val errorCode: Int,
-    override val errorMsg: String,
-) : WanNetResult<ArticleResultBean?>()
-
-
-@Serializable
-data class HomePageTopArticleBean(
-    override val data: List<ArticleBean>?,
-    override val errorCode: Int,
-    override val errorMsg: String,
-) : WanNetResult<List<ArticleBean>??>()
-
 
 @Serializable
 data class HomePageBannerResultBean(
