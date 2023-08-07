@@ -9,7 +9,7 @@ import com.sundayting.wancompose.db.WanDatabase
 import com.sundayting.wancompose.function.UserLoginFunction.CURRENT_LOGIN_ID_KEY
 import com.sundayting.wancompose.function.UserLoginFunction.UserEntity
 import com.sundayting.wancompose.function.UserLoginFunction.UserInfoBean
-import com.sundayting.wancompose.network.NetResult
+import com.sundayting.wancompose.network.okhttp.isNSuccess
 import dagger.hilt.EntryPoint
 import dagger.hilt.InstallIn
 import dagger.hilt.android.EntryPointAccessors
@@ -76,33 +76,31 @@ class MineRepository @Inject constructor(
     ): UserInfoBean? {
         return coroutineScope {
             val loginResult = login(username, password)
-            return@coroutineScope if (loginResult is NetResult.Success) {
+            return@coroutineScope if (loginResult.isNSuccess()) {
                 val fetchUserInfoResult = fetchUserInfo()
-                if (fetchUserInfoResult is NetResult.Success) {
-                    fetchUserInfoResult.body.data.also {
-                        if (it != null) {
-                            joinAll(
-                                launch {
-                                    database.withTransaction {
-                                        database.userDao().clear()
-                                        database.userDao().insertUser(
-                                            UserEntity(
-                                                id = it.userInfo.id,
-                                                nick = it.userInfo.nickname,
-                                                coinCount = it.coinInfo.coinCount,
-                                                level = it.coinInfo.level,
-                                                rank = it.coinInfo.rank
-                                            )
+                if (fetchUserInfoResult.isNSuccess()) {
+                    fetchUserInfoResult.body.also {
+                        joinAll(
+                            launch {
+                                database.withTransaction {
+                                    database.userDao().clear()
+                                    database.userDao().insertUser(
+                                        UserEntity(
+                                            id = it.userInfo.id,
+                                            nick = it.userInfo.nickname,
+                                            coinCount = it.coinInfo.coinCount,
+                                            level = it.coinInfo.level,
+                                            rank = it.coinInfo.rank
                                         )
-                                    }
-                                },
-                                launch {
-                                    dataStore.edit { mp ->
-                                        mp[CURRENT_LOGIN_ID_KEY] = it.userInfo.id
-                                    }
+                                    )
                                 }
-                            )
-                        }
+                            },
+                            launch {
+                                dataStore.edit { mp ->
+                                    mp[CURRENT_LOGIN_ID_KEY] = it.userInfo.id
+                                }
+                            }
+                        )
                     }
                 } else {
                     null
