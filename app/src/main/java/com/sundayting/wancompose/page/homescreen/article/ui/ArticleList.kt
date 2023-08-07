@@ -3,6 +3,7 @@ package com.sundayting.wancompose.page.homescreen.article.ui
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsDraggedAsState
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
@@ -21,6 +22,7 @@ import androidx.compose.material.Text
 import androidx.compose.material.pullrefresh.PullRefreshIndicator
 import androidx.compose.material.pullrefresh.pullRefresh
 import androidx.compose.material.pullrefresh.rememberPullRefreshState
+import androidx.compose.material.ripple.rememberRipple
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.Stable
@@ -188,7 +190,10 @@ private fun ArticleListContent(
                         AsyncImage(
                             modifier = Modifier
                                 .fillMaxSize()
-                                .clickable {
+                                .clickable(
+                                    interactionSource = remember { MutableInteractionSource() },
+                                    indication = rememberRipple()
+                                ) {
                                     val clickedBanner =
                                         bannerList[pagerState.currentPageInInfinitePage(bannerList.size)]
                                     toWebLink(clickedBanner.linkUrl)
@@ -230,7 +235,10 @@ private fun ArticleListContent(
             ArticleListSingleBean(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .clickable {
+                    .clickable(
+                        interactionSource = remember { MutableInteractionSource() },
+                        indication = rememberRipple()
+                    ) {
                         toWebLink(it.link)
                     }
                     .padding(10.dp),
