@@ -9,7 +9,7 @@ class ArticleRepository @Inject constructor(
     private val homePageService2: HomePageService2,
 ) {
 
-//    suspend fun fetchHomePageTopArticle() = homePageService.fetchHomePageTopArticle()
+    suspend fun fetchHomePageTopArticle() = homePageService2.fetchHomePageTopArticle()
 
     suspend fun fetchHomePageArticle(page: Int) = homePageService2.fetchHomePageArticle(page)
 

@@ -83,18 +83,18 @@ class ArticleListViewModel @Inject constructor(
                     }
                 },
                 launch {
-//                    val topArticleListDeferred = async {
-//                        if (isRefresh) {
-//                            val result = repo.fetchHomePageTopArticle()
-//                            if (result.isSuccess() && result.body.data != null) {
-//                                result.body.data
-//                            } else {
-//                                null
-//                            }
-//                        } else {
-//                            null
-//                        }
-//                    }
+                    val topArticleListDeferred = async {
+                        if (isRefresh) {
+                            val result = repo.fetchHomePageTopArticle()
+                            if (result.isNSuccess() && result.body.data != null) {
+                                result.body.data
+                            } else {
+                                null
+                            }
+                        } else {
+                            null
+                        }
+                    }
 
                     val articleListDeferred = async {
                         val result = repo.fetchHomePageArticle(curPage)
@@ -105,15 +105,15 @@ class ArticleListViewModel @Inject constructor(
                         }
                     }
 
-//                    val topArticleList = topArticleListDeferred.await()
+                    val topArticleList = topArticleListDeferred.await()
                     val articleList = articleListDeferred.await()
 
                     if (articleList != null) {
                         addArticle(articleList.map { it.toArticleUiBean() }, isRefresh)
                     }
-//                    if (topArticleList != null) {
-//                        addTopArticle(topArticleList.map { it.toArticleUiBean(true) })
-//                    }
+                    if (topArticleList != null) {
+                        addTopArticle(topArticleList.map { it.toArticleUiBean(true) })
+                    }
                 },
             )
         }.apply {
