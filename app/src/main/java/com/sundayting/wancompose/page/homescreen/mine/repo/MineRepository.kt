@@ -61,13 +61,31 @@ class MineRepository @Inject constructor(
         password: String,
     ) = mineService.login(username, password)
 
+    /**
+     * 登出
+     */
+    suspend fun logout() {
+        val result = mineService.logout()
+        if (result.isNSuccess()) {
+            clearLoginUser()
+        }
+    }
+
     private suspend fun fetchUserInfo() = mineService.fetchUserInfo()
 
     suspend fun clearLoginUser() {
-        dataStore.edit { mp ->
-            mp[CURRENT_LOGIN_ID_KEY] = 0
+        coroutineScope {
+            joinAll(
+                launch {
+                    dataStore.edit { mp ->
+                        mp[CURRENT_LOGIN_ID_KEY] = 0
+                    }
+                },
+                launch {
+                    database.userDao().clear()
+                }
+            )
         }
-        database.userDao().clear()
     }
 
     suspend fun loginAndAutoInsertData(

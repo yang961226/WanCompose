@@ -140,11 +140,6 @@ object HomeScreen : WanComposeDestination {
                     }
                 )
             }
-//            composable(HomeScreenPage.System.route) {
-//                Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-//                    Text("我是2")
-//                }
-//            }
             composable(HomeScreenPage.Mine.route) {
                 MineScreen.Screen(
                     modifier = Modifier.fillMaxSize(),

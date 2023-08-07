@@ -30,7 +30,18 @@ class WanViewModel @Inject constructor(
     fun login(username: String, password: String) {
         viewModelScope.launch {
             loginOrRegisterState.isLoading = true
-            val result = mineRepository.loginAndAutoInsertData(username, password)
+            mineRepository.loginAndAutoInsertData(username, password)
+        }.apply {
+            invokeOnCompletion {
+                loginOrRegisterState.isLoading = false
+            }
+        }
+    }
+
+    fun logout() {
+        viewModelScope.launch {
+            loginOrRegisterState.isLoading = true
+            mineRepository.logout()
         }.apply {
             invokeOnCompletion {
                 loginOrRegisterState.isLoading = false

@@ -16,6 +16,9 @@ interface MineService {
         @Field("password") password: String,
     ): NResult<UserBean>
 
+    @GET("user/logout/json")
+    suspend fun logout(): NResult<Any>
+
     @GET("user/lg/userinfo/json")
     suspend fun fetchUserInfo(): NResult<UserInfoBean>
 
