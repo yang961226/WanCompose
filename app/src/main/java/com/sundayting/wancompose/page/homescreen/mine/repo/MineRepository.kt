@@ -1,6 +1,5 @@
 package com.sundayting.wancompose.page.homescreen.mine.repo
 
-import android.app.Application
 import android.content.Context
 import androidx.datastore.preferences.core.edit
 import androidx.room.withTransaction
@@ -38,7 +37,7 @@ class MineRepository @Inject constructor(
 
     companion object {
 
-        fun getInstance(context: Application): MineRepository {
+        fun getInstance(context: Context): MineRepository {
             return EntryPointAccessors.fromApplication(
                 context,
                 MineRepositoryEntryPoint::class.java
