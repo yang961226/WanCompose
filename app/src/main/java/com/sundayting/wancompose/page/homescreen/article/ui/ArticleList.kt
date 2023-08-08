@@ -101,7 +101,7 @@ object ArticleList {
     ) {
 
         val pullRefreshState =
-            rememberPullRefreshState(viewModel.refreshing, viewModel::refresh)
+            rememberPullRefreshState(viewModel.state.refreshing, viewModel::refresh)
 
         TitleBarWithContent(
             modifier,
@@ -124,14 +124,12 @@ object ArticleList {
                 }
                 ArticleListContent(
                     modifier = Modifier.matchParentSize(),
-                    bannerList = viewModel.bannerList,
-                    list = viewModel.articleList,
-                    state = lazyListState,
-                    isLoadingMore = viewModel.loadingMore,
+                    articleState = viewModel.state,
+                    lazyListState = lazyListState,
                     toWebLink = toWebLink
                 )
                 PullRefreshIndicator(
-                    viewModel.refreshing,
+                    viewModel.state.refreshing,
                     pullRefreshState,
                     Modifier.align(Alignment.TopCenter)
                 )
@@ -146,16 +144,14 @@ private val stickColor = Color(0xFFeab38d)
 @Composable
 private fun ArticleListContent(
     modifier: Modifier = Modifier,
-    bannerList: List<ArticleList.BannerUiBean>,
-    list: List<ArticleList.ArticleUiBean>,
-    state: LazyListState = rememberLazyListState(),
-    isLoadingMore: Boolean = false,
+    articleState: ArticleListViewModel.ArticleState,
+    lazyListState: LazyListState = rememberLazyListState(),
     toWebLink: (url: String) -> Unit = {},
 ) {
 
     val pagerState = rememberInfiniteLoopPagerState()
-    LazyColumn(modifier, state = state) {
-        if (bannerList.isNotEmpty()) {
+    LazyColumn(modifier, state = lazyListState) {
+        if (articleState.bannerList.isNotEmpty()) {
             item {
                 val isDragging by pagerState.interactionSource.collectIsDraggedAsState()
                 LaunchedEffect(isDragging) {
@@ -176,17 +172,17 @@ private fun ArticleListContent(
                     var curTitle by remember { mutableStateOf<String?>(null) }
 
                     LaunchedEffect(Unit) {
-                        snapshotFlow { pagerState.currentPageInInfinitePage(bannerList.size) }.collect {
-                            curTitle = bannerList.getOrNull(it)?.title
+                        snapshotFlow { pagerState.currentPageInInfinitePage(articleState.bannerList.size) }.collect {
+                            curTitle = articleState.bannerList.getOrNull(it)?.title
                         }
                     }
 
                     InfiniteLoopHorizontalPager(
                         modifier = Modifier.matchParentSize(),
-                        pageCount = bannerList.size,
+                        pageCount = articleState.bannerList.size,
                         state = pagerState
                     ) {
-                        val banner = bannerList[it]
+                        val banner = articleState.bannerList[it]
                         AsyncImage(
                             modifier = Modifier
                                 .fillMaxSize()
@@ -195,7 +191,9 @@ private fun ArticleListContent(
                                     indication = rememberRipple()
                                 ) {
                                     val clickedBanner =
-                                        bannerList[pagerState.currentPageInInfinitePage(bannerList.size)]
+                                        articleState.bannerList[pagerState.currentPageInInfinitePage(
+                                            articleState.bannerList.size
+                                        )]
                                     toWebLink(clickedBanner.linkUrl)
                                 },
                             model = ImageRequest
@@ -231,7 +229,7 @@ private fun ArticleListContent(
 
             }
         }
-        items(list, key = { it.id }) {
+        items(articleState.articleList, key = { it.id }) {
             ArticleListSingleBean(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -246,7 +244,7 @@ private fun ArticleListContent(
             )
             Divider(Modifier.fillMaxWidth())
         }
-        if (isLoadingMore) {
+        if (articleState.loadingMore) {
             item {
                 Box(
                     Modifier
@@ -368,23 +366,25 @@ private fun ArticleListSingleBean(
 @Composable
 @Preview(showBackground = true)
 private fun PreviewArticleListContent() {
-    ArticleListContent(Modifier.fillMaxSize(), bannerList = remember {
-        listOf()
-    }, list = remember {
-        (0L..100L).map {
-            ArticleList.ArticleUiBean(
-                title = "我是标题我是标题我是标题我是标题我是标题我是标题",
-                date = "1小时之前",
-                isNew = true,
-                isStick = true,
-                chapter = ArticleList.ArticleUiBean.Chapter(
-                    superChapterName = "广场Tab",
-                    chapterName = "自助"
-                ),
-                authorOrSharedUser = ArticleList.ArticleUiBean.AuthorOrSharedUser(
-                    author = "小茗同学",
-                ),
-                id = it,
+    ArticleListContent(Modifier.fillMaxSize(), articleState = remember {
+        ArticleListViewModel.ArticleState().apply {
+            this.articleList.addAll(
+                (0L..100L).map {
+                    ArticleList.ArticleUiBean(
+                        title = "我是标题我是标题我是标题我是标题我是标题我是标题",
+                        date = "1小时之前",
+                        isNew = true,
+                        isStick = true,
+                        chapter = ArticleList.ArticleUiBean.Chapter(
+                            superChapterName = "广场Tab",
+                            chapterName = "自助"
+                        ),
+                        authorOrSharedUser = ArticleList.ArticleUiBean.AuthorOrSharedUser(
+                            author = "小茗同学",
+                        ),
+                        id = it,
+                    )
+                }
             )
         }
     })

@@ -1,5 +1,6 @@
 package com.sundayting.wancompose.page.homescreen.article
 
+import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
@@ -23,14 +24,19 @@ class ArticleListViewModel @Inject constructor(
     private val repo: ArticleRepository,
 ) : ViewModel() {
 
-    private val _articleList = mutableStateListOf<ArticleList.ArticleUiBean>()
-    val articleList: List<ArticleList.ArticleUiBean> = _articleList
+    val state = ArticleState()
 
-    private val _bannerList = mutableStateListOf<ArticleList.BannerUiBean>()
-    val bannerList: List<ArticleList.BannerUiBean> = _bannerList
+    @Stable
+    class ArticleState {
 
-    var refreshing by mutableStateOf(false)
-    var loadingMore by mutableStateOf(false)
+        val articleList = mutableStateListOf<ArticleList.ArticleUiBean>()
+
+        val bannerList = mutableStateListOf<ArticleList.BannerUiBean>()
+
+        var refreshing by mutableStateOf(false)
+        var loadingMore by mutableStateOf(false)
+
+    }
 
     private var curPage = 0
 
@@ -40,13 +46,13 @@ class ArticleListViewModel @Inject constructor(
 
     private fun addArticle(list: List<ArticleList.ArticleUiBean>, refreshFirst: Boolean = false) {
         if (refreshFirst) {
-            _articleList.clear()
+            state.articleList.clear()
         }
-        _articleList.addAll(list)
+        state.articleList.addAll(list)
     }
 
     private fun addTopArticle(list: List<ArticleList.ArticleUiBean>) {
-        _articleList.addAll(0, list)
+        state.articleList.addAll(0, list)
     }
 
     fun refresh() {
@@ -66,9 +72,9 @@ class ArticleListViewModel @Inject constructor(
         loadJob?.cancel()
         if (isRefresh) {
             curPage = 0
-            refreshing = true
+            state.loadingMore = true
         } else {
-            loadingMore = true
+            state.loadingMore = true
         }
         loadJob = viewModelScope.launch {
             joinAll(
@@ -77,8 +83,8 @@ class ArticleListViewModel @Inject constructor(
                         val result = repo.fetchHomePageBanner()
                         if (result.isNSuccess()) {
                             result.body.data?.let { list ->
-                                _bannerList.clear()
-                                _bannerList.addAll(list.map { it.toBannerUiBean() })
+                                state.bannerList.clear()
+                                state.bannerList.addAll(list.map { it.toBannerUiBean() })
                             }
                         }
                     }
@@ -119,8 +125,8 @@ class ArticleListViewModel @Inject constructor(
             )
         }.apply {
             invokeOnCompletion {
-                refreshing = false
-                loadingMore = false
+                state.refreshing = false
+                state.loadingMore = false
             }
         }
     }
