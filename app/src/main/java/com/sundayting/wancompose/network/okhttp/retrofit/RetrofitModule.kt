@@ -9,6 +9,8 @@ import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
+import okhttp3.CookieJar
+import okhttp3.JavaNetCookieJar
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import okhttp3.logging.HttpLoggingInterceptor.Level.BODY
@@ -18,6 +20,8 @@ import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.converter.moshi.MoshiConverterFactory
 import java.lang.reflect.Type
+import java.net.CookieManager
+import java.net.CookiePolicy
 import java.util.concurrent.TimeUnit
 import javax.inject.Qualifier
 import javax.inject.Singleton
@@ -62,11 +66,13 @@ object RetrofitModule {
     @Singleton
     fun provideOkhttpClient(
         @TimeOut timeOut: Long,
+        cookieJar: CookieJar,
     ): OkHttpClient {
         return OkHttpClient.Builder()
             .readTimeout(timeOut, TimeUnit.SECONDS)
             .connectTimeout(timeOut, TimeUnit.SECONDS)
             .writeTimeout(timeOut, TimeUnit.SECONDS)
+            .cookieJar(cookieJar)
             .addInterceptor(HttpLoggingInterceptor(
                 logger = {
                     Log.d("网络请求日志", it)
@@ -75,6 +81,14 @@ object RetrofitModule {
                 level = BODY
             })
             .build()
+    }
+
+    @Provides
+    @Singleton
+    fun provideCookieJar(): CookieJar {
+        return JavaNetCookieJar(CookieManager().apply {
+            setCookiePolicy(CookiePolicy.ACCEPT_ALL)
+        })
     }
 
     @Provides

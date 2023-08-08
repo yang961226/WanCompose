@@ -125,6 +125,7 @@ dependencies {
     implementation(platform("com.squareup.okhttp3:okhttp-bom:$okhttpVersion"))
     implementation("com.squareup.okhttp3:logging-interceptor:$okhttpVersion")
     implementation("com.squareup.retrofit2:converter-moshi:2.9.0")
+    implementation("com.squareup.okhttp3:okhttp-urlconnection:$okhttpVersion")
 
     implementation("com.google.accompanist:accompanist-navigation-animation:0.30.1")
 

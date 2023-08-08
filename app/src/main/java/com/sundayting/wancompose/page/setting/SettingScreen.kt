@@ -111,7 +111,7 @@ object SettingScreen : WanComposeDestination {
             Text(
                 text = title,
                 style = TextStyle(
-                    fontSize = 16.sp,
+                    fontSize = 15.sp,
                     color = Color.Black
                 )
             )
@@ -123,7 +123,8 @@ object SettingScreen : WanComposeDestination {
             Image(
                 painter = painterResource(id = R.drawable.ic_arrow_right),
                 contentDescription = null,
-                modifier = Modifier.size(16.dp)
+                modifier = Modifier.size(15.dp),
+                colorFilter = ColorFilter.tint(Color.Gray.copy(0.8f))
             )
         }
 

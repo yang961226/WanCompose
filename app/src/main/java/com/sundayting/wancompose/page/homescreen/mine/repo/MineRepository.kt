@@ -95,30 +95,34 @@ class MineRepository @Inject constructor(
         return coroutineScope {
             val loginResult = login(username, password)
             return@coroutineScope if (loginResult.isNSuccess()) {
-                val fetchUserInfoResult = fetchUserInfo()
-                if (fetchUserInfoResult.isNSuccess()) {
-                    fetchUserInfoResult.body.also {
+                val userInfoResult = fetchUserInfo()
+                if (userInfoResult.isNSuccess()) {
+                    val userInfoBean = userInfoResult.body.data
+                    if (userInfoBean != null) {
                         joinAll(
                             launch {
                                 database.withTransaction {
                                     database.userDao().clear()
                                     database.userDao().insertUser(
                                         UserEntity(
-                                            id = it.userInfo.id,
-                                            nick = it.userInfo.nickname,
-                                            coinCount = it.coinInfo.coinCount,
-                                            level = it.coinInfo.level,
-                                            rank = it.coinInfo.rank
+                                            id = userInfoBean.userInfo.id,
+                                            nick = userInfoBean.userInfo.nickname,
+                                            coinCount = userInfoBean.coinInfo.coinCount,
+                                            level = userInfoBean.coinInfo.level,
+                                            rank = userInfoBean.coinInfo.rank
                                         )
                                     )
                                 }
                             },
                             launch {
                                 dataStore.edit { mp ->
-                                    mp[CURRENT_LOGIN_ID_KEY] = it.userInfo.id
+                                    mp[CURRENT_LOGIN_ID_KEY] = userInfoBean.userInfo.id
                                 }
                             }
                         )
+                        userInfoBean
+                    } else {
+                        null
                     }
                 } else {
                     null
