@@ -1,3 +1,5 @@
+import com.google.protobuf.gradle.id
+import com.google.protobuf.gradle.proto
 import org.jetbrains.kotlin.gradle.dsl.KotlinCompile
 
 plugins {
@@ -7,6 +9,7 @@ plugins {
     id("com.google.dagger.hilt.android")
     id("com.google.devtools.ksp") version "1.8.21-1.0.11"
     kotlin("plugin.serialization") version ("1.8.22")
+    id("com.google.protobuf")
 }
 
 class RoomSchemaArgProvider(
@@ -83,6 +86,43 @@ android {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
         }
     }
+
+    sourceSets {
+        getByName("main") {
+            proto {
+                srcDir("src/main/protocolbuffers")
+            }
+        }
+    }
+}
+
+protobuf {
+    protoc {
+        artifact = if (project.hasProperty("protoc_platform")) {
+            "com.google.protobuf:protoc:3.0.0:${project.property("protoc_platform")}"
+        } else {
+            "com.google.protobuf:protoc:3.0.0"
+        }
+    }
+    plugins {
+//        id("grpc") {
+//            artifact = "io.grpc:protoc-gen-grpc-java:1.0.0-pre2"
+//        }
+        id("javalite") {
+            artifact = if (project.hasProperty("protoc_platform")) {
+                "com.google.protobuf:protoc-gen-javalite:3.0.0:${project.property("protoc_platform")}"
+            } else {
+                "com.google.protobuf:protoc-gen-javalite:3.0.0"
+            }
+        }
+    }
+    generateProtoTasks {
+        all().forEach { task ->
+            task.plugins {
+                id("javalite") {}
+            }
+        }
+    }
 }
 
 kapt {
@@ -126,6 +166,10 @@ dependencies {
     implementation("com.squareup.okhttp3:logging-interceptor:$okhttpVersion")
     implementation("com.squareup.retrofit2:converter-moshi:2.9.0")
     implementation("com.squareup.okhttp3:okhttp-urlconnection:$okhttpVersion")
+
+    // Proto DataStore
+    implementation("androidx.datastore:datastore-preferences:1.0.0")
+    implementation("com.google.protobuf:protobuf-lite:3.0.0")
 
     implementation("com.google.accompanist:accompanist-navigation-animation:0.30.1")
 

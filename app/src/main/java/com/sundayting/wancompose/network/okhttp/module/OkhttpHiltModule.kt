@@ -1,16 +1,16 @@
-package com.sundayting.wancompose.network.okhttp.retrofit
+package com.sundayting.wancompose.network.okhttp.module
 
 import android.util.Log
 import com.sundayting.wancompose.network.okhttp.NResult
 import com.sundayting.wancompose.network.okhttp.calldelegate.CallAdapterFactory
 import com.sundayting.wancompose.network.okhttp.calldelegate.ResultTransformer
+import com.sundayting.wancompose.network.okhttp.cookie.DataStoreCookieJar
 import com.sundayting.wancompose.network.okhttp.exception.FailureReason
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import okhttp3.CookieJar
-import okhttp3.JavaNetCookieJar
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import okhttp3.logging.HttpLoggingInterceptor.Level.BODY
@@ -20,15 +20,13 @@ import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.converter.moshi.MoshiConverterFactory
 import java.lang.reflect.Type
-import java.net.CookieManager
-import java.net.CookiePolicy
 import java.util.concurrent.TimeUnit
 import javax.inject.Qualifier
 import javax.inject.Singleton
 
 @InstallIn(SingletonComponent::class)
 @Module
-object RetrofitModule {
+object OkhttpHiltModule {
 
     @Singleton
     @Provides
@@ -85,10 +83,10 @@ object RetrofitModule {
 
     @Provides
     @Singleton
-    fun provideCookieJar(): CookieJar {
-        return JavaNetCookieJar(CookieManager().apply {
-            setCookiePolicy(CookiePolicy.ACCEPT_ALL)
-        })
+    fun provideCookieJar(
+        dataStoreCookieJar: DataStoreCookieJar,
+    ): CookieJar {
+        return dataStoreCookieJar
     }
 
     @Provides
