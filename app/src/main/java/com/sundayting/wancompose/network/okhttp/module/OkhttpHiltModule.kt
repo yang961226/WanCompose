@@ -34,12 +34,13 @@ object OkhttpHiltModule {
         okHttpClient: OkHttpClient,
         converterFactory: Converter.Factory,
         callAdapterFactory: CallAdapter.Factory,
+        @BaseUrl baseUrl: String,
     ): Retrofit {
         return Retrofit.Builder()
             .client(okHttpClient)
             .addConverterFactory(converterFactory)
             .addCallAdapterFactory(callAdapterFactory)
-            .baseUrl("https://www.wanandroid.com")
+            .baseUrl(baseUrl)
             .build()
     }
 
@@ -52,6 +53,10 @@ object OkhttpHiltModule {
     @Qualifier
     @Retention(AnnotationRetention.BINARY)
     annotation class TimeOut
+
+    @Qualifier
+    @Retention(AnnotationRetention.BINARY)
+    annotation class BaseUrl
 
     @TimeOut
     @Provides
@@ -79,6 +84,12 @@ object OkhttpHiltModule {
                 level = BODY
             })
             .build()
+    }
+
+    @Provides
+    @BaseUrl
+    fun provideBaseUrl(): String {
+        return "https://www.wanandroid.com"
     }
 
     @Provides

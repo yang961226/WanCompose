@@ -9,11 +9,7 @@ import com.sundayting.wancompose.function.UserLoginFunction.CURRENT_LOGIN_ID_KEY
 import com.sundayting.wancompose.function.UserLoginFunction.UserEntity
 import com.sundayting.wancompose.function.UserLoginFunction.UserInfoBean
 import com.sundayting.wancompose.network.okhttp.isNSuccess
-import dagger.hilt.EntryPoint
-import dagger.hilt.InstallIn
-import dagger.hilt.android.EntryPointAccessors
 import dagger.hilt.android.qualifiers.ApplicationContext
-import dagger.hilt.components.SingletonComponent
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.mapLatest
@@ -28,24 +24,6 @@ class MineRepository @Inject constructor(
     private val database: WanDatabase,
     @ApplicationContext context: Context,
 ) {
-
-    @EntryPoint
-    @InstallIn(SingletonComponent::class)
-    interface MineRepositoryEntryPoint {
-        fun mineRepository(): MineRepository
-    }
-
-    companion object {
-
-        fun getInstance(context: Context): MineRepository {
-            return EntryPointAccessors.fromApplication(
-                context,
-                MineRepositoryEntryPoint::class.java
-            ).mineRepository()
-        }
-
-    }
-
 
     private val dataStore = context.dataStore
 

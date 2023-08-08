@@ -4,7 +4,11 @@ import android.content.Context
 import androidx.datastore.dataStore
 import com.sundayting.wancompose.protobuf.CookieProtobuf
 import com.sundayting.wancompose.protobuf.CookieProtobuf.CookiesProto.CookieMap
+import dagger.hilt.EntryPoint
+import dagger.hilt.InstallIn
+import dagger.hilt.android.EntryPointAccessors
 import dagger.hilt.android.qualifiers.ApplicationContext
+import dagger.hilt.components.SingletonComponent
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.map
@@ -30,17 +34,33 @@ class DataStoreCookieJar @Inject constructor(
     @ApplicationContext context: Context,
 ) : CookieJar {
 
+    @EntryPoint
+    @InstallIn(SingletonComponent::class)
+    interface DataStoreCookieJarEntryPoint {
+        fun cookieJar(): DataStoreCookieJar
+    }
+
+    companion object {
+        fun getInstance(context: Context): DataStoreCookieJar {
+            return EntryPointAccessors.fromApplication(
+                context,
+                DataStoreCookieJarEntryPoint::class.java
+            ).cookieJar()
+        }
+
+    }
+
     private val dataStore = context.cookieJarDataStore
     private val mutex = Mutex()
 
-    suspend fun clearExpireCookie(url: HttpUrl) {
+    suspend fun clearExpireCookie(host: String) {
         mutex.withLock {
             val curTime = System.currentTimeMillis()
             val cookies =
-                dataStore.data.map { it.cookiesForHostMap[url.host] }.firstOrNull() ?: return
+                dataStore.data.map { it.cookiesForHostMap[host] }.firstOrNull() ?: return
             dataStore.updateData { cookiesProto ->
                 cookiesProto.toBuilder()
-                    .putCookiesForHost(url.host, CookieMap.newBuilder()
+                    .putCookiesForHost(host, CookieMap.newBuilder()
                         .apply {
                             cookies.cookiesMap
                                 //过滤掉所有过期的
@@ -53,6 +73,10 @@ class DataStoreCookieJar @Inject constructor(
                     .build()
             }
         }
+    }
+
+    suspend fun clearExpireCookie(url: HttpUrl) {
+        clearExpireCookie(url.host)
     }
 
     private fun CookieProtobuf.CookiesProto.Cookie.toOkhttpCookie(
