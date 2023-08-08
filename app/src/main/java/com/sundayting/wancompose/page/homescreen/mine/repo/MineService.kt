@@ -20,7 +20,7 @@ interface MineService {
     ): NResult<WanNResult<UserBean>>
 
     @GET("user/logout/json")
-    suspend fun logout(): NResult<Any>
+    suspend fun logout(): NResult<WanNResult<Any>>
 
     @GET("user/lg/userinfo/json")
     suspend fun fetchUserInfo(): NResult<WanNResult<UserInfoBean>>

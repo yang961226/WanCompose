@@ -1,13 +1,19 @@
 package com.sundayting.wancompose.page.setting
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Text
 import androidx.compose.material.ripple.rememberRipple
 import androidx.compose.runtime.Composable
@@ -24,11 +30,13 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.sundayting.wancompose.R
 import com.sundayting.wancompose.WanComposeDestination
 import com.sundayting.wancompose.common.ui.dialog.ConfirmDialog
+import com.sundayting.wancompose.common.ui.loading.LoadingIndicator
 import com.sundayting.wancompose.common.ui.title.TitleBarWithContent
 
 object SettingScreen : WanComposeDestination {
@@ -38,6 +46,7 @@ object SettingScreen : WanComposeDestination {
     @Composable
     fun Screen(
         modifier: Modifier,
+        viewModel: SettingViewModel = hiltViewModel(),
         navController: NavController = rememberNavController(),
     ) {
 
@@ -53,6 +62,7 @@ object SettingScreen : WanComposeDestination {
             }, onDismiss = {
                 isShowLogoutDialog = false
             }, onConfirm = {
+                viewModel.logout()
                 isShowLogoutDialog = false
             })
         }
@@ -81,13 +91,29 @@ object SettingScreen : WanComposeDestination {
         ) {
 
 
-            NormalSettingLine(
-                title = stringResource(id = R.string.logout),
-                onClick = {
-                    isShowLogoutDialog = true
-                }
-            )
+            Column(
+                Modifier
+                    .matchParentSize()
+                    .verticalScroll(rememberScrollState())
+            ) {
+                NormalSettingLine(
+                    title = stringResource(id = R.string.logout),
+                    onClick = {
+                        isShowLogoutDialog = true
+                    }
+                )
+            }
 
+            AnimatedVisibility(
+                modifier = Modifier.align(Alignment.Center),
+                visible = viewModel.isLoading,
+                enter = fadeIn(),
+                exit = fadeOut()
+            ) {
+                LoadingIndicator(
+                    Modifier.size(30.dp)
+                )
+            }
         }
     }
 

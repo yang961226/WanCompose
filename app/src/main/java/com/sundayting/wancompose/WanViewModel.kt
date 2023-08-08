@@ -38,16 +38,4 @@ class WanViewModel @Inject constructor(
         }
     }
 
-    fun logout() {
-        viewModelScope.launch {
-            loginOrRegisterState.isLoading = true
-            mineRepository.logout()
-        }.apply {
-            invokeOnCompletion {
-                loginOrRegisterState.isLoading = false
-            }
-        }
-    }
-
-
 }

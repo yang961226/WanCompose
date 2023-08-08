@@ -43,7 +43,7 @@ fun TitleBar(
 fun TitleBarWithContent(
     modifier: Modifier = Modifier,
     titleBarContent: @Composable (BoxScope.() -> Unit)? = null,
-    content: @Composable () -> Unit,
+    content: @Composable BoxScope.() -> Unit,
 ) {
 
     ConstraintLayout(modifier) {

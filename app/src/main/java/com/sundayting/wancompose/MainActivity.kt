@@ -32,6 +32,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.core.view.WindowCompat
+import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.compose.currentBackStackEntryAsState
@@ -40,6 +41,8 @@ import com.google.accompanist.navigation.animation.composable
 import com.google.accompanist.navigation.animation.rememberAnimatedNavController
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import com.google.accompanist.web.rememberWebViewState
+import com.sundayting.wancompose.common.event.EvenManager
+import com.sundayting.wancompose.common.event.ToastEvent
 import com.sundayting.wancompose.function.UserLoginFunction.UserEntity
 import com.sundayting.wancompose.page.homescreen.HomeScreen
 import com.sundayting.wancompose.page.homescreen.mine.ui.LoginContent
@@ -47,15 +50,34 @@ import com.sundayting.wancompose.page.setting.SettingScreen
 import com.sundayting.wancompose.page.webscreen.WebViewScreen
 import com.sundayting.wancompose.page.webscreen.WebViewScreen.urlArg
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
+
+    @Inject
+    lateinit var eventManager: EvenManager
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         WindowCompat.setDecorFitsSystemWindows(window, false)
+        handleEvent()
         setContent {
             WanComposeApp()
+        }
+    }
+}
+
+private fun MainActivity.handleEvent() {
+    lifecycleScope.launch {
+        eventManager.eventFlow.filterIsInstance<ToastEvent>().collect {
+            Toast.makeText(
+                this@handleEvent,
+                it.content,
+                if (it.isLong) Toast.LENGTH_LONG else Toast.LENGTH_SHORT
+            ).show()
         }
     }
 }

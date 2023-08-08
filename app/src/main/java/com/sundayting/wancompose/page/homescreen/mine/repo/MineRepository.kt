@@ -38,15 +38,11 @@ class MineRepository @Inject constructor(
         password: String,
     ) = mineService.login(username, password)
 
+
     /**
      * 登出
      */
-    suspend fun logout() {
-        val result = mineService.logout()
-        if (result.isNSuccess()) {
-            clearLoginUser()
-        }
-    }
+    suspend fun logout() = mineService.logout()
 
     private suspend fun fetchUserInfo() = mineService.fetchUserInfo()
 
