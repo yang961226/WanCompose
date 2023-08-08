@@ -118,21 +118,17 @@ fun LoginContent(
                 contentDescription = null,
                 modifier = Modifier
                     .composed {
-                        if (loadingOrRegisterState.isLoading) {
-                            val rotateTransition = rememberInfiniteTransition(label = "")
-                            val degree by rotateTransition.animateFloat(
-                                initialValue = 0f,
-                                targetValue = 360f,
-                                animationSpec = InfiniteRepeatableSpec(
-                                    animation = tween(durationMillis = 2500),
-                                    repeatMode = RepeatMode.Restart
-                                ),
-                                label = ""
-                            )
-                            Modifier.rotate(degree)
-                        } else {
-                            Modifier
-                        }
+                        val rotateTransition = rememberInfiniteTransition(label = "")
+                        val degree by rotateTransition.animateFloat(
+                            initialValue = 0f,
+                            targetValue = if (loadingOrRegisterState.isLoading) 360f else 0f,
+                            animationSpec = InfiniteRepeatableSpec(
+                                animation = tween(durationMillis = 2500),
+                                repeatMode = RepeatMode.Restart
+                            ),
+                            label = ""
+                        )
+                        Modifier.rotate(degree)
                     }
                     .size(120.dp)
             )
