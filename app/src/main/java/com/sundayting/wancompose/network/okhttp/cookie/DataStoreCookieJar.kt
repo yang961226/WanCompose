@@ -3,7 +3,7 @@ package com.sundayting.wancompose.network.okhttp.cookie
 import android.content.Context
 import androidx.datastore.dataStore
 import com.sundayting.wancompose.protobuf.CookieProtobuf
-import com.sundayting.wancompose.protobuf.CookieProtobuf.CookiesProto.CookieList
+import com.sundayting.wancompose.protobuf.CookieProtobuf.CookiesProto.CookieMap
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
@@ -31,44 +31,43 @@ class DataStoreCookieJar @Inject constructor(
 
     override fun loadForRequest(url: HttpUrl): List<Cookie> = runBlocking {
         dataStore.data.map {
-            it.cookiesMapMap[url.host]?.cookieList.orEmpty().map { cookieProto ->
+            it.cookiesForHostMap[url.host]?.cookiesMap.orEmpty().map { entry ->
+                val cookie = entry.value
                 Cookie.Builder()
-                    .name(cookieProto.name)
-                    .value(cookieProto.value)
-                    .expiresAt(cookieProto.expiresAt)
+                    .name(entry.key)
+                    .value(cookie.value)
+                    .expiresAt(cookie.expiresAt)
                     .apply {
-                        if (cookieProto.hostOnly) {
-                            hostOnlyDomain(cookieProto.domain)
+                        if (cookie.hostOnly) {
+                            hostOnlyDomain(cookie.domain)
                         } else {
-                            domain(cookieProto.domain)
+                            domain(cookie.domain)
                         }
                     }
-                    .domain(cookieProto.domain)
-                    .path(cookieProto.path)
+                    .path(cookie.path)
                     .apply {
-                        if (cookieProto.secure) {
+                        if (cookie.secure) {
                             secure()
                         }
-                        if (cookieProto.hostOnly) {
+                        if (cookie.hostOnly) {
                             httpOnly()
                         }
                     }
                     .build()
             }
-        }.first()
+        }.first().toList()
     }
 
     override fun saveFromResponse(url: HttpUrl, cookies: List<Cookie>) {
         runBlocking {
             dataStore.updateData {
                 it.toBuilder()
-                    .putCookiesMap(
-                        url.host,
-                        CookieList.newBuilder()
-                            .addAllCookie(
-                                cookies.map { okhttpCookie ->
+                    .putCookiesForHost(url.host, CookieMap.newBuilder()
+                        .apply {
+                            cookies.forEach { okhttpCookie ->
+                                putCookies(
+                                    okhttpCookie.name,
                                     CookieProtobuf.CookiesProto.Cookie.newBuilder()
-                                        .setName(okhttpCookie.name)
                                         .setValue(okhttpCookie.value)
                                         .setExpiresAt(okhttpCookie.expiresAt)
                                         .setDomain(okhttpCookie.domain)
@@ -77,10 +76,10 @@ class DataStoreCookieJar @Inject constructor(
                                         .setHostOnly(okhttpCookie.hostOnly)
                                         .setHostOnly(okhttpCookie.hostOnly)
                                         .build()
-                                }
-                            )
-                            .build()
-                    )
+                                )
+                            }
+                        }
+                        .build())
                     .build()
             }
         }
