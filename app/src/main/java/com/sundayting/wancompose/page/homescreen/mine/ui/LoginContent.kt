@@ -65,7 +65,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.sundayting.wancompose.R
 import com.sundayting.wancompose.WanViewModel
-import com.sundayting.wancompose.common.event.LocalEventManager
+import com.sundayting.wancompose.common.event.EventManager
 import com.sundayting.wancompose.common.event.emitToast
 import com.sundayting.wancompose.theme.WanColors
 import kotlinx.coroutines.launch
@@ -155,7 +155,6 @@ fun LoginContent(
             )
 
             val scope = rememberCoroutineScope()
-            val eventManager = LocalEventManager.current
 
             HorizontalPager(
                 pageCount = 2,
@@ -190,7 +189,7 @@ fun LoginContent(
                             },
                             onClickConfirm = { username, password, passwordAgain ->
                                 if (password != passwordAgain) {
-                                    eventManager.emitToast("再次输入的密码不匹配！")
+                                    EventManager.emitToast("再次输入的密码不匹配！")
                                 } else {
                                     onClickRegister(username, password, passwordAgain)
                                 }

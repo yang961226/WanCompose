@@ -16,7 +16,6 @@ import javax.inject.Inject
 @HiltViewModel
 class SettingViewModel @Inject constructor(
     private val mineRepository: MineRepository,
-    private val eventManager: EventManager,
 ) : ViewModel() {
 
     var isLoading by mutableStateOf(false)
@@ -29,7 +28,7 @@ class SettingViewModel @Inject constructor(
             if (result.isNSuccess()) {
                 mineRepository.clearLoginUser()
             } else {
-                eventManager.emitEvent(ToastEvent(result.failureReason.message))
+                EventManager.emitEvent(ToastEvent(result.failureReason.message))
             }
         }.apply {
             invokeOnCompletion {

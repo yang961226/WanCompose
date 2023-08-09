@@ -1,15 +1,11 @@
 package com.sundayting.wancompose.common.event
 
-import androidx.compose.runtime.compositionLocalOf
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.launch
-import javax.inject.Inject
-import javax.inject.Singleton
 
-@Singleton
-class EventManager @Inject constructor() {
+object EventManager {
     interface Event
 
     private val scope = MainScope()
@@ -28,11 +24,13 @@ fun EventManager.emitToast(content: String, isLong: Boolean = false) {
     emitEvent(ToastEvent(content, isLong))
 }
 
-val LocalEventManager = compositionLocalOf<EventManager> {
-    error("未初始化${EventManager::class.java.simpleName}")
+fun EventManager.emitNeedLoginAgain() {
+    emitEvent(NeedLoginAgainEvent)
 }
 
 class ToastEvent(
     val content: String,
     val isLong: Boolean = false,
 ) : EventManager.Event
+
+object NeedLoginAgainEvent : EventManager.Event

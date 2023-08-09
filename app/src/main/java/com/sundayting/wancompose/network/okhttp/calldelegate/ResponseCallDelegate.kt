@@ -1,6 +1,15 @@
 package com.sundayting.wancompose.network.okhttp.calldelegate
 
+import com.sundayting.wancompose.common.event.EventManager
+import com.sundayting.wancompose.common.event.emitNeedLoginAgain
+import com.sundayting.wancompose.common.event.emitToast
+import com.sundayting.wancompose.network.WanException
+import com.sundayting.wancompose.network.WanNResult
+import com.sundayting.wancompose.network.isSuccessful
+import com.sundayting.wancompose.network.needLoginAgain
 import com.sundayting.wancompose.network.okhttp.NResult
+import com.sundayting.wancompose.network.okhttp.exception.FailureReason
+import com.sundayting.wancompose.network.okhttp.exception.ServerErrorException
 import okhttp3.Request
 import okio.Timeout
 import retrofit2.Call
@@ -24,7 +33,6 @@ interface ResultTransformer<T> {
  */
 internal class ResponseCallDelegate<T>(
     private val proxyCall: Call<T>,
-    private val resultTransformer: ResultTransformer<T>,
 ) : Call<NResult<T>> {
 
     override fun enqueue(callback: Callback<NResult<T>>) =
@@ -34,9 +42,40 @@ internal class ResponseCallDelegate<T>(
                     this@ResponseCallDelegate,
                     Response.success(
                         try {
-                            resultTransformer.onHttpSuccess(response)
+                            if (response.isSuccessful) {
+                                response.body()!!.let { body ->
+                                    if (body is WanNResult<*>) {
+                                        if (body.isSuccessful()) {
+                                            NResult.NSuccess(response)
+                                        } else {
+                                            if (body.needLoginAgain()) {
+                                                EventManager.emitNeedLoginAgain()
+                                            }
+                                            EventManager.emitToast(body.errorMsg)
+                                            NResult.NFailure(
+                                                FailureReason(
+                                                    body.errorMsg,
+                                                    WanException(body.errorMsg)
+                                                )
+                                            )
+                                        }
+                                    } else {
+                                        NResult.NSuccess(response)
+                                    }
+                                }
+                            } else {
+                                NResult.NFailure(
+                                    FailureReason(
+                                        "网络异常",
+                                        ServerErrorException(
+                                            response.code(),
+                                            response.errorBody()
+                                        )
+                                    )
+                                )
+                            }
                         } catch (t: Throwable) {
-                            resultTransformer.onHttpException(t)
+                            NResult.NFailure(FailureReason("网络异常", t))
                         }
                     )
                 )
@@ -45,7 +84,14 @@ internal class ResponseCallDelegate<T>(
             override fun onFailure(call: Call<T>, t: Throwable) {
                 callback.onResponse(
                     this@ResponseCallDelegate,
-                    Response.success(resultTransformer.onHttpException(t))
+                    Response.success(
+                        NResult.NFailure(
+                            FailureReason(
+                                "网络异常",
+                                t
+                            )
+                        )
+                    )
                 )
             }
 
@@ -62,7 +108,7 @@ internal class ResponseCallDelegate<T>(
     override fun timeout(): Timeout = proxyCall.timeout()
 
     override fun clone(): Call<NResult<T>> =
-        ResponseCallDelegate(proxyCall.clone(), resultTransformer)
+        ResponseCallDelegate(proxyCall.clone())
 
     override fun execute(): Response<NResult<T>> = throw NotImplementedError()
 

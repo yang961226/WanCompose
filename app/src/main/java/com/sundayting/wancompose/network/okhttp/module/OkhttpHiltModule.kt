@@ -1,12 +1,8 @@
 package com.sundayting.wancompose.network.okhttp.module
 
 import android.util.Log
-import com.sundayting.wancompose.network.okhttp.NResult
 import com.sundayting.wancompose.network.okhttp.calldelegate.CallAdapterFactory
-import com.sundayting.wancompose.network.okhttp.calldelegate.ResultTransformer
 import com.sundayting.wancompose.network.okhttp.cookie.DataStoreCookieJar
-import com.sundayting.wancompose.network.okhttp.exception.FailureReason
-import com.sundayting.wancompose.network.okhttp.exception.ServerErrorException
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -17,10 +13,8 @@ import okhttp3.logging.HttpLoggingInterceptor
 import okhttp3.logging.HttpLoggingInterceptor.Level.BODY
 import retrofit2.CallAdapter
 import retrofit2.Converter
-import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.converter.moshi.MoshiConverterFactory
-import java.lang.reflect.Type
 import java.util.concurrent.TimeUnit
 import javax.inject.Qualifier
 import javax.inject.Singleton
@@ -104,28 +98,7 @@ object OkhttpHiltModule {
     @Provides
     @Singleton
     fun provideCallAdapterFactory(): CallAdapter.Factory {
-        return CallAdapterFactory.create(
-            object : ResultTransformer<Type> {
-                override fun onHttpException(t: Throwable): NResult<Type> {
-                    return NResult.NFailure(FailureReason("网络错误", t))
-                }
-
-                override fun onHttpSuccess(response: Response<Type>): NResult<Type> {
-                    return if (response.isSuccessful) {
-                        NResult.NSuccess(response)
-                    } else {
-                        NResult.NFailure(
-                            FailureReason(
-                                "网络错误", ServerErrorException(
-                                    code = response.code(),
-                                    errorBody = response.errorBody()
-                                )
-                            )
-                        )
-                    }
-                }
-            }
-        )
+        return CallAdapterFactory.create()
     }
 
 }

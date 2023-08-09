@@ -7,9 +7,7 @@ import retrofit2.Retrofit
 import java.lang.reflect.ParameterizedType
 import java.lang.reflect.Type
 
-class CallAdapterFactory private constructor(
-    private val resultTransformer: ResultTransformer<Type>,
-) : CallAdapter.Factory() {
+class CallAdapterFactory private constructor() : CallAdapter.Factory() {
     override fun get(
         returnType: Type,
         annotations: Array<out Annotation>,
@@ -22,12 +20,12 @@ class CallAdapterFactory private constructor(
                     NResult::class.java -> {
                         when (callType) {
                             is Class<*> -> {
-                                WanComposeCallAdapter(Nothing::class.java, resultTransformer)
+                                WanComposeCallAdapter(Nothing::class.java)
                             }
 
                             is ParameterizedType -> {
                                 val resultType = getParameterUpperBound(0, callType)
-                                WanComposeCallAdapter(resultType, resultTransformer)
+                                WanComposeCallAdapter(resultType)
                             }
 
                             else -> {
@@ -46,21 +44,18 @@ class CallAdapterFactory private constructor(
     }
 
     companion object {
-        fun create(
-            resultTransformer: ResultTransformer<Type>,
-        ): CallAdapterFactory {
-            return CallAdapterFactory(resultTransformer)
+        fun create(): CallAdapterFactory {
+            return CallAdapterFactory()
         }
     }
 
     class WanComposeCallAdapter constructor(
         private val resultType: Type,
-        private val resultTransformer: ResultTransformer<Type>,
     ) : CallAdapter<Type, Call<NResult<Type>>> {
         override fun responseType() = resultType
 
         override fun adapt(call: Call<Type>): Call<NResult<Type>> =
-            ResponseCallDelegate(call, resultTransformer)
+            ResponseCallDelegate(call)
 
     }
 }

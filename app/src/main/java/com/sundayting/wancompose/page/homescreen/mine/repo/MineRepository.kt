@@ -3,6 +3,8 @@ package com.sundayting.wancompose.page.homescreen.mine.repo
 import android.content.Context
 import androidx.datastore.preferences.core.edit
 import androidx.room.withTransaction
+import com.sundayting.wancompose.common.event.EventManager
+import com.sundayting.wancompose.common.event.NeedLoginAgainEvent
 import com.sundayting.wancompose.datastore.dataStore
 import com.sundayting.wancompose.db.WanDatabase
 import com.sundayting.wancompose.function.UserLoginFunction.CURRENT_LOGIN_ID_KEY
@@ -10,7 +12,9 @@ import com.sundayting.wancompose.function.UserLoginFunction.UserEntity
 import com.sundayting.wancompose.function.UserLoginFunction.UserInfoBean
 import com.sundayting.wancompose.network.okhttp.isNSuccess
 import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.mapLatest
 import kotlinx.coroutines.joinAll
@@ -24,6 +28,17 @@ class MineRepository @Inject constructor(
     private val database: WanDatabase,
     @ApplicationContext context: Context,
 ) {
+
+    init {
+        MainScope().launch {
+            launch {
+                EventManager.eventFlow.filterIsInstance<NeedLoginAgainEvent>().collect {
+                    clearLoginUser()
+                }
+            }
+        }
+
+    }
 
     private val dataStore = context.dataStore
 

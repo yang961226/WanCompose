@@ -42,7 +42,6 @@ import com.google.accompanist.navigation.animation.rememberAnimatedNavController
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import com.google.accompanist.web.rememberWebViewState
 import com.sundayting.wancompose.common.event.EventManager
-import com.sundayting.wancompose.common.event.LocalEventManager
 import com.sundayting.wancompose.common.event.ToastEvent
 import com.sundayting.wancompose.function.UserLoginFunction.UserEntity
 import com.sundayting.wancompose.page.homescreen.HomeScreen
@@ -53,31 +52,23 @@ import com.sundayting.wancompose.page.webscreen.WebViewScreen.urlArg
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.launch
-import javax.inject.Inject
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
-
-    @Inject
-    lateinit var eventManager: EventManager
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         WindowCompat.setDecorFitsSystemWindows(window, false)
         handleEvent()
         setContent {
-            CompositionLocalProvider(
-                LocalEventManager provides eventManager
-            ) {
-                WanComposeApp()
-            }
+            WanComposeApp()
         }
     }
 }
 
 private fun MainActivity.handleEvent() {
     lifecycleScope.launch {
-        eventManager.eventFlow.filterIsInstance<ToastEvent>().collect {
+        EventManager.eventFlow.filterIsInstance<ToastEvent>().collect {
             Toast.makeText(
                 this@handleEvent,
                 it.content,
