@@ -2,6 +2,7 @@ package com.sundayting.wancompose.network.okhttp.cookie
 
 import android.content.Context
 import androidx.datastore.dataStore
+import com.sundayting.wancompose.network.okhttp.module.OkhttpHiltModule
 import com.sundayting.wancompose.protobuf.CookieProtobuf
 import com.sundayting.wancompose.protobuf.CookieProtobuf.CookiesProto.CookieMap
 import dagger.hilt.EntryPoint
@@ -32,6 +33,7 @@ private val Context.cookieJarDataStore by dataStore(
 @Singleton
 class DataStoreCookieJar @Inject constructor(
     @ApplicationContext context: Context,
+    @OkhttpHiltModule.BaseUrl private val baseUrl: String,
 ) : CookieJar {
 
     @EntryPoint
@@ -73,6 +75,10 @@ class DataStoreCookieJar @Inject constructor(
                     .build()
             }
         }
+    }
+
+    suspend fun clearWanExpireCookie() {
+        clearExpireCookie(baseUrl)
     }
 
     suspend fun clearExpireCookie(url: HttpUrl) {

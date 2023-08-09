@@ -1,8 +1,6 @@
 package com.sundayting.wancompose.network.okhttp.calldelegate
 
 import com.sundayting.wancompose.network.okhttp.NResult
-import com.sundayting.wancompose.network.okhttp.exception.FailureReason
-import com.sundayting.wancompose.network.okhttp.exception.ServerErrorException
 import okhttp3.Request
 import okio.Timeout
 import retrofit2.Call
@@ -36,11 +34,7 @@ internal class ResponseCallDelegate<T>(
                     this@ResponseCallDelegate,
                     Response.success(
                         try {
-                            if (response.isSuccessful) {
-                                response.toNSuccess()
-                            } else {
-                                resultTransformer.onHttpSuccess(response)
-                            }
+                            resultTransformer.onHttpSuccess(response)
                         } catch (t: Throwable) {
                             resultTransformer.onHttpException(t)
                         }
@@ -81,16 +75,4 @@ internal class ResponseCallDelegate<T>(
 fun <T> Response<T>.toNSuccess(): NResult.NSuccess<T> {
     assert(isSuccessful) { "严禁将失败的http请求转成成功结果！" }
     return NResult.NSuccess(this)
-}
-
-/**
- * 将[Response]转译为[NResult.NFailure]，这种情况只发生于HTTP协议错误的情况下
- *
- * 其中，[NResult.NFailure]的异常会通过[FailureReason]包裹
- */
-fun Response<*>.toNFailure(
-    failureTransform: (Throwable) -> NResult.NFailure,
-): NResult.NFailure {
-    assert(!isSuccessful) { "严禁将成功的http请求转成失败结果！" }
-    return failureTransform(ServerErrorException(code(), errorBody()))
 }

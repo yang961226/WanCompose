@@ -6,6 +6,7 @@ import com.sundayting.wancompose.network.okhttp.calldelegate.CallAdapterFactory
 import com.sundayting.wancompose.network.okhttp.calldelegate.ResultTransformer
 import com.sundayting.wancompose.network.okhttp.cookie.DataStoreCookieJar
 import com.sundayting.wancompose.network.okhttp.exception.FailureReason
+import com.sundayting.wancompose.network.okhttp.exception.ServerErrorException
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -110,9 +111,19 @@ object OkhttpHiltModule {
                 }
 
                 override fun onHttpSuccess(response: Response<Type>): NResult<Type> {
-                    return NResult.NSuccess(response)
+                    return if (response.isSuccessful) {
+                        NResult.NSuccess(response)
+                    } else {
+                        NResult.NFailure(
+                            FailureReason(
+                                "网络错误", ServerErrorException(
+                                    code = response.code(),
+                                    errorBody = response.errorBody()
+                                )
+                            )
+                        )
+                    }
                 }
-
             }
         )
     }
