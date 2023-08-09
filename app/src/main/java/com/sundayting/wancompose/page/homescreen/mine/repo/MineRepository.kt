@@ -106,5 +106,11 @@ class MineRepository @Inject constructor(
         }
     }
 
+    suspend fun register(
+        username: String,
+        password: String,
+        passwordAgain: String,
+    ) = mineService.register(username, password, passwordAgain)
+
 
 }
