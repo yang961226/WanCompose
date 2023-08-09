@@ -28,6 +28,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
+import androidx.compose.material.ripple.rememberRipple
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
@@ -199,8 +200,11 @@ private fun BoxScope.WebTitle(title: String, navController: NavController) {
         modifier = Modifier
             .align(Alignment.CenterStart)
             .padding(start = 20.dp)
-            .size(20.dp)
-            .clickable { navController.popBackStack() },
+            .size(25.dp)
+            .clickable(
+                interactionSource = remember { MutableInteractionSource() },
+                indication = rememberRipple(radius = 25.dp, bounded = false),
+            ) { navController.popBackStack() },
         colorFilter = ColorFilter.tint(Color.White)
     )
 }
@@ -273,28 +277,52 @@ private fun WebToolWidget(
             Modifier
                 .offset(y = buttonOneOffset)
                 .alpha(alpha)
-                .clickable(enabled = open) { onClickLike() },
+                .clickable(
+                    enabled = open,
+                    interactionSource = remember { MutableInteractionSource() },
+                    indication = rememberRipple(
+                        radius = 25.dp
+                    )
+                ) { onClickLike() },
             resId = R.drawable.ic_like
         )
         WebToolButton(
             Modifier
                 .offset(y = buttonTwoOffset)
                 .alpha(alpha)
-                .clickable(enabled = open) { onClickBookmark() },
+                .clickable(
+                    enabled = open,
+                    interactionSource = remember { MutableInteractionSource() },
+                    indication = rememberRipple(
+                        radius = 25.dp
+                    )
+                ) { onClickBookmark() },
             resId = R.drawable.ic_bookmark
         )
         WebToolButton(
             Modifier
                 .offset(y = buttonThreeOffset)
                 .alpha(alpha)
-                .clickable(enabled = open) { onClickBrowser() },
+                .clickable(
+                    enabled = open,
+                    interactionSource = remember { MutableInteractionSource() },
+                    indication = rememberRipple(
+                        radius = 25.dp
+                    )
+                ) { onClickBrowser() },
             resId = R.drawable.ic_net
         )
         WebToolButton(
             Modifier
                 .offset(y = buttonFourOffset)
                 .alpha(alpha)
-                .clickable(enabled = open) { onClickShare() },
+                .clickable(
+                    enabled = open,
+                    interactionSource = remember { MutableInteractionSource() },
+                    indication = rememberRipple(
+                        radius = 25.dp
+                    )
+                ) { onClickShare() },
             resId = R.drawable.ic_share
         )
         WebToolButton(
@@ -305,13 +333,15 @@ private fun WebToolWidget(
                 .combinedClickable(
                     enabled = openTransition.isRunning.not(),
                     interactionSource = remember { MutableInteractionSource() },
-                    indication = null,
+                    indication = rememberRipple(
+                        radius = 25.dp
+                    ),
                     onLongClick = {
                         open = open.not()
                     },
                     onClick = {
                         if (open) {
-                            open = open.not()
+                            open = false
                         } else {
                             onClickBack()
                         }
