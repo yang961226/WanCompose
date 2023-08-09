@@ -1,5 +1,6 @@
 package com.sundayting.wancompose.page.setting
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -66,6 +67,8 @@ object SettingScreen : WanComposeDestination {
                 isShowLogoutDialog = false
             })
         }
+
+        BackHandler(enabled = viewModel.isLoading) {}
         TitleBarWithContent(
             modifier,
             titleBarContent = {
