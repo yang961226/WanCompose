@@ -1,5 +1,6 @@
 package com.sundayting.wancompose.common.event
 
+import androidx.compose.runtime.compositionLocalOf
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
@@ -8,8 +9,7 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-class EvenManager @Inject constructor() {
-
+class EventManager @Inject constructor() {
     interface Event
 
     private val scope = MainScope()
@@ -22,11 +22,17 @@ class EvenManager @Inject constructor() {
             _eventFlow.emit(event)
         }
     }
+}
 
+fun EventManager.emitToast(content: String, isLong: Boolean = false) {
+    emitEvent(ToastEvent(content, isLong))
+}
 
+val LocalEventManager = compositionLocalOf<EventManager> {
+    error("未初始化${EventManager::class.java.simpleName}")
 }
 
 class ToastEvent(
     val content: String,
     val isLong: Boolean = false,
-) : EvenManager.Event
+) : EventManager.Event

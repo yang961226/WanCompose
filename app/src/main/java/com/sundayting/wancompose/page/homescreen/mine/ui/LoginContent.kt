@@ -63,6 +63,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.sundayting.wancompose.R
 import com.sundayting.wancompose.WanViewModel
+import com.sundayting.wancompose.common.event.LocalEventManager
+import com.sundayting.wancompose.common.event.emitToast
 import com.sundayting.wancompose.theme.WanColors
 import kotlinx.coroutines.launch
 
@@ -72,6 +74,7 @@ fun LoginContent(
     loadingOrRegisterState: WanViewModel.LoginOrRegisterState,
     pagerState: PagerState = rememberPagerState(),
     onClickLogin: (username: String, password: String) -> Unit = { _, _ -> },
+    onClickRegister: (username: String, password: String, passwordAgain: String) -> Unit = { _, _, _ -> },
 ) {
     Box(
         modifier
@@ -150,6 +153,7 @@ fun LoginContent(
             )
 
             val scope = rememberCoroutineScope()
+            val eventManager = LocalEventManager.current
 
             HorizontalPager(
                 pageCount = 2,
@@ -161,25 +165,35 @@ fun LoginContent(
             ) { page ->
                 when (page) {
                     0 -> {
-                        LoginPage(Modifier.fillMaxSize(), onToRegister = {
-                            scope.launch {
-                                pagerState.animateScrollToPage(1)
-                            }
-                        }, onClickConfirm = { username, password ->
-                            if (username.isEmpty() || password.isEmpty()) {
-
-                            } else {
+                        LoginPage(
+                            Modifier.fillMaxSize(),
+                            onToRegister = {
+                                scope.launch {
+                                    pagerState.animateScrollToPage(1)
+                                }
+                            },
+                            onClickConfirm = { username, password ->
                                 onClickLogin(username, password)
                             }
-                        })
+                        )
                     }
 
                     1 -> {
-                        RegisterPage(Modifier.fillMaxSize(), onToLogin = {
-                            scope.launch {
-                                pagerState.animateScrollToPage(0)
+                        RegisterPage(
+                            Modifier.fillMaxSize(),
+                            onToLogin = {
+                                scope.launch {
+                                    pagerState.animateScrollToPage(0)
+                                }
+                            },
+                            onClickConfirm = { username, password, passwordAgain ->
+                                if (password != passwordAgain) {
+                                    eventManager.emitToast("再次输入的密码不匹配！")
+                                } else {
+                                    onClickRegister(username, password, passwordAgain)
+                                }
                             }
-                        })
+                        )
                     }
                 }
             }
@@ -330,7 +344,7 @@ private fun LoginPage(
 @Composable
 private fun RegisterPage(
     modifier: Modifier = Modifier,
-    onClickConfirm: () -> Unit = {},
+    onClickConfirm: (username: String, password: String, passwordAgain: String) -> Unit = { _, _, _ -> },
     onToLogin: () -> Unit = {},
 ) {
     Column(modifier, horizontalAlignment = Alignment.CenterHorizontally) {
@@ -353,15 +367,15 @@ private fun RegisterPage(
                 )
             )
         }
-        var account by remember { mutableStateOf("") }
+        var username by remember { mutableStateOf("") }
         var password by remember { mutableStateOf("") }
         var passwordAgain by remember { mutableStateOf("") }
 
         Spacer(Modifier.height(20.dp))
 
         OutlinedTextField(
-            value = account,
-            onValueChange = { account = it.removeEmptyAndNewLine() },
+            value = username,
+            onValueChange = { username = it.removeEmptyAndNewLine() },
             singleLine = true,
             label = { Text(stringResource(id = R.string.please_input_account)) },
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
@@ -377,7 +391,8 @@ private fun RegisterPage(
                 cursorColor = WanColors.TopColor,
                 focusedLabelColor = WanColors.TopColor,
                 focusedBorderColor = WanColors.TopColor,
-            )
+            ),
+            shape = RoundedCornerShape(50)
         )
 
         OutlinedTextField(
@@ -400,7 +415,8 @@ private fun RegisterPage(
                 cursorColor = WanColors.TopColor,
                 focusedLabelColor = WanColors.TopColor,
                 focusedBorderColor = WanColors.TopColor,
-            )
+            ),
+            shape = RoundedCornerShape(50)
         )
 
         OutlinedTextField(
@@ -423,19 +439,22 @@ private fun RegisterPage(
                 cursorColor = WanColors.TopColor,
                 focusedLabelColor = WanColors.TopColor,
                 focusedBorderColor = WanColors.TopColor,
-            )
+            ),
+            shape = RoundedCornerShape(50)
         )
 
         Spacer(Modifier.height(20.dp))
 
         val buttonEnable by remember {
             derivedStateOf {
-                account.isNotEmpty() && password.isNotEmpty() && passwordAgain.isNotEmpty()
+                username.isNotEmpty() && password.isNotEmpty() && passwordAgain.isNotEmpty()
             }
         }
 
         Button(
-            onClick = { }, colors = ButtonDefaults.buttonColors(
+            onClick = {
+                onClickConfirm(username, password, passwordAgain)
+            }, colors = ButtonDefaults.buttonColors(
                 backgroundColor = WanColors.TopColor
             ),
             enabled = buttonEnable,
@@ -443,7 +462,7 @@ private fun RegisterPage(
             contentPadding = PaddingValues(horizontal = 100.dp, vertical = 10.dp)
         ) {
             Text(
-                stringResource(id = R.string.to_login), style = TextStyle(
+                stringResource(id = R.string.to_register), style = TextStyle(
                     color = Color.White,
                     fontSize = 18.sp
                 )

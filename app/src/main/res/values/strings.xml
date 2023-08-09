@@ -15,9 +15,9 @@
 
     <string name="login_title_1">欢迎使用</string>
     <string name="login_title_2">本App由晴天小庭开发</string>
-    <string name="login">登陆</string>
+    <string name="login">登录</string>
     <string name="register">注册</string>
-    <string name="to_login">去登陆</string>
+    <string name="to_login">去登录</string>
     <string name="to_register">去注册</string>
     <string name="please_input_account">请输入用户名</string>
     <string name="please_input_password">请输入密码</string>

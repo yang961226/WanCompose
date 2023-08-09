@@ -5,7 +5,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.sundayting.wancompose.common.event.EvenManager
+import com.sundayting.wancompose.common.event.EventManager
 import com.sundayting.wancompose.common.event.ToastEvent
 import com.sundayting.wancompose.network.okhttp.isNSuccess
 import com.sundayting.wancompose.page.homescreen.mine.repo.MineRepository
@@ -16,7 +16,7 @@ import javax.inject.Inject
 @HiltViewModel
 class SettingViewModel @Inject constructor(
     private val mineRepository: MineRepository,
-    private val eventManager: EvenManager,
+    private val eventManager: EventManager,
 ) : ViewModel() {
 
     var isLoading by mutableStateOf(false)

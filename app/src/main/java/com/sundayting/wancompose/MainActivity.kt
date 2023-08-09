@@ -41,7 +41,8 @@ import com.google.accompanist.navigation.animation.composable
 import com.google.accompanist.navigation.animation.rememberAnimatedNavController
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import com.google.accompanist.web.rememberWebViewState
-import com.sundayting.wancompose.common.event.EvenManager
+import com.sundayting.wancompose.common.event.EventManager
+import com.sundayting.wancompose.common.event.LocalEventManager
 import com.sundayting.wancompose.common.event.ToastEvent
 import com.sundayting.wancompose.function.UserLoginFunction.UserEntity
 import com.sundayting.wancompose.page.homescreen.HomeScreen
@@ -58,14 +59,18 @@ import javax.inject.Inject
 class MainActivity : ComponentActivity() {
 
     @Inject
-    lateinit var eventManager: EvenManager
+    lateinit var eventManager: EventManager
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         WindowCompat.setDecorFitsSystemWindows(window, false)
         handleEvent()
         setContent {
-            WanComposeApp()
+            CompositionLocalProvider(
+                LocalEventManager provides eventManager
+            ) {
+                WanComposeApp()
+            }
         }
     }
 }
@@ -125,7 +130,7 @@ fun WanComposeApp(
     }
 
     CompositionLocalProvider(
-        LocalLoginUser provides loginUser
+        LocalLoginUser provides loginUser,
     ) {
         ModalBottomSheetLayout(
             sheetState = modalSheetState,
