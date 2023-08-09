@@ -45,6 +45,7 @@ import com.sundayting.wancompose.common.event.EventManager
 import com.sundayting.wancompose.common.event.ToastEvent
 import com.sundayting.wancompose.function.UserLoginFunction.UserEntity
 import com.sundayting.wancompose.page.homescreen.HomeScreen
+import com.sundayting.wancompose.page.homescreen.mine.MineScreen
 import com.sundayting.wancompose.page.homescreen.mine.ui.LoginContent
 import com.sundayting.wancompose.page.setting.SettingScreen
 import com.sundayting.wancompose.page.webscreen.WebViewScreen
@@ -153,9 +154,17 @@ fun WanComposeApp(
                     HomeScreen.pageList.any { it.page.route == navBackStackEntry?.destination?.route }
                 }
             }
-            LaunchedEffect(isLogin, isInMainPage) {
-                //如果当前不在主页而且没有登录的情况，则返回到主页
-                if (!isLogin && !isInMainPage) {
+
+            val isInPageNeedLogin by remember {
+                derivedStateOf {
+                    navBackStackEntry?.destination?.route?.let { route ->
+                        route == MineScreen.route || route == SettingScreen.route
+                    } == true
+                }
+            }
+            LaunchedEffect(isLogin, isInPageNeedLogin) {
+                //如果当前不在主页而且在个人页的情况下，就会返回主页
+                if (!isLogin && isInPageNeedLogin) {
                     navController.navigate(HomeScreen.HomeScreenPage.ArticleList.route) {
                         popUpTo(
                             navController.graph.findStartDestination().id
