@@ -172,6 +172,7 @@ private fun ArticleListContent(
                     var curTitle by remember { mutableStateOf<String?>(null) }
 
                     LaunchedEffect(Unit) {
+                        pagerState.animateScrollToPage(0)
                         snapshotFlow { pagerState.currentPageInInfinitePage(articleState.bannerList.size) }.collect {
                             curTitle = articleState.bannerList.getOrNull(it)?.title
                         }

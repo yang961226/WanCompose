@@ -65,7 +65,7 @@ fun ArticleBean.toArticleUiBean(
 
 @Serializable
 class ArticleResultBean(
-    override val data: ArticleListBean,
+    override val data: ArticleListBean?,
     override val errorCode: Int,
     override val errorMsg: String,
 ) : WanNResult<ArticleListBean>()
@@ -73,7 +73,7 @@ class ArticleResultBean(
 
 @Serializable
 class TopArticleResultBean(
-    override val data: List<ArticleBean>,
+    override val data: List<ArticleBean>?,
     override val errorCode: Int,
     override val errorMsg: String,
 ) : WanNResult<List<ArticleBean>>()
@@ -99,7 +99,7 @@ fun HomePageBannerBean.toBannerUiBean(): ArticleList.BannerUiBean {
 
 @Serializable
 class HomePageBannerResultBean(
-    override val data: List<HomePageBannerBean>,
+    override val data: List<HomePageBannerBean>?,
     override val errorCode: Int,
     override val errorMsg: String,
 ) : WanNResult<List<HomePageBannerBean>>()

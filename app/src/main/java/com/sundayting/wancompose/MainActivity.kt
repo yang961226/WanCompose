@@ -140,6 +140,7 @@ fun WanComposeApp(
                         viewModel.login(username, password)
                     },
                     onClickRegister = { username: String, password: String, passwordAgain: String ->
+                        viewModel.register(username, password, passwordAgain)
                     }
                 )
             },

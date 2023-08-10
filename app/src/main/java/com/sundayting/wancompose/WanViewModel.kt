@@ -6,6 +6,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.sundayting.wancompose.network.NetExceptionHandler
 import com.sundayting.wancompose.page.homescreen.mine.repo.MineRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
@@ -32,7 +33,7 @@ class WanViewModel @Inject constructor(
 
     fun login(username: String, password: String) {
         loginOrRegisterJog?.cancel()
-        loginOrRegisterJog = viewModelScope.launch {
+        loginOrRegisterJog = viewModelScope.launch(NetExceptionHandler) {
             loginOrRegisterState.isLoading = true
             mineRepository.loginAndAutoInsertData(username, password)
         }.apply {
@@ -44,9 +45,9 @@ class WanViewModel @Inject constructor(
 
     fun register(username: String, password: String, passwordAgain: String) {
         loginOrRegisterJog?.cancel()
-        loginOrRegisterJog = viewModelScope.launch {
+        loginOrRegisterJog = viewModelScope.launch(NetExceptionHandler) {
             loginOrRegisterState.isLoading = true
-//            val result = mineRepository.register(username, password, passwordAgain)
+            mineRepository.register(username, password, passwordAgain)
         }.apply {
             invokeOnCompletion {
                 loginOrRegisterState.isLoading = false

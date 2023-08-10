@@ -9,6 +9,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.sundayting.wancompose.network.NetExceptionHandler
 import com.sundayting.wancompose.network.isSuccess
+import com.sundayting.wancompose.network.requireData
 import com.sundayting.wancompose.page.homescreen.article.repo.ArticleRepository
 import com.sundayting.wancompose.page.homescreen.article.repo.toArticleUiBean
 import com.sundayting.wancompose.page.homescreen.article.repo.toBannerUiBean
@@ -84,7 +85,7 @@ class ArticleListViewModel @Inject constructor(
                     if (isRefresh) {
                         val result = repo.fetchHomePageBanner()
                         if (result.isSuccess()) {
-                            result.body.data.let { list ->
+                            result.body.requireData().let { list ->
                                 state.bannerList.clear()
                                 state.bannerList.addAll(list.map { it.toBannerUiBean() })
                             }
@@ -107,7 +108,7 @@ class ArticleListViewModel @Inject constructor(
                     val articleListDeferred = async {
                         val result = repo.fetchHomePageArticle(curPage)
                         if (result.isSuccess()) {
-                            result.body.data.list
+                            result.body.requireData().list
                         } else {
                             null
                         }

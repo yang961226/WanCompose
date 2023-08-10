@@ -3,6 +3,7 @@ package com.sundayting.wancompose.network.ktorfit
 import android.util.Log
 import com.sundayting.wancompose.common.event.EventManager
 import com.sundayting.wancompose.common.event.emitNeedLoginAgain
+import com.sundayting.wancompose.common.event.emitToast
 import com.sundayting.wancompose.network.NResult
 import com.sundayting.wancompose.network.WanError
 import com.sundayting.wancompose.network.WanNResult
@@ -62,6 +63,7 @@ object KtorfitModule {
                                         if (body.errorCode == -1001) {
                                             EventManager.emitNeedLoginAgain()
                                         }
+                                        EventManager.emitToast(body.errorMsg)
                                         NResult.Error(WanError(body.errorCode, body.errorMsg))
                                     } else {
                                         NResult.Success(body)
@@ -70,6 +72,7 @@ object KtorfitModule {
                                     NResult.Success(body)
                                 }
                             } catch (ex: Throwable) {
+                                EventManager.emitToast("发生未知异常:[${ex::class.simpleName}]，请联系开发者")
                                 NResult.Error(ex)
                             }
                         }
@@ -96,6 +99,7 @@ object KtorfitModule {
                 json(Json {
                     isLenient = true
                     ignoreUnknownKeys = true
+                    explicitNulls = false
                 })
             }
             install(HttpTimeout) {
