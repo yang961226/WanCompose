@@ -10,6 +10,11 @@ plugins {
     id("com.google.devtools.ksp") version "1.8.21-1.0.11"
     kotlin("plugin.serialization") version ("1.8.22")
     id("com.google.protobuf")
+    id("de.jensklingenberg.ktorfit") version "1.0.0"
+}
+
+configure<de.jensklingenberg.ktorfit.gradle.KtorfitGradleConfiguration> {
+    version = "1.5.0"
 }
 
 class RoomSchemaArgProvider(
@@ -158,14 +163,25 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.5.1")
     implementation("androidx.constraintlayout:constraintlayout-compose:1.0.1")
 
-    val retrofitVersion = "2.9.0"
-    implementation("com.squareup.retrofit2:retrofit:$retrofitVersion")
+//    val retrofitVersion = "2.9.0"
+//    implementation("com.squareup.retrofit2:retrofit:$retrofitVersion")
+//
+//    val okhttpVersion = "4.11.0"
+//    implementation(platform("com.squareup.okhttp3:okhttp-bom:$okhttpVersion"))
+//    implementation("com.squareup.okhttp3:logging-interceptor:$okhttpVersion")
+//    implementation("com.squareup.retrofit2:converter-moshi:2.9.0")
+//    implementation("com.squareup.okhttp3:okhttp-urlconnection:$okhttpVersion")
 
-    val okhttpVersion = "4.11.0"
-    implementation(platform("com.squareup.okhttp3:okhttp-bom:$okhttpVersion"))
-    implementation("com.squareup.okhttp3:logging-interceptor:$okhttpVersion")
-    implementation("com.squareup.retrofit2:converter-moshi:2.9.0")
-    implementation("com.squareup.okhttp3:okhttp-urlconnection:$okhttpVersion")
+    val ktorfitVersion = "1.5.0"
+    implementation("de.jensklingenberg.ktorfit:ktorfit-lib:$ktorfitVersion")
+    ksp("de.jensklingenberg.ktorfit:ktorfit-ksp:$ktorfitVersion")
+
+    val ktorVersion = "2.3.3"
+    implementation("io.ktor:ktor-client-android:$ktorVersion")
+    implementation("io.ktor:ktor-client-logging-jvm:$ktorVersion")
+    implementation("io.ktor:ktor-client-content-negotiation:$ktorVersion")
+    implementation("io.ktor:ktor-serialization-kotlinx-json:$ktorVersion")
+
 
     // Proto DataStore
     implementation("androidx.datastore:datastore-preferences:1.0.0")

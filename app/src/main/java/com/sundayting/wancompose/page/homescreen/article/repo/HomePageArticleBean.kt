@@ -1,6 +1,5 @@
 package com.sundayting.wancompose.page.homescreen.article.repo
 
-import com.squareup.moshi.Json
 import com.sundayting.wancompose.page.homescreen.article.ui.ArticleList
 
 data class ArticleBean(
@@ -16,9 +15,7 @@ data class ArticleBean(
 )
 
 data class ArticleListBean(
-    @field:Json(name = "curPage")
     val curPage: Int,
-    @field:Json(name = "datas")
     val list: List<ArticleBean>,
 )
 

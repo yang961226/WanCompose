@@ -46,7 +46,7 @@ class WanViewModel @Inject constructor(
         loginOrRegisterJog?.cancel()
         loginOrRegisterJog = viewModelScope.launch {
             loginOrRegisterState.isLoading = true
-            val result = mineRepository.register(username, password, passwordAgain)
+//            val result = mineRepository.register(username, password, passwordAgain)
         }.apply {
             invokeOnCompletion {
                 loginOrRegisterState.isLoading = false
