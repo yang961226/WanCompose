@@ -15,7 +15,7 @@ fun <T> WanNResult<T>.requireData(): T {
 
 @Serializable
 class WanEmptyNResult(
-    override val data: Unit = Unit,
+    override val data: Unit?,
     override val errorCode: Int,
     override val errorMsg: String,
 ) : WanNResult<Unit>()
