@@ -10,18 +10,20 @@ import androidx.lifecycle.viewModelScope
 import com.sundayting.wancompose.network.NetExceptionHandler
 import com.sundayting.wancompose.network.isSuccess
 import com.sundayting.wancompose.page.homescreen.article.repo.ArticleRepository
-import com.sundayting.wancompose.page.homescreen.article.repo.HomePageService
+import com.sundayting.wancompose.page.homescreen.article.repo.toArticleUiBean
 import com.sundayting.wancompose.page.homescreen.article.repo.toBannerUiBean
 import com.sundayting.wancompose.page.homescreen.article.ui.ArticleList
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.async
+import kotlinx.coroutines.joinAll
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class ArticleListViewModel @Inject constructor(
     private val repo: ArticleRepository,
-    private val homePageService: HomePageService,
 ) : ViewModel() {
 
     val state = ArticleState()
@@ -76,61 +78,50 @@ class ArticleListViewModel @Inject constructor(
         } else {
             state.loadingMore = true
         }
-        loadJob = viewModelScope.launch(NetExceptionHandler) {
-            val result = homePageService.getBanner()
-            if (result.isSuccess()) {
-                result.body.data.let { list ->
-                    state.bannerList.clear()
-                    state.bannerList.addAll(list.map { it.toBannerUiBean() })
-                }
-            }
-
-//            joinAll(
-//                launch {
-//                    if (isRefresh) {
-//                        val result = repo.fetchHomePageBanner()
-//                        if (result.isNSuccess()) {
-//                            result.body.data?.let { list ->
-//                                state.bannerList.clear()
-//                                state.bannerList.addAll(list.map { it.toBannerUiBean() })
-//                            }
-//                        }
-//                    }
-//                },
-//                launch {
-//                    val topArticleListDeferred = async {
-//                        if (isRefresh) {
-//                            val result = repo.fetchHomePageTopArticle()
-//                            if (result.isNSuccess() && result.body.data != null) {
-//                                result.body.data
-//                            } else {
-//                                null
-//                            }
-//                        } else {
-//                            null
-//                        }
-//                    }
-//
-//                    val articleListDeferred = async {
-//                        val result = repo.fetchHomePageArticle(curPage)
-//                        if (result.isNSuccess()) {
-//                            result.body.data?.list
-//                        } else {
-//                            null
-//                        }
-//                    }
-//
-//                    val topArticleList = topArticleListDeferred.await()
-//                    val articleList = articleListDeferred.await()
-//
-//                    if (articleList != null) {
-//                        addArticle(articleList.map { it.toArticleUiBean() }, isRefresh)
-//                    }
-//                    if (topArticleList != null) {
-//                        addTopArticle(topArticleList.map { it.toArticleUiBean(true) })
-//                    }
-//                },
-//            )
+        loadJob = viewModelScope.launch(NetExceptionHandler + SupervisorJob()) {
+            joinAll(
+                launch {
+                    if (isRefresh) {
+                        val result = repo.fetchHomePageBanner()
+                        if (result.isSuccess()) {
+                            result.body.data.let { list ->
+                                state.bannerList.clear()
+                                state.bannerList.addAll(list.map { it.toBannerUiBean() })
+                            }
+                        }
+                    }
+                },
+                launch {
+                    val topArticleListDeferred = async {
+                        if (isRefresh) {
+                            val result = repo.fetchHomePageTopArticle()
+                            if (result.isSuccess()) {
+                                result.body.data
+                            } else {
+                                null
+                            }
+                        } else {
+                            null
+                        }
+                    }
+                    val articleListDeferred = async {
+                        val result = repo.fetchHomePageArticle(curPage)
+                        if (result.isSuccess()) {
+                            result.body.data.list
+                        } else {
+                            null
+                        }
+                    }
+                    val topArticleList = topArticleListDeferred.await()
+                    val articleList = articleListDeferred.await()
+                    if (articleList != null) {
+                        addArticle(articleList.map { it.toArticleUiBean() }, isRefresh)
+                    }
+                    if (topArticleList != null) {
+                        addTopArticle(topArticleList.map { it.toArticleUiBean(true) })
+                    }
+                },
+            )
         }.apply {
             invokeOnCompletion {
                 state.refreshing = false

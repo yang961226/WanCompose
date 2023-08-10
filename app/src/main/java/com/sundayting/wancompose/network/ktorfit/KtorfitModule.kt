@@ -1,5 +1,6 @@
 package com.sundayting.wancompose.network.ktorfit
 
+import android.util.Log
 import com.sundayting.wancompose.common.event.EventManager
 import com.sundayting.wancompose.common.event.emitNeedLoginAgain
 import com.sundayting.wancompose.network.NResult
@@ -17,7 +18,6 @@ import io.ktor.client.call.body
 import io.ktor.client.engine.android.Android
 import io.ktor.client.plugins.HttpTimeout
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
-import io.ktor.client.plugins.logging.DEFAULT
 import io.ktor.client.plugins.logging.LogLevel
 import io.ktor.client.plugins.logging.Logger
 import io.ktor.client.plugins.logging.Logging
@@ -85,7 +85,11 @@ object KtorfitModule {
     fun provideHttpClient(): HttpClient {
         return HttpClient(Android) {
             install(Logging) {
-                logger = Logger.DEFAULT
+                logger = object : Logger {
+                    override fun log(message: String) {
+                        Log.d("网络请求日志", message)
+                    }
+                }
                 level = LogLevel.BODY
             }
             install(ContentNegotiation) {
