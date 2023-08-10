@@ -1,6 +1,5 @@
 package com.sundayting.wancompose.page.homescreen.article
 
-import android.util.Log
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
@@ -8,8 +7,11 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.sundayting.wancompose.network.NetExceptionHandler
+import com.sundayting.wancompose.network.isSuccess
 import com.sundayting.wancompose.page.homescreen.article.repo.ArticleRepository
-import com.sundayting.wancompose.page.homescreen.article.repo.HomePageService2
+import com.sundayting.wancompose.page.homescreen.article.repo.HomePageService
+import com.sundayting.wancompose.page.homescreen.article.repo.toBannerUiBean
 import com.sundayting.wancompose.page.homescreen.article.ui.ArticleList
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
@@ -19,7 +21,7 @@ import javax.inject.Inject
 @HiltViewModel
 class ArticleListViewModel @Inject constructor(
     private val repo: ArticleRepository,
-    private val homePageService2: HomePageService2,
+    private val homePageService: HomePageService,
 ) : ViewModel() {
 
     val state = ArticleState()
@@ -74,18 +76,15 @@ class ArticleListViewModel @Inject constructor(
         } else {
             state.loadingMore = true
         }
-        loadJob = viewModelScope.launch {
-            val result = runCatching { homePageService2.getHomePage() }
-            val bean = result.getOrNull()
-            if (bean != null) {
-                bean.data?.let {
-                    it.forEach {
-                        Log.d("临时测试", "$it")
-                    }
+        loadJob = viewModelScope.launch(NetExceptionHandler) {
+            val result = homePageService.getBanner()
+            if (result.isSuccess()) {
+                result.body.data.let { list ->
+                    state.bannerList.clear()
+                    state.bannerList.addAll(list.map { it.toBannerUiBean() })
                 }
-
             }
-            Log.d("临时测试", "$bean")
+
 //            joinAll(
 //                launch {
 //                    if (isRefresh) {

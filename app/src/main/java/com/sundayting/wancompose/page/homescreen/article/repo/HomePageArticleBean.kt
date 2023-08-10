@@ -19,13 +19,6 @@ data class ArticleListBean(
     val list: List<ArticleBean>,
 )
 
-data class HomePageBannerBean(
-    val imagePath: String,
-    val url: String,
-    val id: Int,
-    val title: String,
-)
-
 fun ArticleBean.toArticleUiBean(
     isStick: Boolean = false,
 ): ArticleList.ArticleUiBean {
@@ -44,14 +37,5 @@ fun ArticleBean.toArticleUiBean(
         ),
         id = id,
         link = link
-    )
-}
-
-fun HomePageBannerBean.toBannerUiBean(): ArticleList.BannerUiBean {
-    return ArticleList.BannerUiBean(
-        imgUrl = imagePath,
-        linkUrl = url,
-        id = id,
-        title = title,
     )
 }

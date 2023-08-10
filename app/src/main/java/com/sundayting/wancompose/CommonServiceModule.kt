@@ -1,21 +1,22 @@
 package com.sundayting.wancompose
 
-//@Module
-//@InstallIn(SingletonComponent::class)
-//object CommonModule {
-//
-//    @Provides
-//    fun provideHomePageService(
-//        retrofit: Retrofit,
-//    ): HomePageService {
-//        return retrofit.create()
-//    }
-//
-//    @Provides
-//    fun provideMineService(
-//        retrofit: Retrofit,
-//    ): MineService {
-//        return retrofit.create()
-//    }
-//
-//}
+import com.sundayting.wancompose.page.homescreen.article.repo.HomePageService
+import dagger.Module
+import dagger.Provides
+import dagger.hilt.InstallIn
+import dagger.hilt.components.SingletonComponent
+import de.jensklingenberg.ktorfit.Ktorfit
+
+@Module
+@InstallIn(SingletonComponent::class)
+object CommonModule {
+
+    @Provides
+    fun provideHomePageService(
+        ktorfit: Ktorfit,
+    ): HomePageService {
+        return ktorfit.create()
+    }
+
+
+}
