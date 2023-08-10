@@ -18,8 +18,8 @@ import de.jensklingenberg.ktorfit.internal.TypeData
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.engine.android.Android
-import io.ktor.client.plugins.HttpTimeout
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
+import io.ktor.client.plugins.cookies.HttpCookies
 import io.ktor.client.plugins.logging.LogLevel
 import io.ktor.client.plugins.logging.Logger
 import io.ktor.client.plugins.logging.Logging
@@ -105,12 +105,10 @@ object KtorfitModule {
                     explicitNulls = false
                 })
             }
-//            install(HttpCookies) {
-//                storage = cookiesStorage
-//            }
-            install(HttpTimeout) {
-                requestTimeoutMillis = 5000
+            install(HttpCookies) {
+                storage = cookiesStorage
             }
+
         }
     }
 
