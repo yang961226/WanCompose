@@ -7,6 +7,7 @@ import com.sundayting.wancompose.common.event.emitToast
 import com.sundayting.wancompose.network.NResult
 import com.sundayting.wancompose.network.WanError
 import com.sundayting.wancompose.network.WanNResult
+import com.sundayting.wancompose.network.okhttp.cookie.DataStoreCookieJar
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -85,7 +86,9 @@ object KtorfitModule {
     }
 
     @Provides
-    fun provideHttpClient(): HttpClient {
+    fun provideHttpClient(
+        cookiesStorage: DataStoreCookieJar,
+    ): HttpClient {
         return HttpClient(Android) {
             install(Logging) {
                 logger = object : Logger {
@@ -102,6 +105,9 @@ object KtorfitModule {
                     explicitNulls = false
                 })
             }
+//            install(HttpCookies) {
+//                storage = cookiesStorage
+//            }
             install(HttpTimeout) {
                 requestTimeoutMillis = 5000
             }

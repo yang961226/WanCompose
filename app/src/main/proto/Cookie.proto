@@ -4,6 +4,8 @@ option java_package = "com.sundayting.wancompose.protobuf";
 option java_outer_classname = "CookieProtobuf";
 
 message CookiesProto {
+
+
     message Cookie {
         string value = 1;
         int64 expires_at = 2;
@@ -11,7 +13,7 @@ message CookiesProto {
         string path = 4;
         bool secure = 5;
         bool http_only = 6;
-        bool host_only = 7;
+        int32 max_age = 7;
     }
 
     message CookieMap {
@@ -19,9 +21,5 @@ message CookiesProto {
     }
 
     map<string, CookieMap> cookies_for_host = 1;
-    //    message CookieList {
-    //        repeated Cookie cookie = 1;
-    //    }
-    //    map<string, CookieList> cookies_map = 1;
 
 }
