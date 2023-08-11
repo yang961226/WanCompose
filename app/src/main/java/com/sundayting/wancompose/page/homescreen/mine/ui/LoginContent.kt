@@ -73,7 +73,7 @@ import kotlinx.coroutines.launch
 @Composable
 fun LoginContent(
     modifier: Modifier = Modifier,
-    loadingOrRegisterState: WanViewModel.LoginOrRegisterState,
+    loginOrRegisterState: WanViewModel.LoginOrRegisterState,
     pagerState: PagerState = rememberPagerState(),
     onClickLogin: (username: String, password: String) -> Unit = { _, _ -> },
     onClickRegister: (username: String, password: String, passwordAgain: String) -> Unit = { _, _, _ -> },
@@ -126,7 +126,7 @@ fun LoginContent(
                         val rotateTransition = rememberInfiniteTransition(label = "")
                         val degree by rotateTransition.animateFloat(
                             initialValue = 0f,
-                            targetValue = if (loadingOrRegisterState.isLoading) 360f else 0f,
+                            targetValue = if (loginOrRegisterState.isLoading) 360f else 0f,
                             animationSpec = InfiniteRepeatableSpec(
                                 animation = tween(durationMillis = 2500),
                                 repeatMode = RepeatMode.Restart
@@ -168,6 +168,7 @@ fun LoginContent(
                     0 -> {
                         LoginPage(
                             Modifier.fillMaxSize(),
+                            state = loginOrRegisterState,
                             onToRegister = {
                                 scope.launch {
                                     pagerState.animateScrollToPage(1)
@@ -182,6 +183,7 @@ fun LoginContent(
                     1 -> {
                         RegisterPage(
                             Modifier.fillMaxSize(),
+                            state = loginOrRegisterState,
                             onToLogin = {
                                 scope.launch {
                                     pagerState.animateScrollToPage(0)
@@ -211,6 +213,7 @@ private fun String.removeEmptyAndNewLine(): String {
 @Composable
 private fun LoginPage(
     modifier: Modifier = Modifier,
+    state: WanViewModel.LoginOrRegisterState,
     onClickConfirm: (username: String, password: String) -> Unit = { _, _ -> },
     onToRegister: () -> Unit = {},
 ) {
@@ -261,6 +264,7 @@ private fun LoginPage(
             value = username,
             onValueChange = { username = it.removeEmptyAndNewLine() },
             singleLine = true,
+            enabled = state.isLoading.not(),
             label = { Text(stringResource(id = R.string.please_input_account)) },
             keyboardOptions = KeyboardOptions(
                 keyboardType = KeyboardType.Text,
@@ -292,6 +296,7 @@ private fun LoginPage(
             value = password,
             onValueChange = { password = it.removeEmptyAndNewLine() },
             singleLine = true,
+            enabled = state.isLoading.not(),
             label = { Text(stringResource(id = R.string.please_input_password)) },
             keyboardOptions = KeyboardOptions(
                 keyboardType = KeyboardType.Password,
@@ -324,7 +329,7 @@ private fun LoginPage(
         Spacer(Modifier.height(20.dp))
 
         Button(
-            enabled = inputFinished,
+            enabled = inputFinished && state.isLoading.not(),
             onClick = {
                 onClickConfirm(username, password)
             }, colors = ButtonDefaults.buttonColors(
@@ -348,6 +353,7 @@ private fun LoginPage(
 @Composable
 private fun RegisterPage(
     modifier: Modifier = Modifier,
+    state: WanViewModel.LoginOrRegisterState,
     onClickConfirm: (username: String, password: String, passwordAgain: String) -> Unit = { _, _, _ -> },
     onToLogin: () -> Unit = {},
 ) {
@@ -384,6 +390,7 @@ private fun RegisterPage(
             value = username,
             onValueChange = { username = it.removeEmptyAndNewLine() },
             singleLine = true,
+            enabled = state.isLoading.not(),
             label = { Text(stringResource(id = R.string.please_input_account)) },
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
             leadingIcon = {
@@ -406,6 +413,7 @@ private fun RegisterPage(
             value = password,
             onValueChange = { password = it.removeEmptyAndNewLine() },
             singleLine = true,
+            enabled = state.isLoading.not(),
             label = { Text(stringResource(id = R.string.please_input_password)) },
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
             visualTransformation = PasswordVisualTransformation(),
@@ -430,6 +438,7 @@ private fun RegisterPage(
             value = passwordAgain,
             onValueChange = { passwordAgain = it.removeEmptyAndNewLine() },
             singleLine = true,
+            enabled = state.isLoading.not(),
             label = { Text(stringResource(id = R.string.please_input_password_again)) },
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
             visualTransformation = PasswordVisualTransformation(),
@@ -464,12 +473,13 @@ private fun RegisterPage(
             }, colors = ButtonDefaults.buttonColors(
                 backgroundColor = WanColors.TopColor
             ),
-            enabled = buttonEnable,
+            enabled = buttonEnable && state.isLoading.not(),
             shape = RoundedCornerShape(50),
             contentPadding = PaddingValues(horizontal = 100.dp, vertical = 10.dp)
         ) {
             Text(
-                stringResource(id = R.string.to_register), style = TextStyle(
+                stringResource(id = if (state.isLoading) R.string.waiting else R.string.to_register),
+                style = TextStyle(
                     color = Color.White,
                     fontSize = 18.sp
                 )
@@ -482,6 +492,6 @@ private fun RegisterPage(
 @Preview
 private fun PreviewLoginContent() {
     LoginContent(
-        loadingOrRegisterState = WanViewModel.LoginOrRegisterState()
+        loginOrRegisterState = WanViewModel.LoginOrRegisterState()
     )
 }

@@ -19,6 +19,7 @@
     <string name="register">注册</string>
     <string name="to_login">去登录</string>
     <string name="to_register">去注册</string>
+    <string name="waiting">请稍后...</string>
     <string name="please_input_account">请输入用户名</string>
     <string name="please_input_password">请输入密码</string>
     <string name="please_input_password_again">请再次输入密码</string>
