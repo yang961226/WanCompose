@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "28983c4343142a73e11b552d652c2a78",
+    "identityHash": "374fd6e6b10f1e0affb603a29d773b62",
     "entities": [
       {
         "tableName": "UserEntity",
@@ -50,8 +50,14 @@
       },
       {
         "tableName": "ArticleBean",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER NOT NULL, `title` TEXT NOT NULL, `niceDate` TEXT NOT NULL, `fresh` INTEGER NOT NULL, `shareUser` TEXT NOT NULL, `author` TEXT NOT NULL, `chapterName` TEXT NOT NULL, `superChapterName` TEXT NOT NULL, `link` TEXT NOT NULL, `collect` INTEGER NOT NULL, PRIMARY KEY(`id`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`ownerId` INTEGER NOT NULL, `id` INTEGER NOT NULL, `title` TEXT NOT NULL, `niceDate` TEXT NOT NULL, `fresh` INTEGER NOT NULL, `shareUser` TEXT NOT NULL, `author` TEXT NOT NULL, `chapterName` TEXT NOT NULL, `superChapterName` TEXT NOT NULL, `link` TEXT NOT NULL, `collect` INTEGER NOT NULL, `isStick` INTEGER NOT NULL, PRIMARY KEY(`id`, `ownerId`))",
         "fields": [
+          {
+            "fieldPath": "ownerId",
+            "columnName": "ownerId",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
           {
             "fieldPath": "id",
             "columnName": "id",
@@ -111,12 +117,19 @@
             "columnName": "collect",
             "affinity": "INTEGER",
             "notNull": true
+          },
+          {
+            "fieldPath": "isStick",
+            "columnName": "isStick",
+            "affinity": "INTEGER",
+            "notNull": true
           }
         ],
         "primaryKey": {
           "autoGenerate": false,
           "columnNames": [
-            "id"
+            "id",
+            "ownerId"
           ]
         },
         "indices": [],
@@ -126,7 +139,7 @@
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '28983c4343142a73e11b552d652c2a78')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '374fd6e6b10f1e0affb603a29d773b62')"
     ]
   }
 }

@@ -369,27 +369,25 @@ private fun ArticleListSingleBean(
 @Preview(showBackground = true)
 private fun PreviewArticleListContent() {
     ArticleListContent(Modifier.fillMaxSize(), articleState = remember {
-        ArticleListViewModel.ArticleState().apply {
-            this.articleList.addAll(
-                (0L..100L).map {
-                    ArticleList.ArticleUiBean(
-                        title = "我是标题我是标题我是标题我是标题我是标题我是标题",
-                        date = "1小时之前",
-                        isNew = true,
-                        isStick = true,
-                        chapter = ArticleList.ArticleUiBean.Chapter(
-                            superChapterName = "广场Tab",
-                            chapterName = "自助"
-                        ),
-                        authorOrSharedUser = ArticleList.ArticleUiBean.AuthorOrSharedUser(
-                            author = "小茗同学",
-                        ),
-                        id = it,
-                        isCollect = (it % 2) == 0L
-                    )
-                }
-            )
-        }
+        ArticleListViewModel.ArticleState(
+            (0L..100L).map {
+                ArticleList.ArticleUiBean(
+                    title = "我是标题我是标题我是标题我是标题我是标题我是标题",
+                    date = "1小时之前",
+                    isNew = true,
+                    isStick = true,
+                    chapter = ArticleList.ArticleUiBean.Chapter(
+                        superChapterName = "广场Tab",
+                        chapterName = "自助"
+                    ),
+                    authorOrSharedUser = ArticleList.ArticleUiBean.AuthorOrSharedUser(
+                        author = "小茗同学",
+                    ),
+                    id = it,
+                    isCollect = (it % 2) == 0L
+                )
+            }
+        )
     })
 }
 

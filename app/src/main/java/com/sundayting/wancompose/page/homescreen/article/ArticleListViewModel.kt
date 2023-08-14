@@ -1,5 +1,6 @@
 package com.sundayting.wancompose.page.homescreen.article
 
+import android.util.Log
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
@@ -7,16 +8,24 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.sundayting.wancompose.function.UserLoginFunction.VISITOR_ID
 import com.sundayting.wancompose.network.NetExceptionHandler
 import com.sundayting.wancompose.network.isSuccess
 import com.sundayting.wancompose.network.requireData
 import com.sundayting.wancompose.page.homescreen.article.repo.ArticleRepository
 import com.sundayting.wancompose.page.homescreen.article.repo.toBannerUiBean
 import com.sundayting.wancompose.page.homescreen.article.ui.ArticleList
+import com.sundayting.wancompose.page.homescreen.mine.repo.MineRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.async
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.firstOrNull
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.mapLatest
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.joinAll
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -24,14 +33,18 @@ import javax.inject.Inject
 @HiltViewModel
 class ArticleListViewModel @Inject constructor(
     private val repo: ArticleRepository,
+    private val mineRepo: MineRepository,
 ) : ViewModel() {
 
     val state = ArticleState()
 
-    @Stable
-    class ArticleState {
 
-        val articleList = mutableStateListOf<ArticleList.ArticleUiBean>()
+    @Stable
+    class ArticleState(
+        list: List<ArticleList.ArticleUiBean> = listOf(),
+    ) {
+
+        var articleList by mutableStateOf(list)
 
         val bannerList = mutableStateListOf<ArticleList.BannerUiBean>()
 
@@ -43,18 +56,41 @@ class ArticleListViewModel @Inject constructor(
     private var curPage = 0
 
     init {
-        refresh()
-    }
-
-    private fun addArticle(list: List<ArticleList.ArticleUiBean>, refreshFirst: Boolean = false) {
-        if (refreshFirst) {
-            state.articleList.clear()
+        viewModelScope.launch {
+            launch {
+                mineRepo.curUserFlow.collect {
+                    refresh()
+                }
+            }
+            launch {
+                mineRepo.curUserFlow.map { it?.id ?: VISITOR_ID }.onEach {
+                    Log.d("临时测试", "$it")
+                }.flatMapLatest { id ->
+                    repo.userArticleFlow(id).mapLatest { articleList ->
+                        articleList.map { it.toArticleUiBean() }
+                    }
+                }.collectLatest {
+                    state.articleList = it
+                }
+            }
         }
-        state.articleList.addAll(list)
+
     }
 
-    private fun addTopArticle(list: List<ArticleList.ArticleUiBean>) {
-        state.articleList.addAll(0, list)
+    private fun addArticle(list: List<ArticleBean>, refreshFirst: Boolean = false) {
+        viewModelScope.launch {
+            if (refreshFirst) {
+                repo.deleteUsersArticleFlow(mineRepo.curUserFlow.firstOrNull()?.id ?: VISITOR_ID)
+            }
+            repo.insertArticles(list)
+
+        }
+    }
+
+    private fun addTopArticle(list: List<ArticleBean>) {
+        viewModelScope.launch {
+            repo.insertArticles(list)
+        }
     }
 
     fun refresh() {
@@ -114,11 +150,17 @@ class ArticleListViewModel @Inject constructor(
                     }
                     val topArticleList = topArticleListDeferred.await()
                     val articleList = articleListDeferred.await()
+                    val curUserId = mineRepo.curUserFlow.firstOrNull()?.id ?: VISITOR_ID
                     if (articleList != null) {
-                        addArticle(articleList.map { it.toArticleUiBean() }, isRefresh)
+                        addArticle(articleList.map { it.copy(ownerId = curUserId) }, isRefresh)
                     }
                     if (topArticleList != null) {
-                        addTopArticle(topArticleList.map { it.toArticleUiBean(true) })
+                        addTopArticle(topArticleList.map {
+                            it.copy(
+                                ownerId = curUserId,
+                                isStick = true
+                            )
+                        })
                     }
                 },
             )

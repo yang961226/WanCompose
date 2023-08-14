@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
+import com.sundayting.wancompose.function.ArticleFunction
 import com.sundayting.wancompose.function.UserLoginFunction
 import com.sundayting.wancompose.page.homescreen.article.ArticleBean
 import dagger.Module
@@ -16,12 +17,14 @@ import javax.inject.Singleton
 @Database(
     entities = [
         UserLoginFunction.UserEntity::class,
-        ArticleBean::class
+        ArticleBean::class,
     ], version = 1
 )
 abstract class WanDatabase : RoomDatabase() {
 
     abstract fun userDao(): UserLoginFunction.UserDao
+
+    abstract fun articleDao(): ArticleFunction.ArticleDao
 
 }
 

@@ -4,6 +4,7 @@ import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.room.Dao
 import androidx.room.Entity
 import androidx.room.Insert
+import androidx.room.OnConflictStrategy
 import androidx.room.PrimaryKey
 import androidx.room.Query
 import com.sundayting.wancompose.network.WanNResult
@@ -11,6 +12,11 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.serialization.Serializable
 
 object UserLoginFunction {
+
+    /**
+     * 游客的ID
+     */
+    const val VISITOR_ID = Long.MAX_VALUE
 
     val CURRENT_LOGIN_ID_KEY = intPreferencesKey("当前登录的用户id")
 
@@ -37,7 +43,7 @@ object UserLoginFunction {
     @Entity
     data class UserEntity(
         @PrimaryKey
-        val id: Int,
+        val id: Long,
         val nick: String,
         val coinCount: Int,
         val level: Int,
@@ -47,14 +53,14 @@ object UserLoginFunction {
     @Dao
     interface UserDao {
 
-        @Insert
+        @Insert(onConflict = OnConflictStrategy.REPLACE)
         suspend fun insertUser(userEntity: UserEntity)
 
         @Query("SELECT * FROM UserEntity WHERE id IN (:userId)")
         fun currentUserFlow(userId: Int): Flow<UserEntity?>
 
         @Query("SELECT * FROM UserEntity WHERE id IN (:userId)")
-        fun queryUserById(userId: Int): UserEntity?
+        suspend fun queryUserById(userId: Int): UserEntity?
 
         @Query("DELETE FROM UserEntity")
         suspend fun clear()

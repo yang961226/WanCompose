@@ -87,7 +87,7 @@ class MineRepository @Inject constructor(
                         launch {
                             database.userDao().insertUser(
                                 UserLoginFunction.UserEntity(
-                                    id = userInfoBean.userInfo.id,
+                                    id = userInfoBean.userInfo.id.toLong(),
                                     nick = userInfoBean.userInfo.nickname,
                                     coinCount = userInfoBean.coinInfo.coinCount,
                                     level = userInfoBean.coinInfo.level,

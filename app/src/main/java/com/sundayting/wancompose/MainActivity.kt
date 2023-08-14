@@ -147,7 +147,7 @@ fun WanComposeApp(
         ) {
             val navController = rememberAnimatedNavController()
             val navBackStackEntry by navController.currentBackStackEntryAsState()
-            val currentDestination = navBackStackEntry?.destination
+//            val currentDestination = navBackStackEntry?.destination
 
             //在主页
             val isInMainPage by remember {

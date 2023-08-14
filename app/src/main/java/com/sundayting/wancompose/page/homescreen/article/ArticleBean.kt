@@ -2,16 +2,21 @@ package com.sundayting.wancompose.page.homescreen.article
 
 
 import androidx.room.Entity
-import androidx.room.PrimaryKey
+import com.sundayting.wancompose.function.UserLoginFunction.VISITOR_ID
 import com.sundayting.wancompose.network.WanNResult
 import com.sundayting.wancompose.page.homescreen.article.ui.ArticleList
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.Transient
+
 
 @Serializable
-@Entity
+@Entity(
+    primaryKeys = ["id", "ownerId"]
+)
 data class ArticleBean(
-    @PrimaryKey
+    @Transient
+    val ownerId: Long = VISITOR_ID,
     val id: Long,
     val title: String,
     val niceDate: String,
@@ -22,6 +27,8 @@ data class ArticleBean(
     val superChapterName: String,
     val link: String,
     val collect: Boolean,
+    @Transient
+    val isStick: Boolean = false,
 )
 
 @Serializable
@@ -31,9 +38,7 @@ data class ArticleListBean(
     val list: List<ArticleBean>,
 )
 
-fun ArticleBean.toArticleUiBean(
-    isStick: Boolean = false,
-): ArticleList.ArticleUiBean {
+fun ArticleBean.toArticleUiBean(): ArticleList.ArticleUiBean {
     return ArticleList.ArticleUiBean(
         title = title,
         date = niceDate,
