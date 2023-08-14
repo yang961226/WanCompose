@@ -1,7 +1,6 @@
 package com.sundayting.wancompose.function
 
 import androidx.datastore.preferences.core.intPreferencesKey
-import androidx.room.ColumnInfo
 import androidx.room.Dao
 import androidx.room.Entity
 import androidx.room.Insert
@@ -38,16 +37,10 @@ object UserLoginFunction {
     @Entity
     data class UserEntity(
         @PrimaryKey
-        @ColumnInfo("id")
         val id: Int,
-
-        @ColumnInfo("nick")
         val nick: String,
-        @ColumnInfo("coinCount")
         val coinCount: Int,
-        @ColumnInfo("level")
         val level: Int,
-        @ColumnInfo("rank")
         val rank: Int,
     )
 

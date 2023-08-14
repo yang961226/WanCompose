@@ -2,7 +2,6 @@ package com.sundayting.wancompose.page.homescreen.mine.repo
 
 import android.content.Context
 import androidx.datastore.preferences.core.edit
-import androidx.room.withTransaction
 import com.sundayting.wancompose.common.event.EventManager
 import com.sundayting.wancompose.common.event.NeedLoginAgainEvent
 import com.sundayting.wancompose.datastore.dataStore
@@ -70,9 +69,6 @@ class MineRepository @Inject constructor(
                         mp[CURRENT_LOGIN_ID_KEY] = 0
                     }
                 },
-                launch {
-                    database.userDao().clear()
-                }
             )
         }
     }
@@ -89,18 +85,15 @@ class MineRepository @Inject constructor(
                     val userInfoBean = userInfoResult.body.requireData()
                     joinAll(
                         launch {
-                            database.withTransaction {
-                                database.userDao().clear()
-                                database.userDao().insertUser(
-                                    UserLoginFunction.UserEntity(
-                                        id = userInfoBean.userInfo.id,
-                                        nick = userInfoBean.userInfo.nickname,
-                                        coinCount = userInfoBean.coinInfo.coinCount,
-                                        level = userInfoBean.coinInfo.level,
-                                        rank = userInfoBean.coinInfo.rank
-                                    )
+                            database.userDao().insertUser(
+                                UserLoginFunction.UserEntity(
+                                    id = userInfoBean.userInfo.id,
+                                    nick = userInfoBean.userInfo.nickname,
+                                    coinCount = userInfoBean.coinInfo.coinCount,
+                                    level = userInfoBean.coinInfo.level,
+                                    rank = userInfoBean.coinInfo.rank
                                 )
-                            }
+                            )
                         },
                         launch {
                             dataStore.edit { mp ->

@@ -70,6 +70,7 @@ object ArticleList {
         val chapter: Chapter,
         val authorOrSharedUser: AuthorOrSharedUser,
         val link: String = "",
+        isCollect: Boolean = false,
     ) {
 
         data class Chapter(
@@ -82,7 +83,7 @@ object ArticleList {
             val sharedUser: String = "",
         )
 
-        var isLike by mutableStateOf(false)
+        var isCollect by mutableStateOf(isCollect)
 
     }
 
@@ -348,7 +349,7 @@ private fun ArticleListSingleBean(
             )
         }
         Image(
-            painter = painterResource(id = if (bean.isLike) R.drawable.ic_like2 else R.drawable.ic_like),
+            painter = painterResource(id = if (bean.isCollect) R.drawable.ic_like2 else R.drawable.ic_like),
             contentDescription = null,
             modifier = Modifier
                 .padding(2.dp)
@@ -357,7 +358,7 @@ private fun ArticleListSingleBean(
                     end.linkTo(parent.end)
                     bottom.linkTo(parent.bottom)
                 },
-            colorFilter = if (bean.isLike) ColorFilter.tint(Color(0xFFe87045)) else null
+            colorFilter = if (bean.isCollect) ColorFilter.tint(Color(0xFFe87045)) else null
         )
 
     }
@@ -384,6 +385,7 @@ private fun PreviewArticleListContent() {
                             author = "小茗同学",
                         ),
                         id = it,
+                        isCollect = (it % 2) == 0L
                     )
                 }
             )
