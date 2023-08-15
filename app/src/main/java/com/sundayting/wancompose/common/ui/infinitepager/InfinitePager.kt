@@ -19,7 +19,9 @@ private const val InfiniteInitialPage = Int.MAX_VALUE / 2
 
 @Composable
 fun rememberInfiniteLoopPagerState(): PagerState {
-    return rememberPagerState(InfiniteInitialPage)
+    return rememberPagerState {
+        InfiniteInitialPage
+    }
 }
 
 /**
@@ -46,7 +48,6 @@ fun InfiniteLoopHorizontalPager(
 ) {
     HorizontalPager(
         modifier = modifier,
-        pageCount = Int.MAX_VALUE,
         state = state,
         contentPadding = contentPadding,
         pageSize = pageSize,

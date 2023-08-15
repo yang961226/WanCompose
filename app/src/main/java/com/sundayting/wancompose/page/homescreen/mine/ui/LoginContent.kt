@@ -74,7 +74,7 @@ import kotlinx.coroutines.launch
 fun LoginContent(
     modifier: Modifier = Modifier,
     loginOrRegisterState: WanViewModel.LoginOrRegisterState,
-    pagerState: PagerState = rememberPagerState(),
+    pagerState: PagerState = rememberPagerState { 2 },
     onClickLogin: (username: String, password: String) -> Unit = { _, _ -> },
     onClickRegister: (username: String, password: String, passwordAgain: String) -> Unit = { _, _, _ -> },
 ) {
@@ -157,7 +157,6 @@ fun LoginContent(
             val scope = rememberCoroutineScope()
 
             HorizontalPager(
-                pageCount = 2,
                 modifier = Modifier
                     .padding(top = 50.dp)
                     .fillMaxWidth()

@@ -35,10 +35,10 @@ import androidx.core.view.WindowCompat
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavGraph.Companion.findStartDestination
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
-import com.google.accompanist.navigation.animation.AnimatedNavHost
-import com.google.accompanist.navigation.animation.composable
-import com.google.accompanist.navigation.animation.rememberAnimatedNavController
+import androidx.navigation.compose.rememberNavController
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import com.google.accompanist.web.rememberWebViewState
 import com.sundayting.wancompose.common.event.EventManager
@@ -105,7 +105,7 @@ fun WanComposeApp(
         confirmValueChange = { it != ModalBottomSheetValue.HalfExpanded },
         skipHalfExpanded = true
     )
-    val bottomSheetPagerState = rememberPagerState()
+    val bottomSheetPagerState = rememberPagerState { 2 }
     rememberSystemUiController().apply {
         setStatusBarColor(Color.Transparent)
     }
@@ -145,9 +145,8 @@ fun WanComposeApp(
                 )
             },
         ) {
-            val navController = rememberAnimatedNavController()
+            val navController = rememberNavController()
             val navBackStackEntry by navController.currentBackStackEntryAsState()
-//            val currentDestination = navBackStackEntry?.destination
 
             //在主页
             val isInMainPage by remember {
@@ -215,8 +214,8 @@ fun WanComposeApp(
                             })
                     }
                 }
-            ) { it ->
-                AnimatedNavHost(
+            ) {
+                NavHost(
                     modifier = Modifier.padding(it),
                     startDestination = HomeScreen.route,
                     navController = navController,
@@ -224,7 +223,6 @@ fun WanComposeApp(
                     with(HomeScreen) {
                         homeNavGraph(navController)
                     }
-
                     composable(
                         route = SettingScreen.route,
                         enterTransition = { slideInHorizontally { width -> width } },
