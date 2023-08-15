@@ -80,12 +80,6 @@ class ArticleListViewModel @Inject constructor(
         repo.insertArticles(list)
     }
 
-    private fun addTopArticle(list: List<ArticleBean>) {
-        viewModelScope.launch {
-            repo.insertArticles(list)
-        }
-    }
-
     fun refresh() {
         load(true)
     }
