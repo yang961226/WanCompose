@@ -21,7 +21,6 @@ import androidx.compose.material.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
@@ -32,6 +31,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.core.view.WindowCompat
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavGraph.Companion.findStartDestination
@@ -93,7 +93,7 @@ fun WanComposeApp(
     viewModel: WanViewModel = viewModel(),
 ) {
 
-    val loginUser by viewModel.curLoginUserFlow.collectAsState(null)
+    val loginUser by viewModel.curLoginUserFlow.collectAsStateWithLifecycle()
     val isLogin by remember {
         derivedStateOf { loginUser != null }
     }

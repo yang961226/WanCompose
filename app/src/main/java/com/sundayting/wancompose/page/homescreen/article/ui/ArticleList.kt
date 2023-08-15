@@ -173,7 +173,7 @@ private fun ArticleListContent(
                     var curTitle by remember { mutableStateOf<String?>(null) }
 
                     LaunchedEffect(Unit) {
-                        pagerState.animateScrollToPage(0)
+                        pagerState.scrollToPage(Int.MAX_VALUE / 2)
                         snapshotFlow { pagerState.currentPageInInfinitePage(articleState.bannerList.size) }.collect {
                             curTitle = articleState.bannerList.getOrNull(it)?.title
                         }
@@ -181,7 +181,7 @@ private fun ArticleListContent(
 
                     InfiniteLoopHorizontalPager(
                         modifier = Modifier.matchParentSize(),
-                        pageCount = articleState.bannerList.size,
+                        realPageCount = articleState.bannerList.size,
                         state = pagerState
                     ) {
                         val banner = articleState.bannerList[it]
