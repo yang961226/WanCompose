@@ -7,7 +7,6 @@ import com.sundayting.wancompose.network.WanNResult
 import com.sundayting.wancompose.page.homescreen.article.ui.ArticleList
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.Transient
 
 
 @Serializable
@@ -15,7 +14,6 @@ import kotlinx.serialization.Transient
     primaryKeys = ["id", "ownerId"]
 )
 data class ArticleBean(
-    @Transient
     val ownerId: Long = VISITOR_ID,
     val id: Long,
     val title: String,
@@ -27,7 +25,6 @@ data class ArticleBean(
     val superChapterName: String,
     val link: String,
     val collect: Boolean,
-    @Transient
     val isStick: Boolean = false,
 )
 

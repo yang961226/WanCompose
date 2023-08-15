@@ -1,6 +1,5 @@
 package com.sundayting.wancompose.page.homescreen.article
 
-import android.util.Log
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
@@ -25,7 +24,6 @@ import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.mapLatest
-import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.joinAll
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -63,9 +61,7 @@ class ArticleListViewModel @Inject constructor(
                 }
             }
             launch {
-                mineRepo.curUserFlow.map { it?.id ?: VISITOR_ID }.onEach {
-                    Log.d("临时测试", "$it")
-                }.flatMapLatest { id ->
+                mineRepo.curUserFlow.map { it?.id ?: VISITOR_ID }.flatMapLatest { id ->
                     repo.userArticleFlow(id).mapLatest { articleList ->
                         articleList.map { it.toArticleUiBean() }
                     }
@@ -77,14 +73,11 @@ class ArticleListViewModel @Inject constructor(
 
     }
 
-    private fun addArticle(list: List<ArticleBean>, refreshFirst: Boolean = false) {
-        viewModelScope.launch {
-            if (refreshFirst) {
-                repo.deleteUsersArticleFlow(mineRepo.curUserFlow.firstOrNull()?.id ?: VISITOR_ID)
-            }
-            repo.insertArticles(list)
-
+    private suspend fun addArticle(list: List<ArticleBean>, refreshFirst: Boolean = false) {
+        if (refreshFirst) {
+            repo.deleteUsersArticleFlow(mineRepo.curUserFlow.firstOrNull()?.id ?: VISITOR_ID)
         }
+        repo.insertArticles(list)
     }
 
     private fun addTopArticle(list: List<ArticleBean>) {
@@ -148,20 +141,14 @@ class ArticleListViewModel @Inject constructor(
                             null
                         }
                     }
-                    val topArticleList = topArticleListDeferred.await()
-                    val articleList = articleListDeferred.await()
+                    curPage++
                     val curUserId = mineRepo.curUserFlow.firstOrNull()?.id ?: VISITOR_ID
-                    if (articleList != null) {
-                        addArticle(articleList.map { it.copy(ownerId = curUserId) }, isRefresh)
+                    val topArticleList = topArticleListDeferred.await().orEmpty()
+                        .map { it.copy(ownerId = curUserId, isStick = true) }
+                    val articleList = articleListDeferred.await().orEmpty().map {
+                        it.copy(ownerId = curUserId)
                     }
-                    if (topArticleList != null) {
-                        addTopArticle(topArticleList.map {
-                            it.copy(
-                                ownerId = curUserId,
-                                isStick = true
-                            )
-                        })
-                    }
+                    addArticle(topArticleList + articleList, isRefresh)
                 },
             )
         }.apply {
