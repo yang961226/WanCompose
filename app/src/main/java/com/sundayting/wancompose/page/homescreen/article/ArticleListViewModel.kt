@@ -19,11 +19,8 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.async
-import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.flow.distinctUntilChangedBy
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.flatMapLatest
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.mapLatest
 import kotlinx.coroutines.joinAll
 import kotlinx.coroutines.launch
@@ -57,16 +54,16 @@ class ArticleListViewModel @Inject constructor(
     init {
         viewModelScope.launch {
             launch {
-                mineRepo.curUserFlow.distinctUntilChangedBy { it?.id }.collect {
+                mineRepo.curUidFlow.collect {
                     refresh()
                 }
             }
             launch {
-                mineRepo.curUserFlow.map { it?.id ?: VISITOR_ID }.flatMapLatest { id ->
+                mineRepo.curUidFlow.flatMapLatest { id ->
                     repo.userArticleFlow(id).mapLatest { articleList ->
                         articleList.map { it.toArticleUiBean() }
                     }
-                }.collectLatest {
+                }.collect {
                     state.articleList = it
                 }
             }
@@ -74,11 +71,8 @@ class ArticleListViewModel @Inject constructor(
 
     }
 
-    private suspend fun addArticle(list: List<ArticleBean>, refreshFirst: Boolean = false) {
-        if (refreshFirst) {
-            repo.deleteUsersArticleFlow(mineRepo.curUserFlow.firstOrNull()?.id ?: VISITOR_ID)
-        }
-        repo.insertArticles(list)
+    private suspend fun addArticle(list: List<ArticleBean>, clearFirst: Boolean = false) {
+        repo.insertArticles(list, clearFirst)
     }
 
     fun refresh() {

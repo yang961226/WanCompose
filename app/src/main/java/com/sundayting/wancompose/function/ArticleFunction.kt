@@ -22,7 +22,7 @@ object ArticleFunction {
         fun queryUsersArticleFlow(uid: Long): Flow<List<ArticleBean>>
 
         @Query("DELETE FROM ArticleBean  WHERE ownerId IN (:uid)")
-        suspend fun deleteUsersArticleFlow(uid: Long)
+        suspend fun deleteUsersArticle(uid: Long)
 
     }
 
