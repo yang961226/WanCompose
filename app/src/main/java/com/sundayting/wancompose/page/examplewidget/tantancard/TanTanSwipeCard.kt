@@ -12,6 +12,7 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -30,10 +31,13 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
@@ -41,6 +45,7 @@ import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
+import com.sundayting.wancompose.R
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.drop
 import kotlin.math.absoluteValue
@@ -114,28 +119,35 @@ private fun TanTanSingleCard(
                 rotationY = yRotateAnimate.value
             }
             .clip(RoundedCornerShape(15.dp))
-            .background(Color.Gray)
     ) {
         val (
             picContent,
             topIndicatorContent,
+            bottomMaskContent,
         ) = createRefs()
 
         var indicatorIndex by remember(userBean.picList.size) { mutableIntStateOf(0) }
 
-        val centerGuideLine = createGuidelineFromStart(0.5f)
-
         AsyncImage(
             modifier = Modifier
-                .padding(bottom = 40.dp)
                 .constrainAs(picContent) {
                     height = Dimension.fillToConstraints
                     width = Dimension.fillToConstraints
                     centerTo(parent)
                 },
-            model = ImageRequest.Builder(LocalContext.current)
+            model = ImageRequest
+                .Builder(LocalContext.current)
+                .data(userBean.picList.getOrNull(indicatorIndex))
+                .crossfade(true)
+                .apply {
+                    if (LocalInspectionMode.current) {
+                        placeholder(R.drawable.default_head_pic)
+                    }
+                }
+                .error(R.drawable.default_head_pic)
                 .build(),
             contentDescription = null,
+            contentScale = ContentScale.Crop
         )
 
         HalvedClickArea(Modifier.constrainAs(createRef()) {
@@ -167,6 +179,45 @@ private fun TanTanSingleCard(
                     width = Dimension.fillToConstraints
                 }, totalNum = userBean.picList.size, curIndex = indicatorIndex
             )
+        }
+
+        Column(Modifier.constrainAs(bottomMaskContent) {
+            centerHorizontallyTo(parent)
+            width = Dimension.fillToConstraints
+            height = Dimension.wrapContent
+            bottom.linkTo(parent.bottom)
+        }) {
+            Box(
+                Modifier
+                    .fillMaxWidth()
+                    .height(70.dp)
+                    .background(
+                        Brush.verticalGradient(
+                            listOf(
+                                Color.Transparent,
+                                Color.Black.copy(0.5f)
+                            )
+                        )
+                    )
+            )
+            Box(
+                Modifier
+                    .fillMaxWidth()
+                    .height(30.dp)
+                    .background(
+                        Brush.verticalGradient(
+                            listOf(
+                                Color.Black.copy(0.5f),
+                                Color.Black
+                            )
+                        )
+                    )
+            )
+            Box(
+                Modifier
+                    .fillMaxWidth()
+                    .height(70.dp)
+                    .background(Color.Black))
         }
 
 
@@ -221,7 +272,12 @@ private fun PreviewTanTanSingleCard() {
                 .fillMaxSize(),
             userBean = TanTanUserBean(
                 name = "等待一个人",
-                picList = (0..4).map { "" },
+                picList = listOf(
+                    "https://5b0988e595225.cdn.sohucs.com/images/20190325/7613df5dd2094881bdf2b83115e3b3c3.jpeg",
+                    "https://5b0988e595225.cdn.sohucs.com/images/20190325/94127d0f67da450e98e6f669070ad69b.jpeg",
+                    "https://5b0988e595225.cdn.sohucs.com/images/20190325/881e9a9b620e44698aa4d64a8d756088.jpeg",
+                    "https://5b0988e595225.cdn.sohucs.com/images/20190325/edf7266c067644c2a43346b7155703a7.jpeg"
+                ),
                 basicDetail = TanTanUserBean.BasicDetail(
                     isMale = false,
                     age = 14,
@@ -265,7 +321,7 @@ private fun PicIndicator(
                         .fillMaxSize()
                         .weight(1f, false)
                         .clip(RoundedCornerShape(50))
-                        .background(Color.White.copy(0.2f))
+                        .background(Color.White.copy(0.4f))
                 )
             }
         }
