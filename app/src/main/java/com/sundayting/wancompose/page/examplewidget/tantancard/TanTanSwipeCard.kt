@@ -102,8 +102,8 @@ private fun TanTanSingleCard(
         snapshotFlow { yRotateTag }.drop(1).collectLatest {
             yRotateAnimate.animateTo(
                 0f, animationSpec = spring(
-                    stiffness = Spring.StiffnessMedium,
-                ), initialVelocity = if (it > 0) 200f else -200f
+                    stiffness = Spring.StiffnessMediumLow,
+                ), initialVelocity = if (it > 0) 100f else -100f
             )
         }
     }
@@ -119,7 +119,6 @@ private fun TanTanSingleCard(
         val (
             picContent,
             topIndicatorContent,
-            userDetailContent,
         ) = createRefs()
 
         var indicatorIndex by remember(userBean.picList.size) { mutableIntStateOf(0) }
@@ -139,47 +138,25 @@ private fun TanTanSingleCard(
             contentDescription = null,
         )
 
-        Box(
-            Modifier
-                .constrainAs(createRef()) {
-                    start.linkTo(parent.start)
-                    end.linkTo(centerGuideLine)
-                    centerVerticallyTo(parent)
-                    width = Dimension.fillToConstraints
-                    height = Dimension.fillToConstraints
-                }
-                .clickable(
-                    interactionSource = remember { MutableInteractionSource() },
-                    indication = null
-                ) {
-                    if (indicatorIndex == 0) {
-                        yRotateTag = -(yRotateTag.absoluteValue + 0.1f)
-                        return@clickable
-                    }
-                    indicatorIndex--
-                }
-        )
+        HalvedClickArea(Modifier.constrainAs(createRef()) {
+            top.linkTo(picContent.top)
+            bottom.linkTo(picContent.bottom)
+            start.linkTo(picContent.start)
+            end.linkTo(picContent.end)
+        }, onClickStart = {
+            if (indicatorIndex == 0) {
+                yRotateTag = -(yRotateTag.absoluteValue + 0.1f)
+            } else {
+                indicatorIndex--
+            }
+        }, onClickEnd = {
+            if (indicatorIndex == userBean.picList.size - 1) {
+                yRotateTag = (yRotateTag.absoluteValue + 0.1f)
+            } else {
+                indicatorIndex++
+            }
+        })
 
-        Box(
-            Modifier
-                .constrainAs(createRef()) {
-                    start.linkTo(centerGuideLine)
-                    end.linkTo(parent.end)
-                    centerVerticallyTo(parent)
-                    width = Dimension.fillToConstraints
-                    height = Dimension.fillToConstraints
-                }
-                .clickable(
-                    interactionSource = remember { MutableInteractionSource() },
-                    indication = null
-                ) {
-                    if (indicatorIndex == userBean.picList.size - 1) {
-                        yRotateTag = (yRotateTag.absoluteValue + 0.1f)
-                        return@clickable
-                    }
-                    indicatorIndex++
-                }
-        )
 
         if (userBean.picList.isNotEmpty()) {
             PicIndicator(
@@ -198,12 +175,47 @@ private fun TanTanSingleCard(
 }
 
 @Composable
+private fun HalvedClickArea(
+    modifier: Modifier = Modifier,
+    onClickStart: () -> Unit,
+    onClickEnd: () -> Unit,
+) {
+
+    Row(modifier) {
+        Box(
+            Modifier
+                .fillMaxSize()
+                .weight(1f, false)
+                .clickable(
+                    interactionSource = remember { MutableInteractionSource() },
+                    indication = null
+                ) {
+                    onClickStart()
+                }
+        )
+        Box(
+            Modifier
+                .fillMaxSize()
+                .weight(1f, false)
+                .clickable(
+                    interactionSource = remember { MutableInteractionSource() },
+                    indication = null
+                ) {
+                    onClickEnd()
+                }
+        )
+    }
+
+}
+
+@Composable
 @Preview
 private fun PreviewTanTanSingleCard() {
     Box(
         Modifier
             .fillMaxSize()
-            .padding(30.dp)) {
+            .padding(30.dp)
+    ) {
         TanTanSingleCard(
             Modifier
                 .fillMaxSize(),
