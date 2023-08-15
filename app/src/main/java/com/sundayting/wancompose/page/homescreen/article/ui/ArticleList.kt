@@ -152,39 +152,39 @@ private fun ArticleListContent(
 
     val pagerState = rememberInfiniteLoopPagerState()
     LazyColumn(modifier, state = lazyListState) {
-        if (articleState.bannerList.isNotEmpty()) {
-            item {
-                val isDragging by pagerState.interactionSource.collectIsDraggedAsState()
-                LaunchedEffect(isDragging) {
-                    if (!isDragging) {
-                        while (true) {
-                            delay(3000L)
-                            pagerState.animateScrollToPage(pagerState.currentPage + 1)
-                        }
+        item {
+            val isDragging by pagerState.interactionSource.collectIsDraggedAsState()
+            LaunchedEffect(isDragging) {
+                if (!isDragging) {
+                    while (true) {
+                        delay(3000L)
+                        pagerState.animateScrollToPage(pagerState.currentPage + 1)
+                    }
+                }
+            }
+
+            Box(
+                Modifier
+                    .fillMaxWidth()
+                    .aspectRatio(2f / 1f)
+            ) {
+
+                var curTitle by remember { mutableStateOf<String?>(null) }
+
+                LaunchedEffect(Unit) {
+                    pagerState.scrollToPage(Int.MAX_VALUE / 2)
+                    snapshotFlow { pagerState.currentPageInInfinitePage(articleState.bannerList.size) }.collect {
+                        curTitle = articleState.bannerList.getOrNull(it)?.title
                     }
                 }
 
-                Box(
-                    Modifier
-                        .fillMaxWidth()
-                        .aspectRatio(2f / 1f)
+                InfiniteLoopHorizontalPager(
+                    modifier = Modifier.matchParentSize(),
+                    realPageCount = articleState.bannerList.size,
+                    state = pagerState
                 ) {
-
-                    var curTitle by remember { mutableStateOf<String?>(null) }
-
-                    LaunchedEffect(Unit) {
-                        pagerState.scrollToPage(Int.MAX_VALUE / 2)
-                        snapshotFlow { pagerState.currentPageInInfinitePage(articleState.bannerList.size) }.collect {
-                            curTitle = articleState.bannerList.getOrNull(it)?.title
-                        }
-                    }
-
-                    InfiniteLoopHorizontalPager(
-                        modifier = Modifier.matchParentSize(),
-                        realPageCount = articleState.bannerList.size,
-                        state = pagerState
-                    ) {
-                        val banner = articleState.bannerList[it]
+                    val banner = articleState.bannerList.getOrNull(it)
+                    if (banner != null) {
                         AsyncImage(
                             modifier = Modifier
                                 .fillMaxSize()
@@ -209,27 +209,28 @@ private fun ArticleListContent(
                         )
                     }
 
-                    Box(
-                        Modifier
-                            .align(Alignment.BottomCenter)
-                            .background(Color.Black.copy(0.2f))
-                            .padding(vertical = 2.dp, horizontal = 5.dp)
-                            .fillMaxWidth()
-                    ) {
-                        Text(
-                            text = curTitle.orEmpty(),
-                            style = TextStyle(
-                                fontSize = 14.sp,
-                                color = Color.White
-                            ),
-                            maxLines = 1,
-                            overflow = TextOverflow.Ellipsis,
-                            modifier = Modifier.fillMaxWidth(0.5f)
-                        )
-                    }
                 }
 
+                Box(
+                    Modifier
+                        .align(Alignment.BottomCenter)
+                        .background(Color.Black.copy(0.2f))
+                        .padding(vertical = 2.dp, horizontal = 5.dp)
+                        .fillMaxWidth()
+                ) {
+                    Text(
+                        text = curTitle.orEmpty(),
+                        style = TextStyle(
+                            fontSize = 14.sp,
+                            color = Color.White
+                        ),
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                        modifier = Modifier.fillMaxWidth(0.5f)
+                    )
+                }
             }
+
         }
         items(articleState.articleList, key = { it.id }) {
             ArticleListSingleBean(
