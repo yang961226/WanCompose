@@ -14,6 +14,7 @@ import com.sundayting.wancompose.network.requireData
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.mapLatest
@@ -46,7 +47,7 @@ class MineRepository @Inject constructor(
         .mapLatest { it[CURRENT_LOGIN_ID_KEY] }
         .flatMapLatest {
             database.userDao().currentUserFlow(it ?: 0)
-        }
+        }.distinctUntilChanged()
 
     private suspend fun login(
         username: String,

@@ -20,6 +20,7 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.distinctUntilChangedBy
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
@@ -56,7 +57,7 @@ class ArticleListViewModel @Inject constructor(
     init {
         viewModelScope.launch {
             launch {
-                mineRepo.curUserFlow.collect {
+                mineRepo.curUserFlow.distinctUntilChangedBy { it?.id }.collect {
                     refresh()
                 }
             }
