@@ -459,7 +459,8 @@ private fun RecentPostSingleContent(
         modifier = modifier
             .aspectRatio(1f)
             .border(1.dp, color = Color.White.copy(0.3f), shape = RoundedCornerShape(4.dp))
-            .padding(1.dp),
+            .padding(1.dp)
+            .clip(RoundedCornerShape(4.dp)),
         model = ImageRequest
             .Builder(LocalContext.current)
             .data(imgUrl)
