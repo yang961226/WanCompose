@@ -57,8 +57,10 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.composed
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
@@ -131,6 +133,7 @@ fun TanTanSwipeCard(
     val scope = rememberCoroutineScope()
     val offsetAnimate = remember { Animatable(IntOffset.Zero, IntOffset.VectorConverter) }
     var dragTopHalf by remember { mutableStateOf(false) }
+
     val scrollThreshold = with(LocalDensity.current) { 200.dp.toPx() }
     val scrollPercentage by remember(scrollThreshold) {
         derivedStateOf {
@@ -143,62 +146,67 @@ fun TanTanSwipeCard(
             (offsetAnimate.value.x.toFloat() / scrollThreshold2).coerceIn(-1f, 1f)
         }
     }
-    val targetRotationZ by remember {
-        derivedStateOf {
-            lerp(
-                0f,
-                5f,
-                scrollPercentage.absoluteValue
-            ) * (if (scrollPercentage >= 0) 1f else -1f) * (if (dragTopHalf) 1f else -1f)
-        }
-    }
+
     Box(modifier, contentAlignment = Alignment.TopCenter) {
-        userList.forEachIndexed { index, userBean ->
+        userList.asReversed().forEachIndexed { index, userBean ->
             val isTopCard = index == userList.size - 1
-            Box(Modifier
-                .matchParentSize()
-                .then(
-                    if (isTopCard) {
-                        Modifier
-                            .offset { offsetAnimate.value }
-                            .graphicsLayer {
-                                rotationZ = targetRotationZ
-                            }
-                            .pointerInput(Unit) {
-                                fun toInitLoc() {
-                                    scope.launch {
-                                        offsetAnimate.animateTo(IntOffset.Zero)
-                                    }
-                                }
-                                detectDragGestures(
-                                    onDragStart = {
-                                        dragTopHalf = it.y < size.height / 2
-                                    },
-                                    onDrag = { _, dragAmount ->
-                                        scope.launch {
-                                            offsetAnimate.snapTo(
-                                                offsetAnimate.value + IntOffset(
-                                                    dragAmount.x.roundToInt(),
-                                                    dragAmount.y.roundToInt()
-                                                )
-                                            )
+            Box(
+                modifier = Modifier
+                    .matchParentSize()
+                    .then(
+                        if (isTopCard) {
+                            Modifier
+                                .offset { offsetAnimate.value }
+                                .composed {
+                                    val targetRotationZ by remember {
+                                        derivedStateOf {
+                                            lerp(
+                                                0f,
+                                                5f,
+                                                scrollPercentage.absoluteValue
+                                            ) * (if (scrollPercentage >= 0) 1f else -1f) * (if (dragTopHalf) 1f else -1f)
                                         }
-                                    },
-                                    onDragCancel = { toInitLoc() },
-                                    onDragEnd = { toInitLoc() }
-                                )
+                                    }
+                                    Modifier.rotate(targetRotationZ)
+                                }
+                                .pointerInput(Unit) {
+                                    fun toInitLoc() {
+                                        scope.launch {
+                                            offsetAnimate.animateTo(IntOffset.Zero)
+                                        }
+                                    }
+                                    detectDragGestures(
+                                        onDragStart = {
+                                            dragTopHalf = it.y < size.height / 2
+                                        },
+                                        onDrag = { _, dragAmount ->
+                                            scope.launch {
+                                                offsetAnimate.snapTo(
+                                                    offsetAnimate.value + IntOffset(
+                                                        dragAmount.x.roundToInt(),
+                                                        dragAmount.y.roundToInt()
+                                                    )
+                                                )
+                                            }
+                                        },
+                                        onDragCancel = { toInitLoc() },
+                                        onDragEnd = { toInitLoc() }
+                                    )
+
+                                }
+                        } else {
+                            Modifier.graphicsLayer {
 
                             }
-                    } else {
-                        Modifier
-                    }
-                )
+                        }
+                    ),
+                contentAlignment = Alignment.TopCenter
             ) {
                 TanTanSingleCard(
                     modifier = Modifier
                         .matchParentSize(),
                     userBean = userBean,
-                    showIndicator = isTopCard
+                    isTopCard = isTopCard
                 )
                 if (isTopCard) {
                     TopDislikeOrLikeButtons(
@@ -226,7 +234,7 @@ fun TanTanSwipeCard(
 private fun TanTanSingleCard(
     modifier: Modifier = Modifier,
     userBean: TanTanUserBean,
-    showIndicator: Boolean = true,
+    isTopCard: Boolean = true,
 ) {
 
     var yRotateTag by remember { mutableFloatStateOf(0f) }
@@ -297,28 +305,33 @@ private fun TanTanSingleCard(
             contentScale = ContentScale.Crop
         )
 
-        HalvedClickArea(Modifier.constrainAs(createRef()) {
-            top.linkTo(picContent.top)
-            bottom.linkTo(picContent.bottom)
-            start.linkTo(picContent.start)
-            end.linkTo(picContent.end)
-        }, onClickStart = {
-            if (indicatorIndex == 0) {
-                yRotateTag = -(yRotateTag.absoluteValue + 0.1f)
-            } else {
-                indicatorIndex--
+        HalvedClickArea(
+            enable = isTopCard,
+            modifier = Modifier.constrainAs(
+                createRef()
+            ) {
+                top.linkTo(picContent.top)
+                bottom.linkTo(picContent.bottom)
+                start.linkTo(picContent.start)
+                end.linkTo(picContent.end)
+            }, onClickStart = {
+                if (indicatorIndex == 0) {
+                    yRotateTag = -(yRotateTag.absoluteValue + 0.1f)
+                } else {
+                    indicatorIndex--
+                }
+            }, onClickEnd = {
+                if (indicatorIndex == userBean.picList.size - 1) {
+                    yRotateTag = (yRotateTag.absoluteValue + 0.1f)
+                } else {
+                    indicatorIndex++
+                }
             }
-        }, onClickEnd = {
-            if (indicatorIndex == userBean.picList.size - 1) {
-                yRotateTag = (yRotateTag.absoluteValue + 0.1f)
-            } else {
-                indicatorIndex++
-            }
-        })
+        )
 
 
         AnimatedVisibility(
-            visible = showIndicator && userBean.picList.isNotEmpty(),
+            visible = isTopCard && userBean.picList.isNotEmpty(),
             label = "",
             modifier = Modifier.constrainAs(topIndicatorContent) {
                 top.linkTo(parent.top, 15.dp)
@@ -532,6 +545,7 @@ private fun HalvedClickArea(
     modifier: Modifier = Modifier,
     onClickStart: () -> Unit,
     onClickEnd: () -> Unit,
+    enable: Boolean,
 ) {
 
     Row(modifier) {
@@ -540,6 +554,7 @@ private fun HalvedClickArea(
                 .fillMaxSize()
                 .weight(1f, false)
                 .clickable(
+                    enabled = enable,
                     interactionSource = remember { MutableInteractionSource() },
                     indication = null
                 ) {
@@ -551,6 +566,7 @@ private fun HalvedClickArea(
                 .fillMaxSize()
                 .weight(1f, false)
                 .clickable(
+                    enabled = enable,
                     interactionSource = remember { MutableInteractionSource() },
                     indication = null
                 ) {
