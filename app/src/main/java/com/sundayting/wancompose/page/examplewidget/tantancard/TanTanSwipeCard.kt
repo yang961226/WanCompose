@@ -95,6 +95,7 @@ import kotlin.math.roundToInt
  * 探探用户对象实体类
  */
 data class TanTanUserBean(
+    val uid: Int,
     val name: String,
     val picList: List<String>,
     val basicDetail: BasicDetail,
@@ -134,6 +135,8 @@ fun TanTanSwipeCard(
     val offsetAnimate = remember { Animatable(IntOffset.Zero, IntOffset.VectorConverter) }
     var dragTopHalf by remember { mutableStateOf(false) }
 
+    val swipeToDismissThreshold = with(LocalDensity.current) { 50.dp.roundToPx() }
+
     val scrollThreshold = with(LocalDensity.current) { 200.dp.toPx() }
     val scrollPercentage by remember(scrollThreshold) {
         derivedStateOf {
@@ -150,7 +153,7 @@ fun TanTanSwipeCard(
     /**
      * 底部的卡片的Y轴位移
      */
-    val subCardOffsetY = with(LocalDensity.current) { 4.dp.roundToPx() }
+    val subCardOffsetY = with(LocalDensity.current) { 8.dp.roundToPx() }
 
     Box(modifier, contentAlignment = Alignment.TopCenter) {
         userList.asReversed().forEachIndexed { index, userBean ->
@@ -175,9 +178,29 @@ fun TanTanSwipeCard(
                                     Modifier.rotate(targetRotationZ)
                                 }
                                 .pointerInput(Unit) {
+                                    fun swipeToDismiss() {
+                                        scope.launch {
+                                            offsetAnimate.animateTo(
+                                                offsetAnimate.value + IntOffset(
+                                                    (1000 * if (offsetAnimate.value.x > 0f) 1f else -1f).roundToInt(),
+                                                    0
+                                                ),
+                                            )
+                                            offsetAnimate.animateTo(IntOffset.Zero)
+                                        }
+                                    }
+
                                     fun toInitLoc() {
                                         scope.launch {
                                             offsetAnimate.animateTo(IntOffset.Zero)
+                                        }
+                                    }
+
+                                    fun onDragEndOrCancel() {
+                                        if (offsetAnimate.value.x.absoluteValue > swipeToDismissThreshold) {
+                                            swipeToDismiss()
+                                        } else {
+                                            toInitLoc()
                                         }
                                     }
                                     detectDragGestures(
@@ -194,8 +217,12 @@ fun TanTanSwipeCard(
                                                 )
                                             }
                                         },
-                                        onDragCancel = { toInitLoc() },
-                                        onDragEnd = { toInitLoc() }
+                                        onDragCancel = {
+                                            onDragEndOrCancel()
+                                        },
+                                        onDragEnd = {
+                                            onDragEndOrCancel()
+                                        }
                                     )
 
                                 }
@@ -652,6 +679,7 @@ private fun PreviewTanTanSingleCard() {
             Modifier
                 .fillMaxSize(),
             userBean = TanTanUserBean(
+                uid = 1,
                 name = "等待一个人",
                 picList = listOf(
                     "https://5b0988e595225.cdn.sohucs.com/images/20190325/7613df5dd2094881bdf2b83115e3b3c3.jpeg",

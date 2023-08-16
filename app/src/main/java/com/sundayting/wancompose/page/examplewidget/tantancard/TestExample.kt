@@ -6,6 +6,7 @@ object TestExample {
 
     val userList = listOf(
         TanTanUserBean(
+            uid = 0,
             name = "等待一个人",
             picList = listOf(
                 "https://5b0988e595225.cdn.sohucs.com/images/20190325/7613df5dd2094881bdf2b83115e3b3c3.jpeg",
@@ -37,6 +38,7 @@ object TestExample {
             )
         ),
         TanTanUserBean(
+            uid = 1,
             name = "晓屿_拾念",
             picList = listOf(
                 "https://wx4.sinaimg.cn/mw690/e6470c42ly1hgpggyfvtgj22802you0y.jpg",
@@ -66,6 +68,7 @@ object TestExample {
             )
         ),
         TanTanUserBean(
+            uid = 2,
             name = "鸡你太美",
             picList = listOf(
                 "https://picx.zhimg.com/80/v2-9c8e2b5642da4e5e76b0f33070df3760_1440w.webp?source=1940ef5c"
@@ -92,37 +95,14 @@ object TestExample {
                 )
             )
         ),
-        TanTanUserBean(
-            name = "等待一个人",
-            picList = listOf(
-                "https://5b0988e595225.cdn.sohucs.com/images/20190325/7613df5dd2094881bdf2b83115e3b3c3.jpeg",
-                "https://5b0988e595225.cdn.sohucs.com/images/20190325/94127d0f67da450e98e6f669070ad69b.jpeg",
-                "https://5b0988e595225.cdn.sohucs.com/images/20190325/881e9a9b620e44698aa4d64a8d756088.jpeg",
-                "https://5b0988e595225.cdn.sohucs.com/images/20190325/edf7266c067644c2a43346b7155703a7.jpeg"
-            ),
-            basicDetail = TanTanUserBean.BasicDetail(
-                isMale = false,
-                age = 14,
-                tagList = listOf(
-                    TanTanUserBean.BasicDetail.Tag(
-                        icon = R.drawable.ic_taxi,
-                        content = "可外出"
-                    ),
-                    TanTanUserBean.BasicDetail.Tag(
-                        icon = R.drawable.ic_find_more,
-                        content = "发现更多"
-                    ),
-                ),
-                location = "广州黄埔（10km）·11分钟前活跃"
-            ),
-            recentPost = TanTanUserBean.RecentPost(
-                picList = listOf(
-                    "https://wx3.sinaimg.cn/mw690/001WN8zPly8hgvfjc0cxhj60j60cs41802.jpg",
-                    "https://wx3.sinaimg.cn/mw690/001WN8zPly8hgvfjc6sxwj60j60de0vx02.jpg",
-                    "https://wx4.sinaimg.cn/mw690/001WN8zPly8hgvfjciosfj60j60csgmv02.jpg"
-                )
-            )
-        ),
     )
+
+    private var index = 4
+
+    fun getNextUser(): TanTanUserBean {
+        index++
+        return userList[index % userList.size].copy(uid = index)
+    }
+
 
 }
