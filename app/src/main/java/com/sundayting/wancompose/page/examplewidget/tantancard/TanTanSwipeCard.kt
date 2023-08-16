@@ -35,6 +35,7 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
@@ -130,6 +131,12 @@ fun TanTanSwipeCard(
             (offsetAnimate.value.x.toFloat() / scrollThreshold).coerceIn(-1f, 1f)
         }
     }
+    val scrollThreshold2 = with(LocalDensity.current) { 50.dp.toPx() }
+    val scrollPercentage2 by remember(scrollThreshold2) {
+        derivedStateOf {
+            (offsetAnimate.value.x.toFloat() / scrollThreshold2).coerceIn(-1f, 1f)
+        }
+    }
     val targetRotationZ by remember {
         derivedStateOf {
             lerp(
@@ -141,47 +148,62 @@ fun TanTanSwipeCard(
     }
     Box(modifier, contentAlignment = Alignment.TopCenter) {
         userList.forEachIndexed { index, userBean ->
-            TanTanSingleCard(
-                Modifier
-                    .matchParentSize()
-                    .then(
-                        if (index == userList.size - 1) {
-                            Modifier
-                                .offset { offsetAnimate.value }
-                                .graphicsLayer {
-                                    rotationZ = targetRotationZ
-                                }
-                                .pointerInput(Unit) {
-                                    fun toInitLoc() {
-                                        scope.launch {
-                                            offsetAnimate.animateTo(IntOffset.Zero)
-                                        }
+            val isTopCard = index == userList.size - 1
+            Box(Modifier
+                .matchParentSize()
+                .then(
+                    if (isTopCard) {
+                        Modifier
+                            .offset { offsetAnimate.value }
+                            .graphicsLayer {
+                                rotationZ = targetRotationZ
+                            }
+                            .pointerInput(Unit) {
+                                fun toInitLoc() {
+                                    scope.launch {
+                                        offsetAnimate.animateTo(IntOffset.Zero)
                                     }
-                                    detectDragGestures(
-                                        onDragStart = {
-                                            dragTopHalf = it.y < size.height / 2
-                                        },
-                                        onDrag = { _, dragAmount ->
-                                            scope.launch {
-                                                offsetAnimate.snapTo(
-                                                    offsetAnimate.value + IntOffset(
-                                                        dragAmount.x.roundToInt(),
-                                                        dragAmount.y.roundToInt()
-                                                    )
-                                                )
-                                            }
-                                        },
-                                        onDragCancel = { toInitLoc() },
-                                        onDragEnd = { toInitLoc() }
-                                    )
-
                                 }
-                        } else {
-                            Modifier
-                        }
-                    ),
-                userBean
-            )
+                                detectDragGestures(
+                                    onDragStart = {
+                                        dragTopHalf = it.y < size.height / 2
+                                    },
+                                    onDrag = { _, dragAmount ->
+                                        scope.launch {
+                                            offsetAnimate.snapTo(
+                                                offsetAnimate.value + IntOffset(
+                                                    dragAmount.x.roundToInt(),
+                                                    dragAmount.y.roundToInt()
+                                                )
+                                            )
+                                        }
+                                    },
+                                    onDragCancel = { toInitLoc() },
+                                    onDragEnd = { toInitLoc() }
+                                )
+
+                            }
+                    } else {
+                        Modifier
+                    }
+                )
+            ) {
+                TanTanSingleCard(
+                    Modifier
+                        .matchParentSize(),
+                    userBean
+                )
+                if (isTopCard) {
+                    TopDislikeOrLikeButtons(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(top = 30.dp)
+                            .padding(horizontal = 20.dp)
+                            .align(Alignment.TopCenter),
+                        scrollProgressProvider = { scrollPercentage2 }
+                    )
+                }
+            }
         }
         DislikeOrLikeButtons(
             modifier = Modifier
@@ -392,6 +414,7 @@ private fun TagContent(
 ) {
     Row(
         modifier
+            .clip(RoundedCornerShape(8.dp))
             .then(
                 if (backgroundColor != null) {
                     Modifier.background(backgroundColor)
@@ -399,8 +422,8 @@ private fun TagContent(
                     Modifier.background(Color.Gray.copy(0.4f))
                 }
             )
-            .clip(RoundedCornerShape(4.dp))
-            .padding(5.dp), verticalAlignment = Alignment.CenterVertically
+            .padding(vertical = 5.dp, horizontal = 8.dp),
+        verticalAlignment = Alignment.CenterVertically
     ) {
         if (iconRes != null) {
             Image(
@@ -745,5 +768,59 @@ private fun DislikeOrLikeButtons(
 
     }
 
+
+}
+
+@Composable
+private fun TopDislikeOrLikeButtons(
+    modifier: Modifier = Modifier,
+    scrollProgressProvider: () -> Float,
+) {
+    Box(modifier) {
+        Box(
+            Modifier
+                .size(70.dp)
+                .graphicsLayer {
+                    alpha = lerp(0f, 1f, scrollProgressProvider().coerceAtLeast(0f))
+                    lerp(0.5f, 1f, scrollProgressProvider().coerceAtLeast(0f)).let {
+                        scaleX = it
+                        scaleY = it
+                    }
+                }
+                .clip(CircleShape)
+                .background(Color.White)
+                .align(Alignment.TopStart),
+            contentAlignment = Alignment.Center
+        ) {
+            Image(
+                painter = painterResource(id = R.drawable.ic_like2),
+                contentDescription = null,
+                modifier = Modifier.size(30.dp),
+                colorFilter = ColorFilter.tint(likeEndColor)
+            )
+        }
+        Box(
+            Modifier
+                .size(70.dp)
+                .graphicsLayer {
+                    alpha = lerp(0f, 1f, scrollProgressProvider().coerceAtMost(0f).absoluteValue)
+                    lerp(0.5f, 1f, scrollProgressProvider().coerceAtMost(0f).absoluteValue).let {
+                        scaleX = it
+                        scaleY = it
+                    }
+                }
+                .clip(CircleShape)
+                .background(Color.White)
+                .align(Alignment.TopEnd),
+            contentAlignment = Alignment.Center
+        ) {
+            Image(
+                painter = painterResource(id = R.drawable.ic_close_2),
+                contentDescription = null,
+                modifier = Modifier.size(30.dp),
+                colorFilter = ColorFilter.tint(closeEndColor)
+            )
+        }
+    }
 
 }
