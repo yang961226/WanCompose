@@ -3,6 +3,7 @@ package com.sundayting.wancompose.page.examplewidget.tantancard
 import androidx.annotation.DrawableRes
 import androidx.annotation.IntRange
 import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.SizeTransform
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.Spring
@@ -189,9 +190,10 @@ fun TanTanSwipeCard(
                 )
             ) {
                 TanTanSingleCard(
-                    Modifier
+                    modifier = Modifier
                         .matchParentSize(),
-                    userBean
+                    userBean = userBean,
+                    showIndicator = isTopCard
                 )
                 if (isTopCard) {
                     TopDislikeOrLikeButtons(
@@ -219,6 +221,7 @@ fun TanTanSwipeCard(
 private fun TanTanSingleCard(
     modifier: Modifier = Modifier,
     userBean: TanTanUserBean,
+    showIndicator: Boolean = true,
 ) {
 
     var yRotateTag by remember { mutableFloatStateOf(0f) }
@@ -295,14 +298,18 @@ private fun TanTanSingleCard(
         })
 
 
-        if (userBean.picList.isNotEmpty()) {
+        AnimatedVisibility(
+            visible = showIndicator && userBean.picList.isNotEmpty(),
+            label = "",
+            modifier = Modifier.constrainAs(topIndicatorContent) {
+                top.linkTo(parent.top, 15.dp)
+                start.linkTo(parent.start, 20.dp)
+                end.linkTo(parent.end, 20.dp)
+                width = Dimension.fillToConstraints
+            }
+        ) {
             PicIndicator(
-                modifier = Modifier.constrainAs(topIndicatorContent) {
-                    top.linkTo(parent.top, 15.dp)
-                    start.linkTo(parent.start, 20.dp)
-                    end.linkTo(parent.end, 20.dp)
-                    width = Dimension.fillToConstraints
-                }, totalNum = userBean.picList.size, curIndex = indicatorIndex
+                modifier = Modifier, totalNum = userBean.picList.size, curIndex = indicatorIndex
             )
         }
 
