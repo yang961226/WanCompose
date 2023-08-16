@@ -152,12 +152,9 @@ fun TanTanSwipeCard(
      */
     val subCardOffsetY = with(LocalDensity.current) { 4.dp.roundToPx() }
 
-    BoxWithConstraints(modifier, contentAlignment = Alignment.TopCenter) {
-        val parentMaxWidth = maxWidth
-        val parentMaxHeight = maxHeight
+    Box(modifier, contentAlignment = Alignment.TopCenter) {
         userList.asReversed().forEachIndexed { index, userBean ->
             val isTopCard = index == userList.size - 1
-            val subIndex = (userList.size - index - 2).coerceAtLeast(0)
             Box(
                 modifier = Modifier
                     .then(
@@ -203,10 +200,24 @@ fun TanTanSwipeCard(
 
                                 }
                         } else {
-                            val scale = 1f - subIndex * 0.1f
                             Modifier
-                                .size(parentMaxWidth * scale, parentMaxHeight * scale)
-                                .offset { IntOffset(0, -subIndex * subCardOffsetY) }
+                                .composed {
+                                    val subIndex by remember {
+                                        derivedStateOf {
+                                            (userList.size - index - 2).coerceAtLeast(0) + lerp(
+                                                1f,
+                                                0f,
+                                                scrollPercentage.absoluteValue
+                                            )
+                                        }
+                                    }
+                                    Modifier
+                                        .fillMaxSize(1f - subIndex * 0.05f)
+                                        .offset {
+                                            IntOffset(0, (-subIndex * subCardOffsetY).roundToInt())
+                                        }
+                                }
+
                         }
                     ),
                 contentAlignment = Alignment.TopCenter
