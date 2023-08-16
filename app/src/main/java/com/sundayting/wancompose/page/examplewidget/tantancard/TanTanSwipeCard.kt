@@ -1,5 +1,10 @@
 package com.sundayting.wancompose.page.examplewidget.tantancard
 
+import android.content.Context
+import android.content.Context.VIBRATOR_SERVICE
+import android.os.Build
+import android.os.Vibrator
+import android.os.VibratorManager
 import androidx.annotation.DrawableRes
 import androidx.annotation.IntRange
 import androidx.compose.animation.AnimatedContent
@@ -230,8 +235,22 @@ private fun TanTanSingleCard(
         Animatable(0f)
     }
 
+    val context = LocalContext.current
+
+    val vibrator = remember {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            val vibratorManager =
+                context.getSystemService(Context.VIBRATOR_MANAGER_SERVICE) as VibratorManager
+            vibratorManager.defaultVibrator
+        } else {
+            @Suppress("DEPRECATION")
+            context.getSystemService(VIBRATOR_SERVICE) as Vibrator
+        }
+    }
+
     LaunchedEffect(Unit) {
         snapshotFlow { yRotateTag }.drop(1).collectLatest {
+            vibrator.vibrate(100)
             yRotateAnimate.animateTo(
                 0f, animationSpec = spring(
                     stiffness = Spring.StiffnessMediumLow,
