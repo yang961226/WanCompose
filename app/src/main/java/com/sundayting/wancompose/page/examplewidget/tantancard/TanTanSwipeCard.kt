@@ -6,6 +6,7 @@ import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.SizeTransform
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.VectorConverter
 import androidx.compose.animation.core.animateIntAsState
 import androidx.compose.animation.core.snap
 import androidx.compose.animation.core.spring
@@ -17,6 +18,7 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -37,10 +39,13 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
@@ -49,6 +54,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
@@ -60,6 +66,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.util.lerp
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
 import coil.compose.AsyncImage
@@ -67,7 +74,9 @@ import coil.request.ImageRequest
 import com.sundayting.wancompose.R
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.drop
+import kotlinx.coroutines.launch
 import kotlin.math.absoluteValue
+import kotlin.math.roundToInt
 
 
 /**
@@ -107,7 +116,69 @@ data class TanTanUserBean(
 @Composable
 fun TanTanSwipeCard(
     modifier: Modifier = Modifier,
+    userList: List<TanTanUserBean>,
 ) {
+    val scope = rememberCoroutineScope()
+    val offsetAnimate = remember { Animatable(IntOffset.Zero, IntOffset.VectorConverter) }
+    var dragTopHalf by remember { mutableStateOf(false) }
+    val scrollThreshold = with(LocalDensity.current) { 200.dp.toPx() }
+    val scrollPercentage by remember(scrollThreshold) {
+        derivedStateOf {
+            (offsetAnimate.value.x.toFloat() / scrollThreshold).coerceIn(-1f, 1f)
+        }
+    }
+    val targetRotationZ by remember {
+        derivedStateOf {
+            lerp(
+                0f,
+                5f,
+                scrollPercentage.absoluteValue
+            ) * (if (scrollPercentage >= 0) 1f else -1f) * (if (dragTopHalf) 1f else -1f)
+        }
+    }
+    Box(modifier) {
+        userList.forEachIndexed { index, userBean ->
+            TanTanSingleCard(
+                Modifier
+                    .matchParentSize()
+                    .then(
+                        if (index == userList.size - 1) {
+                            Modifier
+                                .offset { offsetAnimate.value }
+                                .graphicsLayer {
+                                    rotationZ = targetRotationZ
+                                }
+                                .pointerInput(Unit) {
+                                    fun toInitLoc() {
+                                        scope.launch {
+                                            offsetAnimate.animateTo(IntOffset.Zero)
+                                        }
+                                    }
+                                    detectDragGestures(
+                                        onDrag = { change, dragAmount ->
+                                            dragTopHalf = change.position.y < size.height / 2
+                                            scope.launch {
+                                                offsetAnimate.snapTo(
+                                                    offsetAnimate.value + IntOffset(
+                                                        dragAmount.x.roundToInt(),
+                                                        dragAmount.y.roundToInt()
+                                                    )
+                                                )
+                                            }
+                                        },
+                                        onDragCancel = { toInitLoc() },
+                                        onDragEnd = { toInitLoc() }
+                                    )
+
+                                }
+                        } else {
+                            Modifier
+                        }
+                    ),
+                userBean
+            )
+        }
+    }
 }
 
 @Composable
@@ -429,6 +500,49 @@ private fun HalvedClickArea(
 
 }
 
+private val picIndicatorSpacing = 5.dp
+
+@Composable
+private fun PicIndicator(
+    modifier: Modifier = Modifier,
+    @IntRange(from = 1) totalNum: Int,
+    @IntRange(from = 0) curIndex: Int,
+) {
+    BoxWithConstraints(modifier) {
+        val eachItemWidth = (maxWidth - picIndicatorSpacing * (totalNum - 1)) / totalNum
+        val movableIndicatorOffset by animateIntAsState(
+            targetValue = with(LocalDensity.current) { ((eachItemWidth + picIndicatorSpacing) * curIndex).roundToPx() },
+            label = ""
+        )
+        Row(
+            Modifier
+                .fillMaxWidth()
+                .height(2.dp),
+            horizontalArrangement = Arrangement.spacedBy(picIndicatorSpacing)
+        ) {
+            repeat(totalNum) {
+                Box(
+                    Modifier
+                        .fillMaxSize()
+                        .weight(1f, false)
+                        .clip(RoundedCornerShape(50))
+                        .background(Color.White.copy(0.4f))
+                )
+            }
+        }
+        Box(
+            Modifier
+                .width(eachItemWidth)
+                .height(2.dp)
+                .offset { IntOffset(movableIndicatorOffset, 0) }
+                .clip(RoundedCornerShape(50))
+                .background(Color.White)
+        )
+    }
+
+
+}
+
 @Composable
 @Preview
 private fun PreviewTanTanSingleCard() {
@@ -476,45 +590,44 @@ private fun PreviewTanTanSingleCard() {
 }
 
 
-private val picIndicatorSpacing = 5.dp
-
 @Composable
-private fun PicIndicator(
-    modifier: Modifier = Modifier,
-    @IntRange(from = 1) totalNum: Int,
-    @IntRange(from = 0) curIndex: Int,
-) {
-    BoxWithConstraints(modifier) {
-        val eachItemWidth = (maxWidth - picIndicatorSpacing * (totalNum - 1)) / totalNum
-        val movableIndicatorOffset by animateIntAsState(
-            targetValue = with(LocalDensity.current) { ((eachItemWidth + picIndicatorSpacing) * curIndex).roundToPx() },
-            label = ""
-        )
-        Row(
-            Modifier
-                .fillMaxWidth()
-                .height(2.dp),
-            horizontalArrangement = Arrangement.spacedBy(picIndicatorSpacing)
-        ) {
-            repeat(totalNum) {
-                Box(
-                    Modifier
-                        .fillMaxSize()
-                        .weight(1f, false)
-                        .clip(RoundedCornerShape(50))
-                        .background(Color.White.copy(0.4f))
+@Preview
+private fun PreviewTanTanSwipeCard() {
+    TanTanSwipeCard(modifier = Modifier
+        .fillMaxSize()
+        .padding(20.dp), userList = remember {
+        (0..3).map {
+            TanTanUserBean(
+                name = "等待一个人",
+                picList = listOf(
+                    "https://5b0988e595225.cdn.sohucs.com/images/20190325/7613df5dd2094881bdf2b83115e3b3c3.jpeg",
+                    "https://5b0988e595225.cdn.sohucs.com/images/20190325/94127d0f67da450e98e6f669070ad69b.jpeg",
+                    "https://5b0988e595225.cdn.sohucs.com/images/20190325/881e9a9b620e44698aa4d64a8d756088.jpeg",
+                    "https://5b0988e595225.cdn.sohucs.com/images/20190325/edf7266c067644c2a43346b7155703a7.jpeg"
+                ),
+                basicDetail = TanTanUserBean.BasicDetail(
+                    isMale = false,
+                    age = 14,
+                    tagList = listOf(
+                        TanTanUserBean.BasicDetail.Tag(
+                            icon = R.drawable.ic_taxi,
+                            content = "可外出"
+                        ),
+                        TanTanUserBean.BasicDetail.Tag(
+                            icon = R.drawable.ic_find_more,
+                            content = "发现更多"
+                        ),
+                    ),
+                    location = "广州黄埔（10km）·11分钟前活跃"
+                ),
+                recentPost = TanTanUserBean.RecentPost(
+                    picList = listOf(
+                        "https://wx3.sinaimg.cn/mw690/001WN8zPly8hgvfjc0cxhj60j60cs41802.jpg",
+                        "https://wx3.sinaimg.cn/mw690/001WN8zPly8hgvfjc6sxwj60j60de0vx02.jpg",
+                        "https://wx4.sinaimg.cn/mw690/001WN8zPly8hgvfjciosfj60j60csgmv02.jpg"
+                    )
                 )
-            }
+            )
         }
-        Box(
-            Modifier
-                .width(eachItemWidth)
-                .height(2.dp)
-                .offset { IntOffset(movableIndicatorOffset, 0) }
-                .clip(RoundedCornerShape(50))
-                .background(Color.White)
-        )
-    }
-
-
+    })
 }
