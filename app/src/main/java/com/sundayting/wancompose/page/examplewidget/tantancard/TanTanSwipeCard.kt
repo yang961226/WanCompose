@@ -2,25 +2,39 @@ package com.sundayting.wancompose.page.examplewidget.tantancard
 
 import androidx.annotation.DrawableRes
 import androidx.annotation.IntRange
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.SizeTransform
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateIntAsState
+import androidx.compose.animation.core.snap
 import androidx.compose.animation.core.spring
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.togetherWith
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -29,6 +43,7 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
@@ -38,9 +53,13 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalInspectionMode
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
 import coil.compose.AsyncImage
@@ -65,6 +84,7 @@ data class TanTanUserBean(
         val isMale: Boolean = false,
         val age: Int? = null,
         val tagList: List<Tag> = emptyList(),
+        val location: String,
     ) {
 
         data class Tag(
@@ -76,7 +96,6 @@ data class TanTanUserBean(
     }
 
     data class RecentPost(
-        val level: Int,
         val picList: List<String> = emptyList(),
     )
 
@@ -124,6 +143,7 @@ private fun TanTanSingleCard(
             picContent,
             topIndicatorContent,
             bottomMaskContent,
+            detailContent,
         ) = createRefs()
 
         var indicatorIndex by remember(userBean.picList.size) { mutableIntStateOf(0) }
@@ -181,48 +201,198 @@ private fun TanTanSingleCard(
             )
         }
 
-        Column(Modifier.constrainAs(bottomMaskContent) {
+        BottomMask(Modifier.constrainAs(bottomMaskContent) {
             centerHorizontallyTo(parent)
             width = Dimension.fillToConstraints
             height = Dimension.wrapContent
             bottom.linkTo(parent.bottom)
-        }) {
-            Box(
-                Modifier
-                    .fillMaxWidth()
-                    .height(70.dp)
-                    .background(
-                        Brush.verticalGradient(
-                            listOf(
-                                Color.Transparent,
-                                Color.Black.copy(0.5f)
+        })
+
+        Column(
+            Modifier
+                .padding(horizontal = 20.dp)
+                .constrainAs(detailContent) {
+                    bottom.linkTo(parent.bottom, 100.dp)
+                    centerHorizontallyTo(parent, 0f)
+                }
+        ) {
+            Text(
+                text = userBean.name,
+                style = TextStyle(
+                    fontSize = 30.sp,
+                    color = Color.White,
+                    fontWeight = FontWeight.SemiBold
+                )
+            )
+
+            AnimatedContent(
+                targetState = ((indicatorIndex > 0) to userBean),
+                label = "",
+                transitionSpec = {
+                    //如果目标是第一张图片的情况，则左滑进场，瞬时消失离场
+                    if (targetState.first.not()) {
+                        slideInHorizontally { width -> -width } + fadeIn() togetherWith fadeOut(
+                            animationSpec = snap()
+                        )
+                    }
+                    //如果目标是第一张图片的情况，则右滑进场，瞬时消失离场
+                    else {
+                        slideInHorizontally { width -> width } + fadeIn() togetherWith fadeOut(
+                            animationSpec = snap()
+                        )
+                    }.using(
+                        SizeTransform(clip = false, sizeAnimationSpec = { _, _ -> snap() })
+                    )
+                }
+            ) { paramsPair ->
+                val user = paramsPair.second
+                if (paramsPair.first.not()) {
+                    Column {
+                        Text(
+                            text = userBean.basicDetail.location,
+                            style = TextStyle(
+                                fontSize = 15.sp,
+                                color = Color.White,
                             )
                         )
-                    )
-            )
-            Box(
-                Modifier
-                    .fillMaxWidth()
-                    .height(30.dp)
-                    .background(
-                        Brush.verticalGradient(
-                            listOf(
-                                Color.Black.copy(0.5f),
-                                Color.Black
+                        Spacer(Modifier.height(10.dp))
+                        FlowRow(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                            if (user.basicDetail.isMale) {
+                                TagContent(
+                                    title = user.basicDetail.age?.toString().orEmpty(),
+                                    iconRes = if (user.basicDetail.isMale) R.drawable.ic_male else R.drawable.ic_female,
+                                    backgroundColor = if (user.basicDetail.isMale) Color(0xFF4396f8) else Color(
+                                        0xFFEB5992
+                                    )
+                                )
+                            }
+                            user.basicDetail.tagList.forEach {
+                                TagContent(title = it.content, iconRes = it.icon)
+                            }
+                        }
+                    }
+
+                } else {
+                    Column {
+                        Text(
+                            text = "近期动态", style = TextStyle(
+                                fontSize = 15.sp,
+                                color = Color.White,
                             )
                         )
-                    )
-            )
-            Box(
-                Modifier
-                    .fillMaxWidth()
-                    .height(70.dp)
-                    .background(Color.Black))
+                        Spacer(Modifier.height(10.dp))
+                        FlowRow(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                            userBean.recentPost.picList.forEach {
+                                RecentPostSingleContent(
+                                    modifier = Modifier.size(40.dp),
+                                    imgUrl = it
+                                )
+                            }
+                        }
+                    }
+                }
+            }
         }
 
 
     }
 
+}
+
+@Composable
+private fun TagContent(
+    modifier: Modifier = Modifier,
+    @DrawableRes
+    iconRes: Int? = null,
+    title: String,
+    backgroundColor: Color? = null,
+) {
+    Row(
+        modifier
+            .then(
+                if (backgroundColor != null) {
+                    Modifier.background(backgroundColor)
+                } else {
+                    Modifier.background(Color.Gray.copy(0.4f))
+                }
+            )
+            .clip(RoundedCornerShape(4.dp))
+            .padding(5.dp), verticalAlignment = Alignment.CenterVertically
+    ) {
+        if (iconRes != null) {
+            Image(
+                painter = painterResource(id = iconRes),
+                contentDescription = null,
+                modifier = Modifier.size(15.dp)
+            )
+            Spacer(Modifier.width(3.dp))
+            Text(
+                text = title,
+                style = TextStyle(
+                    fontSize = 15.sp,
+                    color = Color.White
+                )
+            )
+        }
+    }
+}
+
+@Composable
+private fun RecentPostSingleContent(
+    modifier: Modifier = Modifier,
+    imgUrl: String,
+) {
+    AsyncImage(
+        modifier = modifier
+            .aspectRatio(1f)
+            .border(1.dp, color = Color.White.copy(0.3f), shape = RoundedCornerShape(4.dp))
+            .padding(1.dp),
+        model = ImageRequest
+            .Builder(LocalContext.current)
+            .data(imgUrl)
+            .crossfade(true)
+            .build(),
+        contentDescription = null,
+        contentScale = ContentScale.Crop
+    )
+}
+
+@Composable
+private fun BottomMask(modifier: Modifier) {
+    Column(modifier) {
+        Box(
+            Modifier
+                .fillMaxWidth()
+                .height(70.dp)
+                .background(
+                    Brush.verticalGradient(
+                        listOf(
+                            Color.Transparent,
+                            Color.Black.copy(0.5f)
+                        )
+                    )
+                )
+        )
+        Box(
+            Modifier
+                .fillMaxWidth()
+                .height(30.dp)
+                .background(
+                    Brush.verticalGradient(
+                        listOf(
+                            Color.Black.copy(0.5f),
+                            Color.Black
+                        )
+                    )
+                )
+        )
+        Box(
+            Modifier
+                .fillMaxWidth()
+                .height(70.dp)
+                .background(Color.Black)
+        )
+    }
 }
 
 @Composable
@@ -282,12 +452,23 @@ private fun PreviewTanTanSingleCard() {
                     isMale = false,
                     age = 14,
                     tagList = listOf(
-
-                    )
+                        TanTanUserBean.BasicDetail.Tag(
+                            icon = R.drawable.ic_taxi,
+                            content = "可外出"
+                        ),
+                        TanTanUserBean.BasicDetail.Tag(
+                            icon = R.drawable.ic_find_more,
+                            content = "发现更多"
+                        ),
+                    ),
+                    location = "广州黄埔（10km）·11分钟前活跃"
                 ),
                 recentPost = TanTanUserBean.RecentPost(
-                    level = 2,
-                    picList = (0..4).map { "" }
+                    picList = listOf(
+                        "https://wx3.sinaimg.cn/mw690/001WN8zPly8hgvfjc0cxhj60j60cs41802.jpg",
+                        "https://wx3.sinaimg.cn/mw690/001WN8zPly8hgvfjc6sxwj60j60de0vx02.jpg",
+                        "https://wx4.sinaimg.cn/mw690/001WN8zPly8hgvfjciosfj60j60csgmv02.jpg"
+                    )
                 )
             )
         )
