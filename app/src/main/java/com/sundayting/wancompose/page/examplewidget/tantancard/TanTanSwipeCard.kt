@@ -51,9 +51,12 @@ import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.graphics.lerp
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
@@ -136,7 +139,7 @@ fun TanTanSwipeCard(
             ) * (if (scrollPercentage >= 0) 1f else -1f) * (if (dragTopHalf) 1f else -1f)
         }
     }
-    Box(modifier) {
+    Box(modifier, contentAlignment = Alignment.TopCenter) {
         userList.forEachIndexed { index, userBean ->
             TanTanSingleCard(
                 Modifier
@@ -155,8 +158,10 @@ fun TanTanSwipeCard(
                                         }
                                     }
                                     detectDragGestures(
-                                        onDrag = { change, dragAmount ->
-                                            dragTopHalf = change.position.y < size.height / 2
+                                        onDragStart = {
+                                            dragTopHalf = it.y < size.height / 2
+                                        },
+                                        onDrag = { _, dragAmount ->
                                             scope.launch {
                                                 offsetAnimate.snapTo(
                                                     offsetAnimate.value + IntOffset(
@@ -178,6 +183,13 @@ fun TanTanSwipeCard(
                 userBean
             )
         }
+        DislikeOrLikeButtons(
+            modifier = Modifier
+                .align(Alignment.BottomCenter)
+                .padding(bottom = 20.dp)
+                .padding(horizontal = 20.dp),
+            scrollProgressProvider = { scrollPercentage }
+        )
     }
 }
 
@@ -630,4 +642,108 @@ private fun PreviewTanTanSwipeCard() {
             )
         }
     })
+}
+
+
+private val startColor = Color.Gray.copy(0.5f)
+private val closeEndColor = Color(0xFFF2BF42)
+private val likeEndColor = Color(0xFFD85140)
+
+@Composable
+private fun DislikeOrLikeButtons(
+    modifier: Modifier = Modifier,
+    scrollProgressProvider: () -> Float,
+) {
+
+    Row(modifier, verticalAlignment = Alignment.CenterVertically) {
+        val closeScale by remember {
+            derivedStateOf {
+                lerp(1f, 0.9f, scrollProgressProvider().coerceAtMost(0f).absoluteValue)
+            }
+        }
+        val closeColor by remember {
+            derivedStateOf {
+                lerp(
+                    startColor,
+                    closeEndColor,
+                    scrollProgressProvider().coerceAtMost(0f).absoluteValue
+                )
+            }
+        }
+        Box(
+            Modifier
+                .fillMaxWidth()
+                .weight(1f, false)
+                .height(45.dp)
+                .graphicsLayer {
+                    scaleX = closeScale
+                    scaleY = closeScale
+                }
+                .clip(RoundedCornerShape(50))
+                .drawBehind {
+                    drawRect(closeColor)
+                },
+            contentAlignment = Alignment.Center
+        ) {
+            Image(
+                painter = painterResource(id = R.drawable.ic_close_2),
+                contentDescription = null,
+                modifier = Modifier.size(30.dp),
+                colorFilter = ColorFilter.tint(Color.White)
+            )
+        }
+
+        Spacer(Modifier.width(20.dp))
+
+        val likeScale by remember {
+            derivedStateOf {
+                lerp(1f, 0.9f, scrollProgressProvider().coerceAtLeast(0f))
+            }
+        }
+        val likeColor by remember {
+            derivedStateOf {
+                lerp(
+                    startColor,
+                    likeEndColor,
+                    scrollProgressProvider().coerceAtLeast(0f)
+                )
+            }
+        }
+
+        val likeIconColor by remember {
+            derivedStateOf {
+                lerp(
+                    likeEndColor,
+                    Color.White,
+                    scrollProgressProvider().coerceAtLeast(0f)
+                )
+            }
+        }
+
+        Box(
+            Modifier
+                .fillMaxWidth()
+                .weight(1f, false)
+                .height(45.dp)
+                .graphicsLayer {
+                    scaleX = likeScale
+                    scaleY = likeScale
+                }
+                .clip(RoundedCornerShape(50))
+                .drawBehind {
+                    drawRect(likeColor)
+                },
+            contentAlignment = Alignment.Center
+        ) {
+            Image(
+                painter = painterResource(id = R.drawable.ic_like2),
+                contentDescription = null,
+                modifier = Modifier.size(30.dp),
+                colorFilter = ColorFilter.tint(likeIconColor)
+            )
+        }
+
+    }
+
+
 }
