@@ -16,6 +16,7 @@ import androidx.compose.animation.core.VectorConverter
 import androidx.compose.animation.core.animateIntAsState
 import androidx.compose.animation.core.snap
 import androidx.compose.animation.core.spring
+import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInHorizontally
@@ -48,11 +49,14 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
@@ -130,6 +134,7 @@ data class TanTanUserBean(
 fun TanTanSwipeCard(
     modifier: Modifier = Modifier,
     userList: List<TanTanUserBean>,
+    onSwipeToDismiss: () -> Unit = {},
 ) {
     val scope = rememberCoroutineScope()
     val offsetAnimate = remember { Animatable(IntOffset.Zero, IntOffset.VectorConverter) }
@@ -156,116 +161,129 @@ fun TanTanSwipeCard(
     val subCardOffsetY = with(LocalDensity.current) { 8.dp.roundToPx() }
 
     Box(modifier, contentAlignment = Alignment.TopCenter) {
+        val listSizeRemember by rememberUpdatedState(newValue = userList.size)
         userList.asReversed().forEachIndexed { index, userBean ->
-            val isTopCard = index == userList.size - 1
-            Box(
-                modifier = Modifier
-                    .then(
-                        if (isTopCard) {
-                            Modifier
-                                .matchParentSize()
-                                .offset { offsetAnimate.value }
-                                .composed {
-                                    val targetRotationZ by remember {
-                                        derivedStateOf {
-                                            lerp(
-                                                0f,
-                                                5f,
-                                                scrollPercentage.absoluteValue
-                                            ) * (if (scrollPercentage >= 0) 1f else -1f) * (if (dragTopHalf) 1f else -1f)
+            val userBeanRemember by rememberUpdatedState(newValue = userBean)
+            val indexRemember by rememberUpdatedState(newValue = index)
+            val isTopCard by rememberUpdatedState(newValue = index == userList.size - 1)
+            key(userBean.uid) {
+                Box(
+                    modifier = Modifier
+                        .then(
+                            if (isTopCard) {
+                                Modifier
+                                    .matchParentSize()
+                                    .offset { offsetAnimate.value }
+                                    .composed {
+                                        val targetRotationZ by remember {
+                                            derivedStateOf {
+                                                lerp(
+                                                    0f,
+                                                    5f,
+                                                    scrollPercentage.absoluteValue
+                                                ) * (if (scrollPercentage >= 0) 1f else -1f) * (if (dragTopHalf) 1f else -1f)
+                                            }
                                         }
+                                        Modifier.rotate(targetRotationZ)
                                     }
-                                    Modifier.rotate(targetRotationZ)
-                                }
-                                .pointerInput(Unit) {
-                                    fun swipeToDismiss() {
-                                        scope.launch {
-                                            offsetAnimate.animateTo(
-                                                offsetAnimate.value + IntOffset(
-                                                    (1000 * if (offsetAnimate.value.x > 0f) 1f else -1f).roundToInt(),
-                                                    0
-                                                ),
-                                            )
-                                            offsetAnimate.animateTo(IntOffset.Zero)
-                                        }
-                                    }
-
-                                    fun toInitLoc() {
-                                        scope.launch {
-                                            offsetAnimate.animateTo(IntOffset.Zero)
-                                        }
-                                    }
-
-                                    fun onDragEndOrCancel() {
-                                        if (offsetAnimate.value.x.absoluteValue > swipeToDismissThreshold) {
-                                            swipeToDismiss()
-                                        } else {
-                                            toInitLoc()
-                                        }
-                                    }
-                                    detectDragGestures(
-                                        onDragStart = {
-                                            dragTopHalf = it.y < size.height / 2
-                                        },
-                                        onDrag = { _, dragAmount ->
+                                    .pointerInput(Unit) {
+                                        fun swipeToDismiss() {
                                             scope.launch {
-                                                offsetAnimate.snapTo(
+                                                offsetAnimate.animateTo(
                                                     offsetAnimate.value + IntOffset(
-                                                        dragAmount.x.roundToInt(),
-                                                        dragAmount.y.roundToInt()
+                                                        (1000 * if (offsetAnimate.value.x > 0f) 1f else -1f).roundToInt(),
+                                                        0
+                                                    ),
+                                                    animationSpec = tween(200)
+                                                )
+                                                onSwipeToDismiss()
+                                                offsetAnimate.snapTo(IntOffset.Zero)
+                                            }
+                                        }
+
+                                        fun toInitLoc() {
+                                            scope.launch {
+                                                offsetAnimate.animateTo(IntOffset.Zero)
+                                            }
+                                        }
+
+                                        fun onDragEndOrCancel() {
+                                            if (offsetAnimate.value.x.absoluteValue > swipeToDismissThreshold) {
+                                                swipeToDismiss()
+                                            } else {
+                                                toInitLoc()
+                                            }
+                                        }
+                                        detectDragGestures(
+                                            onDragStart = {
+                                                dragTopHalf = it.y < size.height / 2
+                                            },
+                                            onDrag = { _, dragAmount ->
+                                                scope.launch {
+                                                    offsetAnimate.snapTo(
+                                                        offsetAnimate.value + IntOffset(
+                                                            dragAmount.x.roundToInt(),
+                                                            dragAmount.y.roundToInt()
+                                                        )
                                                     )
+                                                }
+                                            },
+                                            onDragCancel = {
+                                                onDragEndOrCancel()
+                                            },
+                                            onDragEnd = {
+                                                onDragEndOrCancel()
+                                            }
+                                        )
+
+                                    }
+                            } else {
+                                Modifier
+                                    .composed {
+                                        val subIndex by remember {
+                                            derivedStateOf {
+                                                (listSizeRemember - indexRemember - 2).coerceAtLeast(
+                                                    0
+                                                ) + lerp(
+                                                    1f,
+                                                    0f,
+                                                    scrollPercentage.absoluteValue
                                                 )
                                             }
-                                        },
-                                        onDragCancel = {
-                                            onDragEndOrCancel()
-                                        },
-                                        onDragEnd = {
-                                            onDragEndOrCancel()
                                         }
-                                    )
-
-                                }
-                        } else {
-                            Modifier
-                                .composed {
-                                    val subIndex by remember {
-                                        derivedStateOf {
-                                            (userList.size - index - 2).coerceAtLeast(0) + lerp(
-                                                1f,
-                                                0f,
-                                                scrollPercentage.absoluteValue
-                                            )
-                                        }
+                                        Modifier
+                                            .fillMaxSize(1f - subIndex * 0.05f)
+                                            .offset {
+                                                IntOffset(
+                                                    0,
+                                                    (-subIndex * subCardOffsetY).roundToInt()
+                                                )
+                                            }
                                     }
-                                    Modifier
-                                        .fillMaxSize(1f - subIndex * 0.05f)
-                                        .offset {
-                                            IntOffset(0, (-subIndex * subCardOffsetY).roundToInt())
-                                        }
-                                }
 
-                        }
-                    ),
-                contentAlignment = Alignment.TopCenter
-            ) {
-                TanTanSingleCard(
-                    modifier = Modifier
-                        .matchParentSize(),
-                    userBean = userBean,
-                    isTopCard = isTopCard
-                )
-                if (isTopCard) {
-                    TopDislikeOrLikeButtons(
+                            }
+                        ),
+                    contentAlignment = Alignment.TopCenter
+                ) {
+                    TanTanSingleCard(
                         modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(top = 30.dp)
-                            .padding(horizontal = 20.dp)
-                            .align(Alignment.TopCenter),
-                        scrollProgressProvider = { scrollPercentage2 }
+                            .matchParentSize(),
+                        userBean = userBeanRemember,
+                        isTopCard = isTopCard
                     )
+                    if (isTopCard) {
+                        TopDislikeOrLikeButtons(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(top = 30.dp)
+                                .padding(horizontal = 20.dp)
+                                .align(Alignment.TopCenter),
+                            scrollProgressProvider = { scrollPercentage2 }
+                        )
+                    }
                 }
             }
+
         }
         DislikeOrLikeButtons(
             modifier = Modifier
@@ -718,12 +736,20 @@ private fun PreviewTanTanSingleCard() {
 @Composable
 @Preview
 private fun PreviewTanTanSwipeCard() {
+    val list = remember {
+        mutableStateListOf<TanTanUserBean>().apply {
+            addAll(TestExample.userList)
+        }
+    }
     TanTanSwipeCard(
         modifier = Modifier
             .fillMaxSize()
             .padding(horizontal = 20.dp)
             .padding(top = 60.dp, bottom = 20.dp),
-        userList = TestExample.userList
+        userList = list,
+        onSwipeToDismiss = {
+            list.removeFirst()
+        }
     )
 }
 
