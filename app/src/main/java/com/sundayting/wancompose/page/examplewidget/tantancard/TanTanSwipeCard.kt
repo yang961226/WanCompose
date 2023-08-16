@@ -262,11 +262,11 @@ private fun TanTanSingleCard(
                     height = Dimension.fillToConstraints
                     width = Dimension.fillToConstraints
                     centerTo(parent)
-                },
+                }
+                .background(Color.Gray),
             model = ImageRequest
                 .Builder(LocalContext.current)
                 .data(userBean.picList.getOrNull(indicatorIndex))
-                .crossfade(true)
                 .apply {
                     if (LocalInspectionMode.current) {
                         placeholder(R.drawable.default_head_pic)
@@ -438,15 +438,14 @@ private fun TagContent(
                 contentDescription = null,
                 modifier = Modifier.size(15.dp)
             )
-            Spacer(Modifier.width(3.dp))
-            Text(
-                text = title,
-                style = TextStyle(
-                    fontSize = 15.sp,
-                    color = Color.White
-                )
-            )
         }
+        Text(
+            text = title,
+            style = TextStyle(
+                fontSize = 15.sp,
+                color = Color.White
+            )
+        )
     }
 }
 
@@ -477,12 +476,12 @@ private fun BottomMask(modifier: Modifier) {
         Box(
             Modifier
                 .fillMaxWidth()
-                .height(70.dp)
+                .height(130.dp)
                 .background(
                     Brush.verticalGradient(
                         listOf(
                             Color.Transparent,
-                            Color.Black.copy(0.5f)
+                            Color.Black.copy(0.8f)
                         )
                     )
                 )
@@ -494,7 +493,7 @@ private fun BottomMask(modifier: Modifier) {
                 .background(
                     Brush.verticalGradient(
                         listOf(
-                            Color.Black.copy(0.5f),
+                            Color.Black.copy(0.8f),
                             Color.Black
                         )
                     )
@@ -639,7 +638,7 @@ private fun PreviewTanTanSwipeCard() {
     TanTanSwipeCard(modifier = Modifier
         .fillMaxSize()
         .padding(20.dp), userList = remember {
-        (0..3).map {
+        listOf(
             TanTanUserBean(
                 name = "等待一个人",
                 picList = listOf(
@@ -670,8 +669,37 @@ private fun PreviewTanTanSwipeCard() {
                         "https://wx4.sinaimg.cn/mw690/001WN8zPly8hgvfjciosfj60j60csgmv02.jpg"
                     )
                 )
+            ),
+            TanTanUserBean(
+                name = "晓屿_拾念",
+                picList = listOf(
+                    "https://wx4.sinaimg.cn/mw690/e6470c42ly1hgpggyfvtgj22802you0y.jpg",
+                    "https://wx2.sinaimg.cn/mw690/e6470c42ly1hgpggac3mqj22702you0z.jpg",
+                    "https://picx.zhimg.com/80/v2-9c8e2b5642da4e5e76b0f33070df3760_1440w.webp?source=1940ef5c"
+                ),
+                basicDetail = TanTanUserBean.BasicDetail(
+                    isMale = false,
+                    age = 14,
+                    tagList = listOf(
+                        TanTanUserBean.BasicDetail.Tag(
+                            icon = R.drawable.ic_find_more,
+                            content = "在找同伴"
+                        ),
+                        TanTanUserBean.BasicDetail.Tag(
+                            content = "发现更多"
+                        ),
+                    ),
+                    location = "广州天河（30km）·30分钟前活跃"
+                ),
+                recentPost = TanTanUserBean.RecentPost(
+                    picList = listOf(
+                        "https://wx2.sinaimg.cn/orj360/401e1dffly1hgqpcob1tjj20zk1bfgsg.jpg",
+                        "https://wx4.sinaimg.cn/orj360/401e1dffly1hgqpcoqknjj211a1dpnb5.jpg",
+                        "https://pic1.zhimg.com/80/v2-c891532c8663f33a1168c833c67f6c26_1440w.webp?source=1940ef5c"
+                    )
+                )
             )
-        }
+        )
     })
 }
 
