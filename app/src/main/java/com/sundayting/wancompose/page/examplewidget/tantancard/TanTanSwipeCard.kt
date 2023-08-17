@@ -9,6 +9,7 @@ import androidx.annotation.DrawableRes
 import androidx.annotation.IntRange
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.ExitTransition
 import androidx.compose.animation.SizeTransform
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.Spring
@@ -160,13 +161,13 @@ fun TanTanSwipeCard(
      */
     val subCardOffsetY = with(LocalDensity.current) { 8.dp.roundToPx() }
 
+    val rememberList by rememberUpdatedState(newValue = userList)
+
     Box(modifier, contentAlignment = Alignment.TopCenter) {
-        val listSizeRemember by rememberUpdatedState(newValue = userList.size)
-        userList.asReversed().forEachIndexed { index, userBean ->
-            val userBeanRemember by rememberUpdatedState(newValue = userBean)
-            val indexRemember by rememberUpdatedState(newValue = index)
-            val isTopCard by rememberUpdatedState(newValue = index == userList.size - 1)
+        rememberList.forEachIndexed { index, userBean ->
             key(userBean.uid) {
+                val rememberIndex by rememberUpdatedState(newValue = index)
+                val isTopCard = index == rememberList.size - 1
                 Box(
                     modifier = Modifier
                         .then(
@@ -242,7 +243,7 @@ fun TanTanSwipeCard(
                                     .composed {
                                         val subIndex by remember {
                                             derivedStateOf {
-                                                (listSizeRemember - indexRemember - 2).coerceAtLeast(
+                                                (rememberList.size - rememberIndex - 1).coerceAtLeast(
                                                     0
                                                 ) + lerp(
                                                     1f,
@@ -260,7 +261,6 @@ fun TanTanSwipeCard(
                                                 )
                                             }
                                     }
-
                             }
                         ),
                     contentAlignment = Alignment.TopCenter
@@ -268,7 +268,7 @@ fun TanTanSwipeCard(
                     TanTanSingleCard(
                         modifier = Modifier
                             .matchParentSize(),
-                        userBean = userBeanRemember,
+                        userBean = userBean,
                         isTopCard = isTopCard
                     )
                     if (isTopCard) {
@@ -283,7 +283,6 @@ fun TanTanSwipeCard(
                     }
                 }
             }
-
         }
         DislikeOrLikeButtons(
             modifier = Modifier
@@ -403,7 +402,9 @@ private fun TanTanSingleCard(
                 start.linkTo(parent.start, 20.dp)
                 end.linkTo(parent.end, 20.dp)
                 width = Dimension.fillToConstraints
-            }
+            },
+            enter = fadeIn(),
+            exit = ExitTransition.None
         ) {
             PicIndicator(
                 modifier = Modifier, totalNum = userBean.picList.size, curIndex = indicatorIndex
@@ -438,17 +439,16 @@ private fun TanTanSingleCard(
                 targetState = ((indicatorIndex > 0) to userBean),
                 label = "",
                 transitionSpec = {
+                    if (initialState.first == targetState.first) {
+                        fadeIn(snap()) togetherWith fadeOut(snap())
+                    }
                     //如果目标是第一张图片的情况，则左滑进场，瞬时消失离场
-                    if (targetState.first.not()) {
-                        slideInHorizontally { width -> -width } + fadeIn() togetherWith fadeOut(
-                            animationSpec = snap()
-                        )
+                    else if (targetState.first.not()) {
+                        slideInHorizontally { width -> -width } + fadeIn() togetherWith fadeOut(snap())
                     }
                     //如果目标是第一张图片的情况，则右滑进场，瞬时消失离场
                     else {
-                        slideInHorizontally { width -> width } + fadeIn() togetherWith fadeOut(
-                            animationSpec = snap()
-                        )
+                        slideInHorizontally { width -> width } + fadeIn() togetherWith fadeOut(snap())
                     }.using(
                         SizeTransform(clip = false, sizeAnimationSpec = { _, _ -> snap() })
                     )
@@ -748,7 +748,8 @@ private fun PreviewTanTanSwipeCard() {
             .padding(top = 60.dp, bottom = 20.dp),
         userList = list,
         onSwipeToDismiss = {
-            list.removeFirst()
+            list.removeLast()
+            list.add(0, TestExample.getNextUser())
         }
     )
 }
