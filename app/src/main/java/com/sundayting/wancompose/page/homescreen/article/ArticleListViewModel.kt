@@ -20,8 +20,6 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.firstOrNull
-import kotlinx.coroutines.flow.flatMapLatest
-import kotlinx.coroutines.flow.mapLatest
 import kotlinx.coroutines.joinAll
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -40,7 +38,17 @@ class ArticleListViewModel @Inject constructor(
         list: List<ArticleList.ArticleUiBean> = listOf(),
     ) {
 
-        var articleList by mutableStateOf(list)
+        private val _articleList = mutableStateListOf<ArticleList.ArticleUiBean>().apply {
+            addAll(list)
+        }
+        val articleList: List<ArticleList.ArticleUiBean> = _articleList
+
+        fun addArticle(list: List<ArticleList.ArticleUiBean>, clearFirst: Boolean = false) {
+            if (clearFirst) {
+                _articleList.clear()
+            }
+            _articleList.addAll(list)
+        }
 
         val bannerList = mutableStateListOf<ArticleList.BannerUiBean>()
 
@@ -58,21 +66,8 @@ class ArticleListViewModel @Inject constructor(
                     refresh()
                 }
             }
-            launch {
-                mineRepo.curUidFlow.flatMapLatest { id ->
-                    repo.userArticleFlow(id).mapLatest { articleList ->
-                        articleList.map { it.toArticleUiBean() }
-                    }
-                }.collect {
-                    state.articleList = it
-                }
-            }
         }
 
-    }
-
-    private suspend fun addArticle(list: List<ArticleBean>, clearFirst: Boolean = false) {
-        repo.insertArticles(list, clearFirst)
     }
 
     fun refresh() {
@@ -92,7 +87,7 @@ class ArticleListViewModel @Inject constructor(
         loadJob?.cancel()
         if (isRefresh) {
             curPage = 0
-            state.loadingMore = true
+            state.refreshing = true
         } else {
             state.loadingMore = true
         }
@@ -137,7 +132,10 @@ class ArticleListViewModel @Inject constructor(
                     val articleList = articleListDeferred.await().orEmpty().map {
                         it.copy(ownerId = curUserId)
                     }
-                    addArticle(topArticleList + articleList, isRefresh)
+                    state.addArticle(
+                        (topArticleList + articleList).map { it.toArticleUiBean() },
+                        isRefresh
+                    )
                 },
             )
         }.apply {

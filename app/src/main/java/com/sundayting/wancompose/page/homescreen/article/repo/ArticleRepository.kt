@@ -17,8 +17,6 @@ class ArticleRepository @Inject constructor(
     suspend fun fetchHomePageArticle(page: Int) = homePageService.fetchArticleList(page)
     suspend fun fetchHomePageBanner() = homePageService.fetchBanner()
 
-    fun userArticleFlow(uid: Long) = wanDatabase.articleDao().queryUsersArticleFlow(uid)
-
     suspend fun insertArticles(articleList: List<ArticleBean>) =
         wanDatabase.articleDao().insertArticles(articleList)
 
