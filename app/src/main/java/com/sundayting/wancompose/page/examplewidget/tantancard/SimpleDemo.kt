@@ -4,9 +4,12 @@ import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
@@ -21,6 +24,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import kotlin.random.Random
@@ -83,6 +87,37 @@ fun PreviewSimpleDemo() {
 
         Spacer(Modifier.height(200.dp))
         SimpleDemo(Modifier.size(200.dp), beanList = list)
+    }
+
+}
+
+@Composable
+@Preview
+fun ScaleTest() {
+    val scale = 0.9f
+    BoxWithConstraints(
+        Modifier
+            .fillMaxWidth()
+            .aspectRatio(1f),
+        contentAlignment = Alignment.Center
+    ) {
+        BoxWithConstraints(Modifier.size(200.dp)) {
+            Box(
+                Modifier
+                    .size(200.dp)
+                    .background(Color.Red)
+            )
+            Box(
+                Modifier
+                    .size(200.dp)
+                    .graphicsLayer {
+                        scaleX = scale
+                        scaleY = scale
+                        translationY = -maxHeight.toPx() * (1 - scale) / 2
+                    }
+                    .background(Color.Gray)
+            )
+        }
     }
 
 }

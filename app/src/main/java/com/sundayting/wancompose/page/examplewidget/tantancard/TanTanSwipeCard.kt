@@ -83,6 +83,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.util.fastForEachIndexed
 import androidx.compose.ui.util.lerp
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
@@ -269,7 +270,7 @@ fun TanTanSwipeCard(
                         modifier = Modifier
                             .matchParentSize(),
                         userBean = userBean,
-                        isTopCard = isTopCard
+                        topIndexProvider = { 0 }
                     )
                     if (isTopCard) {
                         TopDislikeOrLikeButtons(
@@ -295,10 +296,71 @@ fun TanTanSwipeCard(
 }
 
 @Composable
+@Preview
+private fun PreviewTanTanSwipeCard2() {
+    val list = remember {
+        mutableStateListOf<TanTanUserBean>().apply {
+            addAll(TestExample.userList)
+        }
+    }
+    TanTanSwipeCard2(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(vertical = 40.dp, horizontal = 20.dp),
+        userList = list
+    )
+}
+
+
+@Composable
+fun TanTanSwipeCard2(
+    modifier: Modifier = Modifier,
+    userList: List<TanTanUserBean>,
+    onSwipeToDismiss: () -> Unit = {},
+) {
+
+    val rememberList by remember(userList) {
+        derivedStateOf { userList }
+    }
+
+    BoxWithConstraints(modifier, contentAlignment = Alignment.Center) {
+        rememberList.fastForEachIndexed { index, bean ->
+            key(bean.uid) {
+                val rememberIndex by rememberUpdatedState(index)
+                val indexFromTop by remember {
+                    derivedStateOf { rememberList.size - 1 - rememberIndex }
+                }
+                val scale by remember { derivedStateOf { 1f - indexFromTop * 0.1f } }
+                Box(
+                    Modifier
+                        .graphicsLayer {
+                            scaleX = scale
+                            scaleY = scale
+                            translationY = -(maxHeight.toPx() * (1 - scale) / 2)
+                        }
+                        .graphicsLayer {
+                            translationY = -indexFromTop * 10.dp.toPx()
+                        }
+                        .fillMaxSize()
+                ) {
+                    TanTanSingleCard(
+                        userBean = bean,
+                        topIndexProvider = { indexFromTop },
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .border(1.dp, color = Color.Gray)
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Composable
 private fun TanTanSingleCard(
     modifier: Modifier = Modifier,
     userBean: TanTanUserBean,
-    isTopCard: Boolean = true,
+    topIndexProvider: () -> Int,
 ) {
 
     var yRotateTag by remember { mutableFloatStateOf(0f) }
@@ -368,6 +430,10 @@ private fun TanTanSingleCard(
             contentDescription = null,
             contentScale = ContentScale.Crop
         )
+
+        val isTopCard by remember {
+            derivedStateOf { topIndexProvider() == 0 }
+        }
 
         HalvedClickArea(
             enable = isTopCard,
@@ -727,7 +793,8 @@ private fun PreviewTanTanSingleCard() {
                         "https://wx4.sinaimg.cn/mw690/001WN8zPly8hgvfjciosfj60j60csgmv02.jpg"
                     )
                 )
-            )
+            ),
+            topIndexProvider = { 0 }
         )
     }
 }

@@ -7,7 +7,7 @@ object TestExample {
     val userList = listOf(
         TanTanUserBean(
             uid = 0,
-            name = "等待一个人",
+            name = "等待一个人1",
             picList = listOf(
                 "https://5b0988e595225.cdn.sohucs.com/images/20190325/7613df5dd2094881bdf2b83115e3b3c3.jpeg",
                 "https://5b0988e595225.cdn.sohucs.com/images/20190325/94127d0f67da450e98e6f669070ad69b.jpeg",
@@ -39,7 +39,7 @@ object TestExample {
         ),
         TanTanUserBean(
             uid = 1,
-            name = "晓屿_拾念",
+            name = "晓屿_拾念2",
             picList = listOf(
                 "https://wx4.sinaimg.cn/mw690/e6470c42ly1hgpggyfvtgj22802you0y.jpg",
                 "https://wx2.sinaimg.cn/mw690/e6470c42ly1hgpggac3mqj22702you0z.jpg",
@@ -69,7 +69,7 @@ object TestExample {
         ),
         TanTanUserBean(
             uid = 2,
-            name = "鸡你太美",
+            name = "鸡你太美3",
             picList = listOf(
                 "https://picx.zhimg.com/80/v2-9c8e2b5642da4e5e76b0f33070df3760_1440w.webp?source=1940ef5c"
             ),
