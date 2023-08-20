@@ -307,7 +307,11 @@ private fun PreviewTanTanSwipeCard2() {
         modifier = Modifier
             .fillMaxSize()
             .padding(vertical = 40.dp, horizontal = 20.dp),
-        userList = list
+        userList = list.asReversed(),
+        onSwipeToDismiss = {
+            list.removeFirst()
+            list.add(TestExample.getNextUser())
+        }
     )
 }
 
@@ -386,11 +390,11 @@ fun TanTanSwipeCard2(
                                             }
 
                                             fun onDragEndOrCancel() {
-//                                    if (offsetAnimate.value.x.absoluteValue > 50.dp.toPx()) {
-//                                        swipeToDismiss()
-//                                    } else {
-                                                toInitLoc()
-//                                    }
+                                                if (offsetAnimate.value.x.absoluteValue > 50.dp.toPx()) {
+                                                    swipeToDismiss()
+                                                } else {
+                                                    toInitLoc()
+                                                }
                                             }
                                             detectDragGestures(
                                                 onDragStart = {
