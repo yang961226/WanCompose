@@ -416,11 +416,12 @@ fun TanTanSwipeCard2(
                                         }
                                 } else {
                                     Modifier.graphicsLayer {
-                                        val scale = (1f - indexFromTop * 0.08f)
+                                        val scale =
+                                            (1f - (indexFromTop - scrollPercentage.absoluteValue) * 0.08f)
                                         scaleX = scale
                                         scaleY = scale
                                         translationY =
-                                            -(maxHeight.toPx() * (1 - scale) / 2) - indexFromTop * 5.dp.toPx()
+                                            -(maxHeight.toPx() * (1 - scale) / 2) - (indexFromTop - scrollPercentage.absoluteValue) * 5.dp.toPx()
                                     }
                                 }
                             }
