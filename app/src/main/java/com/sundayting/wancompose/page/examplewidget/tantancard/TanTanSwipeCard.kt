@@ -323,6 +323,17 @@ fun TanTanSwipeCard2(
         derivedStateOf { userList }
     }
 
+    val scope = rememberCoroutineScope()
+    val offsetAnimate = remember { Animatable(IntOffset.Zero, IntOffset.VectorConverter) }
+    var dragTopHalf by remember { mutableStateOf(false) }
+
+    val scrollThreshold = with(LocalDensity.current) { 200.dp.toPx() }
+    val scrollPercentage by remember(scrollThreshold) {
+        derivedStateOf {
+            (offsetAnimate.value.x.toFloat() / scrollThreshold).coerceIn(-1f, 1f)
+        }
+    }
+
     Box(modifier, contentAlignment = Alignment.Center) {
         rememberList.fastForEachIndexed { index, bean ->
             key(bean.uid) {
@@ -330,7 +341,7 @@ fun TanTanSwipeCard2(
                 val indexFromTop by remember {
                     derivedStateOf { rememberList.size - 1 - rememberIndex }
                 }
-                val scale by remember { derivedStateOf { (1f - indexFromTop * 0.08f) } }
+
                 BoxWithConstraints(
                     Modifier.fillMaxSize()
                 ) {
@@ -339,11 +350,79 @@ fun TanTanSwipeCard2(
                         topIndexProvider = { indexFromTop },
                         modifier = Modifier
                             .fillMaxSize()
-                            .graphicsLayer {
-                                scaleX = scale
-                                scaleY = scale
-                                translationY =
-                                    -(maxHeight.toPx() * (1 - scale) / 2) - indexFromTop * 5.dp.toPx()
+                            .composed {
+                                if (indexFromTop == 0) {
+                                    val targetRotationZ by remember {
+                                        derivedStateOf {
+                                            lerp(
+                                                0f,
+                                                5f,
+                                                scrollPercentage.absoluteValue
+                                            ) * (if (scrollPercentage >= 0) 1f else -1f) * (if (dragTopHalf) 1f else -1f)
+                                        }
+                                    }
+                                    Modifier
+                                        .offset { offsetAnimate.value }
+                                        .rotate(targetRotationZ)
+                                        .pointerInput(Unit) {
+                                            fun swipeToDismiss() {
+                                                scope.launch {
+                                                    offsetAnimate.animateTo(
+                                                        offsetAnimate.value + IntOffset(
+                                                            (1000 * if (offsetAnimate.value.x > 0f) 1f else -1f).roundToInt(),
+                                                            0
+                                                        ),
+                                                        animationSpec = tween(200)
+                                                    )
+                                                    onSwipeToDismiss()
+                                                    offsetAnimate.snapTo(IntOffset.Zero)
+                                                }
+                                            }
+
+                                            fun toInitLoc() {
+                                                scope.launch {
+                                                    offsetAnimate.animateTo(IntOffset.Zero)
+                                                }
+                                            }
+
+                                            fun onDragEndOrCancel() {
+//                                    if (offsetAnimate.value.x.absoluteValue > 50.dp.toPx()) {
+//                                        swipeToDismiss()
+//                                    } else {
+                                                toInitLoc()
+//                                    }
+                                            }
+                                            detectDragGestures(
+                                                onDragStart = {
+                                                    dragTopHalf = it.y < size.height / 2
+                                                },
+                                                onDrag = { _, dragAmount ->
+                                                    scope.launch {
+                                                        offsetAnimate.snapTo(
+                                                            offsetAnimate.value + IntOffset(
+                                                                dragAmount.x.roundToInt(),
+                                                                dragAmount.y.roundToInt()
+                                                            )
+                                                        )
+                                                    }
+                                                },
+                                                onDragCancel = {
+                                                    onDragEndOrCancel()
+                                                },
+                                                onDragEnd = {
+                                                    onDragEndOrCancel()
+                                                }
+                                            )
+                                        }
+                                } else {
+                                    Modifier.graphicsLayer {
+                                        val scale = (1f - indexFromTop * 0.08f)
+                                        scaleX = scale
+                                        scaleY = scale
+                                        translationY =
+                                            -(maxHeight.toPx() * (1 - scale) / 2) - indexFromTop * 5.dp.toPx()
+                                    }
+                                }
                             }
 
                     )
@@ -752,55 +831,6 @@ private fun PicIndicator(
 
 
 }
-
-@Composable
-@Preview
-private fun PreviewTanTanSingleCard() {
-    Box(
-        Modifier
-            .fillMaxSize()
-            .padding(30.dp)
-    ) {
-        TanTanSingleCard(
-            Modifier
-                .fillMaxSize(),
-            userBean = TanTanUserBean(
-                uid = 1,
-                name = "等待一个人",
-                picList = listOf(
-                    "https://5b0988e595225.cdn.sohucs.com/images/20190325/7613df5dd2094881bdf2b83115e3b3c3.jpeg",
-                    "https://5b0988e595225.cdn.sohucs.com/images/20190325/94127d0f67da450e98e6f669070ad69b.jpeg",
-                    "https://5b0988e595225.cdn.sohucs.com/images/20190325/881e9a9b620e44698aa4d64a8d756088.jpeg",
-                    "https://5b0988e595225.cdn.sohucs.com/images/20190325/edf7266c067644c2a43346b7155703a7.jpeg"
-                ),
-                basicDetail = TanTanUserBean.BasicDetail(
-                    isMale = false,
-                    age = 14,
-                    tagList = listOf(
-                        TanTanUserBean.BasicDetail.Tag(
-                            icon = R.drawable.ic_taxi,
-                            content = "可外出"
-                        ),
-                        TanTanUserBean.BasicDetail.Tag(
-                            icon = R.drawable.ic_find_more,
-                            content = "发现更多"
-                        ),
-                    ),
-                    location = "广州黄埔（10km）·11分钟前活跃"
-                ),
-                recentPost = TanTanUserBean.RecentPost(
-                    picList = listOf(
-                        "https://wx3.sinaimg.cn/mw690/001WN8zPly8hgvfjc0cxhj60j60cs41802.jpg",
-                        "https://wx3.sinaimg.cn/mw690/001WN8zPly8hgvfjc6sxwj60j60de0vx02.jpg",
-                        "https://wx4.sinaimg.cn/mw690/001WN8zPly8hgvfjciosfj60j60csgmv02.jpg"
-                    )
-                )
-            ),
-            topIndexProvider = { 0 }
-        )
-    }
-}
-
 
 @Composable
 @Preview
