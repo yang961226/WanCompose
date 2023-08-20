@@ -129,181 +129,15 @@ data class TanTanUserBean(
 
 }
 
-/**
- * 探探Like滑动卡
- */
-@Composable
-fun TanTanSwipeCard(
-    modifier: Modifier = Modifier,
-    userList: List<TanTanUserBean>,
-    onSwipeToDismiss: () -> Unit = {},
-) {
-    val scope = rememberCoroutineScope()
-    val offsetAnimate = remember { Animatable(IntOffset.Zero, IntOffset.VectorConverter) }
-    var dragTopHalf by remember { mutableStateOf(false) }
-
-    val swipeToDismissThreshold = with(LocalDensity.current) { 50.dp.roundToPx() }
-
-    val scrollThreshold = with(LocalDensity.current) { 200.dp.toPx() }
-    val scrollPercentage by remember(scrollThreshold) {
-        derivedStateOf {
-            (offsetAnimate.value.x.toFloat() / scrollThreshold).coerceIn(-1f, 1f)
-        }
-    }
-    val scrollThreshold2 = with(LocalDensity.current) { 50.dp.toPx() }
-    val scrollPercentage2 by remember(scrollThreshold2) {
-        derivedStateOf {
-            (offsetAnimate.value.x.toFloat() / scrollThreshold2).coerceIn(-1f, 1f)
-        }
-    }
-
-    /**
-     * 底部的卡片的Y轴位移
-     */
-    val subCardOffsetY = with(LocalDensity.current) { 8.dp.roundToPx() }
-
-    val rememberList by rememberUpdatedState(newValue = userList)
-
-    Box(modifier, contentAlignment = Alignment.TopCenter) {
-        rememberList.forEachIndexed { index, userBean ->
-            key(userBean.uid) {
-                val rememberIndex by rememberUpdatedState(newValue = index)
-                val isTopCard = index == rememberList.size - 1
-                Box(
-                    modifier = Modifier
-                        .then(
-                            if (isTopCard) {
-                                Modifier
-                                    .matchParentSize()
-                                    .offset { offsetAnimate.value }
-                                    .composed {
-                                        val targetRotationZ by remember {
-                                            derivedStateOf {
-                                                lerp(
-                                                    0f,
-                                                    5f,
-                                                    scrollPercentage.absoluteValue
-                                                ) * (if (scrollPercentage >= 0) 1f else -1f) * (if (dragTopHalf) 1f else -1f)
-                                            }
-                                        }
-                                        Modifier.rotate(targetRotationZ)
-                                    }
-                                    .pointerInput(Unit) {
-                                        fun swipeToDismiss() {
-                                            scope.launch {
-                                                offsetAnimate.animateTo(
-                                                    offsetAnimate.value + IntOffset(
-                                                        (1000 * if (offsetAnimate.value.x > 0f) 1f else -1f).roundToInt(),
-                                                        0
-                                                    ),
-                                                    animationSpec = tween(200)
-                                                )
-                                                onSwipeToDismiss()
-                                                offsetAnimate.snapTo(IntOffset.Zero)
-                                            }
-                                        }
-
-                                        fun toInitLoc() {
-                                            scope.launch {
-                                                offsetAnimate.animateTo(IntOffset.Zero)
-                                            }
-                                        }
-
-                                        fun onDragEndOrCancel() {
-                                            if (offsetAnimate.value.x.absoluteValue > swipeToDismissThreshold) {
-                                                swipeToDismiss()
-                                            } else {
-                                                toInitLoc()
-                                            }
-                                        }
-                                        detectDragGestures(
-                                            onDragStart = {
-                                                dragTopHalf = it.y < size.height / 2
-                                            },
-                                            onDrag = { _, dragAmount ->
-                                                scope.launch {
-                                                    offsetAnimate.snapTo(
-                                                        offsetAnimate.value + IntOffset(
-                                                            dragAmount.x.roundToInt(),
-                                                            dragAmount.y.roundToInt()
-                                                        )
-                                                    )
-                                                }
-                                            },
-                                            onDragCancel = {
-                                                onDragEndOrCancel()
-                                            },
-                                            onDragEnd = {
-                                                onDragEndOrCancel()
-                                            }
-                                        )
-
-                                    }
-                            } else {
-                                Modifier
-                                    .composed {
-                                        val subIndex by remember {
-                                            derivedStateOf {
-                                                (rememberList.size - rememberIndex - 1).coerceAtLeast(
-                                                    0
-                                                ) + lerp(
-                                                    1f,
-                                                    0f,
-                                                    scrollPercentage.absoluteValue
-                                                )
-                                            }
-                                        }
-                                        Modifier
-                                            .fillMaxSize(1f - subIndex * 0.05f)
-                                            .offset {
-                                                IntOffset(
-                                                    0,
-                                                    (-subIndex * subCardOffsetY).roundToInt()
-                                                )
-                                            }
-                                    }
-                            }
-                        ),
-                    contentAlignment = Alignment.TopCenter
-                ) {
-                    TanTanSingleCard(
-                        modifier = Modifier
-                            .matchParentSize(),
-                        userBean = userBean,
-                        topIndexProvider = { 0 }
-                    )
-                    if (isTopCard) {
-                        TopDislikeOrLikeButtons(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(top = 30.dp)
-                                .padding(horizontal = 20.dp)
-                                .align(Alignment.TopCenter),
-                            scrollProgressProvider = { scrollPercentage2 }
-                        )
-                    }
-                }
-            }
-        }
-        DislikeOrLikeButtons(
-            modifier = Modifier
-                .align(Alignment.BottomCenter)
-                .padding(bottom = 20.dp)
-                .padding(horizontal = 20.dp),
-            scrollProgressProvider = { scrollPercentage }
-        )
-    }
-}
-
 @Composable
 @Preview
-private fun PreviewTanTanSwipeCard2() {
+private fun PreviewTanTanSwipeCard() {
     val list = remember {
         mutableStateListOf<TanTanUserBean>().apply {
             addAll(TestExample.userList)
         }
     }
-    TanTanSwipeCard2(
+    TanTanSwipeCard(
         modifier = Modifier
             .fillMaxSize()
             .padding(vertical = 40.dp, horizontal = 20.dp),
@@ -316,8 +150,11 @@ private fun PreviewTanTanSwipeCard2() {
 }
 
 
+/**
+ * 探探滑卡
+ */
 @Composable
-fun TanTanSwipeCard2(
+fun TanTanSwipeCard(
     modifier: Modifier = Modifier,
     userList: List<TanTanUserBean>,
     onSwipeToDismiss: () -> Unit = {},
@@ -436,6 +273,13 @@ fun TanTanSwipeCard2(
                             }
 
                     )
+                    DislikeOrLikeButtons(
+                        modifier = Modifier
+                            .align(Alignment.BottomCenter)
+                            .padding(bottom = 20.dp)
+                            .padding(horizontal = 20.dp),
+                        scrollProgressProvider = { scrollPercentage }
+                    )
                 }
             }
         }
@@ -552,7 +396,7 @@ private fun TanTanSingleCard(
 
 
         AnimatedVisibility(
-            visible = isTopCard && userBean.picList.isNotEmpty(),
+            visible = isTopCard && userBean.picList.size > 1,
             label = "",
             modifier = Modifier.constrainAs(topIndicatorContent) {
                 top.linkTo(parent.top, 15.dp)
@@ -841,28 +685,6 @@ private fun PicIndicator(
 
 
 }
-
-@Composable
-@Preview
-private fun PreviewTanTanSwipeCard() {
-    val list = remember {
-        mutableStateListOf<TanTanUserBean>().apply {
-            addAll(TestExample.userList)
-        }
-    }
-    TanTanSwipeCard(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(horizontal = 20.dp)
-            .padding(top = 60.dp, bottom = 20.dp),
-        userList = list,
-        onSwipeToDismiss = {
-            list.removeLast()
-            list.add(0, TestExample.getNextUser())
-        }
-    )
-}
-
 
 private val startColor = Color.Gray.copy(0.5f)
 private val closeEndColor = Color(0xFFF2BF42)
