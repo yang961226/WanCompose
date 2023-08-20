@@ -323,32 +323,29 @@ fun TanTanSwipeCard2(
         derivedStateOf { userList }
     }
 
-    BoxWithConstraints(modifier, contentAlignment = Alignment.Center) {
+    Box(modifier, contentAlignment = Alignment.Center) {
         rememberList.fastForEachIndexed { index, bean ->
             key(bean.uid) {
                 val rememberIndex by rememberUpdatedState(index)
                 val indexFromTop by remember {
                     derivedStateOf { rememberList.size - 1 - rememberIndex }
                 }
-                val scale by remember { derivedStateOf { 1f - indexFromTop * 0.1f } }
-                Box(
-                    Modifier
-                        .graphicsLayer {
-                            scaleX = scale
-                            scaleY = scale
-                            translationY = -(maxHeight.toPx() * (1 - scale) / 2)
-                        }
-                        .graphicsLayer {
-                            translationY = -indexFromTop * 10.dp.toPx()
-                        }
-                        .fillMaxSize()
+                val scale by remember { derivedStateOf { (1f - indexFromTop * 0.08f) } }
+                BoxWithConstraints(
+                    Modifier.fillMaxSize()
                 ) {
                     TanTanSingleCard(
                         userBean = bean,
                         topIndexProvider = { indexFromTop },
                         modifier = Modifier
                             .fillMaxSize()
-                            .border(1.dp, color = Color.Gray)
+                            .graphicsLayer {
+                                scaleX = scale
+                                scaleY = scale
+                                translationY =
+                                    -(maxHeight.toPx() * (1 - scale) / 2) - indexFromTop * 5.dp.toPx()
+                            }
+
                     )
                 }
             }
@@ -398,7 +395,12 @@ private fun TanTanSingleCard(
             .graphicsLayer {
                 rotationY = yRotateAnimate.value
             }
-            .clip(RoundedCornerShape(15.dp))
+            .border(
+                0.5.dp,
+                color = Color.Gray.copy(0.5f),
+                shape = RoundedCornerShape(30.dp)
+            )
+            .clip(RoundedCornerShape(30.dp))
     ) {
         val (
             picContent,

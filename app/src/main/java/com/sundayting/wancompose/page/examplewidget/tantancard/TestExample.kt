@@ -95,6 +95,34 @@ object TestExample {
                 )
             )
         ),
+        TanTanUserBean(
+            uid = 3,
+            name = "鸡你太美4",
+            picList = listOf(
+                "https://picx.zhimg.com/80/v2-9c8e2b5642da4e5e76b0f33070df3760_1440w.webp?source=1940ef5c"
+            ),
+            basicDetail = TanTanUserBean.BasicDetail(
+                isMale = false,
+                age = 14,
+                tagList = listOf(
+                    TanTanUserBean.BasicDetail.Tag(
+                        icon = R.drawable.ic_find_more,
+                        content = "在找同伴"
+                    ),
+                    TanTanUserBean.BasicDetail.Tag(
+                        content = "发现更多"
+                    ),
+                ),
+                location = "广州天河（30km）·30分钟前活跃"
+            ),
+            recentPost = TanTanUserBean.RecentPost(
+                picList = listOf(
+                    "https://wx2.sinaimg.cn/orj360/401e1dffly1hgqpcob1tjj20zk1bfgsg.jpg",
+                    "https://wx4.sinaimg.cn/orj360/401e1dffly1hgqpcoqknjj211a1dpnb5.jpg",
+                    "https://pic1.zhimg.com/80/v2-c891532c8663f33a1168c833c67f6c26_1440w.webp?source=1940ef5c"
+                )
+            )
+        ),
     )
 
     private var index = 4
