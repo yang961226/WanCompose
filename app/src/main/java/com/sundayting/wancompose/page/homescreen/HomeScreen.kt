@@ -30,6 +30,8 @@ import com.sundayting.wancompose.LocalLoginUser
 import com.sundayting.wancompose.R
 import com.sundayting.wancompose.WanComposeDestination
 import com.sundayting.wancompose.page.examplewidgetscreen.ExampleWidgetScreen
+import com.sundayting.wancompose.page.examplewidgetscreen.tantancard.TanTanSwipeCardScreen
+import com.sundayting.wancompose.page.examplewidgetscreen.tantancard.TanTanSwipeCardScreen.navigateToTanTanSwipeCardScreen
 import com.sundayting.wancompose.page.homescreen.article.ui.ArticleList
 import com.sundayting.wancompose.page.homescreen.mine.MineScreen
 import com.sundayting.wancompose.page.webscreen.WebViewScreen.navigateToWebViewScreen
@@ -135,8 +137,23 @@ object HomeScreen : WanComposeDestination {
                 )
             }
             composable(ExampleWidgetScreen.route) {
-                ExampleWidgetScreen.Screen(Modifier.fillMaxSize())
+                ExampleWidgetScreen.Screen(
+                    Modifier
+                        .fillMaxSize(),
+                    onClick = { bean ->
+                        when (bean.name) {
+                            "探探滑卡" -> {
+                                navController.navigateToTanTanSwipeCardScreen()
+                            }
+                        }
+                    }
+                )
             }
+
+            composable(TanTanSwipeCardScreen.route) {
+                TanTanSwipeCardScreen.Screen(Modifier.fillMaxSize())
+            }
+
             composable(MineScreen.route) {
                 MineScreen.Screen(
                     modifier = Modifier.fillMaxSize(),
