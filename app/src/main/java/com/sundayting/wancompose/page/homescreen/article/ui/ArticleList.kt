@@ -55,10 +55,14 @@ import com.sundayting.wancompose.common.ui.infinitepager.currentPageInInfinitePa
 import com.sundayting.wancompose.common.ui.infinitepager.rememberInfiniteLoopPagerState
 import com.sundayting.wancompose.common.ui.ktx.onBottomReached
 import com.sundayting.wancompose.common.ui.title.TitleBarWithContent
+import com.sundayting.wancompose.page.homescreen.HomeScreen
 import com.sundayting.wancompose.page.homescreen.article.ArticleListViewModel
 import kotlinx.coroutines.delay
 
-object ArticleList {
+object ArticleList : HomeScreen.HomeScreenPage {
+
+    override val route: String
+        get() = "文章列表"
 
     @Stable
     class ArticleUiBean(

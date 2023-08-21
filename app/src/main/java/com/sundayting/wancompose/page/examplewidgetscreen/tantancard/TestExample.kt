@@ -1,4 +1,4 @@
-package com.sundayting.wancompose.page.examplewidget.tantancard
+package com.sundayting.wancompose.page.examplewidgetscreen.tantancard
 
 import com.sundayting.wancompose.R
 

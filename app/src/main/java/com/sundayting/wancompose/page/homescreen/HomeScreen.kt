@@ -29,6 +29,7 @@ import androidx.navigation.compose.navigation
 import com.sundayting.wancompose.LocalLoginUser
 import com.sundayting.wancompose.R
 import com.sundayting.wancompose.WanComposeDestination
+import com.sundayting.wancompose.page.examplewidgetscreen.ExampleWidgetScreen
 import com.sundayting.wancompose.page.homescreen.article.ui.ArticleList
 import com.sundayting.wancompose.page.homescreen.mine.MineScreen
 import com.sundayting.wancompose.page.webscreen.WebViewScreen.navigateToWebViewScreen
@@ -38,13 +39,7 @@ object HomeScreen : WanComposeDestination {
     override val route: String
         get() = "首页"
 
-    sealed class HomeScreenPage(
-        val route: String,
-    ) {
-
-        object ArticleList : HomeScreenPage("文章列表")
-        object Mine : HomeScreenPage("我的")
-
+    interface HomeScreenPage : WanComposeDestination {
 
         data class BottomItem(
             @DrawableRes val resId: Int,
@@ -58,12 +53,17 @@ object HomeScreen : WanComposeDestination {
         HomeScreenPage.BottomItem(
             resId = R.drawable.ic_home,
             titleId = R.string.bottom_tab_home,
-            page = HomeScreenPage.ArticleList
+            page = ArticleList
+        ),
+        HomeScreenPage.BottomItem(
+            resId = R.drawable.ic_example,
+            titleId = R.string.bottom_tab_example,
+            page = ExampleWidgetScreen
         ),
         HomeScreenPage.BottomItem(
             resId = R.drawable.ic_mine,
             titleId = R.string.bottom_tab_mine,
-            page = HomeScreenPage.Mine
+            page = MineScreen
         ),
     )
 
@@ -110,7 +110,7 @@ object HomeScreen : WanComposeDestination {
     ) {
         navigation(
             route = HomeScreen.route,
-            startDestination = HomeScreenPage.ArticleList.route,
+            startDestination = ArticleList.route,
             enterTransition = {
                 if (pageList.any { it.page.route == initialState.destination.route }) {
                     EnterTransition.None
@@ -126,7 +126,7 @@ object HomeScreen : WanComposeDestination {
                 }
             }
         ) {
-            composable(HomeScreenPage.ArticleList.route) {
+            composable(ArticleList.route) {
                 ArticleList.Screen(
                     modifier = Modifier.fillMaxSize(),
                     toWebLink = {
@@ -134,7 +134,10 @@ object HomeScreen : WanComposeDestination {
                     }
                 )
             }
-            composable(HomeScreenPage.Mine.route) {
+            composable(ExampleWidgetScreen.route) {
+                ExampleWidgetScreen.Screen(Modifier.fillMaxSize())
+            }
+            composable(MineScreen.route) {
                 MineScreen.Screen(
                     modifier = Modifier.fillMaxSize(),
                     userEntity = LocalLoginUser.current,

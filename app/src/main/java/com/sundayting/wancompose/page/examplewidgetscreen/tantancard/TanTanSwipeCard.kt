@@ -1,4 +1,4 @@
-package com.sundayting.wancompose.page.examplewidget.tantancard
+package com.sundayting.wancompose.page.examplewidgetscreen.tantancard
 
 import android.content.Context
 import android.content.Context.VIBRATOR_SERVICE

@@ -45,14 +45,14 @@ import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.sundayting.wancompose.R
-import com.sundayting.wancompose.WanComposeDestination
 import com.sundayting.wancompose.function.UserLoginFunction.UserEntity
+import com.sundayting.wancompose.page.homescreen.HomeScreen
 import com.sundayting.wancompose.page.setting.SettingScreen.navigateToSettingScreen
 import com.sundayting.wancompose.theme.WanColors
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.drop
 
-object MineScreen : WanComposeDestination {
+object MineScreen : HomeScreen.HomeScreenPage {
 
     override val route: String
         get() = "个人页"
