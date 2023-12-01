@@ -357,6 +357,10 @@ private fun ArticleListSingleBean(
             painter = painterResource(id = if (bean.isCollect) R.drawable.ic_like2 else R.drawable.ic_like),
             contentDescription = null,
             modifier = Modifier
+                .clickable(
+                    interactionSource = remember { MutableInteractionSource() },
+                    indication = rememberRipple(bounded = false)
+                ) { }
                 .padding(2.dp)
                 .size(20.dp)
                 .constrainAs(bottomEndContent) {
