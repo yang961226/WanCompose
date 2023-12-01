@@ -70,7 +70,7 @@ object HomeScreen : WanComposeDestination {
     )
 
     @Composable
-    fun Navigation(
+    fun WanBottomNavigation(
         navController: NavHostController,
         onClickBottom: (HomeScreenPage.BottomItem) -> Unit = {},
     ) {

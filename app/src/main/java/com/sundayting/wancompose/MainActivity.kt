@@ -25,6 +25,7 @@ import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -45,7 +46,6 @@ import com.sundayting.wancompose.common.event.EventManager
 import com.sundayting.wancompose.common.event.ToastEvent
 import com.sundayting.wancompose.function.UserLoginFunction.UserEntity
 import com.sundayting.wancompose.page.homescreen.HomeScreen
-import com.sundayting.wancompose.page.homescreen.article.ui.ArticleList
 import com.sundayting.wancompose.page.homescreen.mine.MineScreen
 import com.sundayting.wancompose.page.homescreen.mine.ui.LoginContent
 import com.sundayting.wancompose.page.setting.SettingScreen
@@ -163,17 +163,22 @@ fun WanComposeApp(
                     } == true
                 }
             }
-            LaunchedEffect(isLogin, isInPageNeedLogin) {
-                //如果当前不在主页而且在个人页的情况下，就会返回主页
-                if (!isLogin && isInPageNeedLogin) {
-                    navController.navigate(ArticleList.route) {
-                        popUpTo(
-                            navController.graph.findStartDestination().id
-                        ) {
-                            saveState = false
+            LaunchedEffect(Unit) {
+                snapshotFlow {
+                    isLogin to isInPageNeedLogin
+                }.collect {
+                    val isLoginInner = it.first
+                    val isInPageNeedLoginInner = it.second
+                    //如果当前不在主页而且在个人页的情况下，就会返回主页
+                    if (!isLoginInner && isInPageNeedLoginInner) {
+                        val startDestination = navController.graph.findStartDestination()
+                        navController.navigate(startDestination.route!!) {
+                            popUpTo(startDestination.id) {
+                                saveState = false
+                            }
+                            launchSingleTop = true
+                            restoreState = false
                         }
-                        launchSingleTop = true
-                        restoreState = false
                     }
                 }
             }
@@ -183,7 +188,7 @@ fun WanComposeApp(
                     .navigationBarsPadding(),
                 bottomBar = {
                     if (isInMainPage) {
-                        HomeScreen.Navigation(
+                        HomeScreen.WanBottomNavigation(
                             navController = navController,
                             onClickBottom = { bottomItem ->
 
