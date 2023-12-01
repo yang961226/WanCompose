@@ -5,9 +5,8 @@ import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.setContent
+import androidx.compose.animation.AnimatedContentTransitionScope
 import androidx.compose.animation.core.snap
-import androidx.compose.animation.slideInHorizontally
-import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.navigationBarsPadding
@@ -225,14 +224,16 @@ fun WanComposeApp(
                     modifier = Modifier.padding(it),
                     startDestination = HomeScreen.route,
                     navController = navController,
-                ) {
-                    with(HomeScreen) {
-                        homeNavGraph(navController)
+                    enterTransition = {
+                        slideIntoContainer(AnimatedContentTransitionScope.SlideDirection.Left)
+                    },
+                    exitTransition = {
+                        slideOutOfContainer(AnimatedContentTransitionScope.SlideDirection.Left)
                     }
+                ) {
+                    with(HomeScreen) { homeNavGraph(navController) }
                     composable(
                         route = SettingScreen.route,
-                        enterTransition = { slideInHorizontally { width -> width } },
-                        exitTransition = { slideOutHorizontally { width -> width } }
                     ) {
                         SettingScreen.Screen(
                             Modifier.fillMaxSize(),
@@ -243,8 +244,6 @@ fun WanComposeApp(
                     composable(
                         route = WebViewScreen.routeWithArgs,
                         arguments = WebViewScreen.arguments,
-                        enterTransition = { slideInHorizontally { width -> width } },
-                        exitTransition = { slideOutHorizontally { width -> width } }
                     ) { entry ->
                         WebViewScreen.Screen(
                             Modifier.fillMaxSize(),
