@@ -229,6 +229,12 @@ fun WanComposeApp(
                     },
                     exitTransition = {
                         slideOutOfContainer(AnimatedContentTransitionScope.SlideDirection.Left)
+                    },
+                    popEnterTransition = {
+                        slideIntoContainer(AnimatedContentTransitionScope.SlideDirection.Right)
+                    },
+                    popExitTransition = {
+                        slideOutOfContainer(AnimatedContentTransitionScope.SlideDirection.Right)
                     }
                 ) {
                     with(HomeScreen) { homeNavGraph(navController) }

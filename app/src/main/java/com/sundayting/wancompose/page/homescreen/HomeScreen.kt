@@ -2,10 +2,9 @@ package com.sundayting.wancompose.page.homescreen
 
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
+import androidx.compose.animation.AnimatedContentTransitionScope
 import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExitTransition
-import androidx.compose.animation.slideInHorizontally
-import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.BottomNavigation
@@ -21,6 +20,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.composable
@@ -107,26 +107,74 @@ object HomeScreen : WanComposeDestination {
         }
     }
 
+    /**
+     * 是否是首页的转移，即从首页的Tab转移到另外一个Tab
+     * @param startRoute 开始的路由
+     * @param targetRout 目的的路由
+     */
+    private fun isHomeTransition(startRoute: String?, targetRout: String?): Boolean {
+        val startInHome = pageList.any { item ->
+            item.page.route == startRoute
+        }
+        val targetInHome = pageList.any { item ->
+            item.page.route == targetRout
+        }
+        return startInHome && targetInHome
+    }
+
+    private val DEFAULT_ENTER_TRANSITION: (AnimatedContentTransitionScope<NavBackStackEntry>.() -> EnterTransition?) =
+        {
+            if (isHomeTransition(initialState.destination.route, targetState.destination.route)) {
+                EnterTransition.None
+            } else {
+                slideIntoContainer(
+                    towards = AnimatedContentTransitionScope.SlideDirection.Left,
+                )
+            }
+        }
+    private val DEFAULT_EXIT_TRANSITION: (AnimatedContentTransitionScope<NavBackStackEntry>.() -> ExitTransition?) =
+        {
+            if (isHomeTransition(initialState.destination.route, targetState.destination.route)) {
+                ExitTransition.None
+            } else {
+                slideOutOfContainer(
+                    towards = AnimatedContentTransitionScope.SlideDirection.Left,
+                )
+            }
+        }
+
+    private val DEFAULT_POP_ENTER_TRANSITION: (AnimatedContentTransitionScope<NavBackStackEntry>.() -> EnterTransition?) =
+        {
+            if (isHomeTransition(initialState.destination.route, targetState.destination.route)) {
+                EnterTransition.None
+            } else {
+                slideIntoContainer(
+                    towards = AnimatedContentTransitionScope.SlideDirection.Right,
+                )
+            }
+        }
+
+    private val DEFAULT_POP_EXIT_TRANSITION: (AnimatedContentTransitionScope<NavBackStackEntry>.() -> ExitTransition?) =
+        {
+            if (isHomeTransition(initialState.destination.route, targetState.destination.route)) {
+                ExitTransition.None
+            } else {
+                slideOutOfContainer(
+                    towards = AnimatedContentTransitionScope.SlideDirection.Right,
+                )
+            }
+        }
+
     fun NavGraphBuilder.homeNavGraph(
         navController: NavHostController,
     ) {
         navigation(
             route = HomeScreen.route,
             startDestination = ArticleList.route,
-            enterTransition = {
-                if (pageList.any { it.page.route == initialState.destination.route }) {
-                    EnterTransition.None
-                } else {
-                    slideInHorizontally { -it }
-                }
-            },
-            exitTransition = {
-                if (pageList.any { it.page.route == targetState.destination.route }) {
-                    ExitTransition.None
-                } else {
-                    slideOutHorizontally { -it }
-                }
-            }
+            enterTransition = DEFAULT_ENTER_TRANSITION,
+            exitTransition = DEFAULT_EXIT_TRANSITION,
+            popEnterTransition = DEFAULT_POP_ENTER_TRANSITION,
+            popExitTransition = DEFAULT_POP_EXIT_TRANSITION
         ) {
             composable(ArticleList.route) {
                 ArticleList.Screen(
