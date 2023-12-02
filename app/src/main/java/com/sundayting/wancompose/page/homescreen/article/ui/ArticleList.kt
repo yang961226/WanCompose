@@ -131,7 +131,10 @@ object ArticleList : HomeScreen.HomeScreenPage {
                     modifier = Modifier.matchParentSize(),
                     articleState = viewModel.state,
                     lazyListState = lazyListState,
-                    toWebLink = toWebLink
+                    toWebLink = toWebLink,
+                    onCollect = { id, isCollect ->
+                        viewModel.collectOrUnCollectArticle(id, isCollect)
+                    }
                 )
                 PullRefreshIndicator(
                     viewModel.state.refreshing,
@@ -152,6 +155,7 @@ private fun ArticleListContent(
     articleState: ArticleListViewModel.ArticleState,
     lazyListState: LazyListState = rememberLazyListState(),
     toWebLink: (url: String) -> Unit = {},
+    onCollect: ((id: Long, isCollect: Boolean) -> Unit)? = null,
 ) {
 
     val pagerState = rememberInfiniteLoopPagerState()
@@ -247,7 +251,8 @@ private fun ArticleListContent(
                         toWebLink(it.link)
                     }
                     .padding(10.dp),
-                bean = it
+                bean = it,
+                onCollect = onCollect
             )
             Divider(Modifier.fillMaxWidth())
         }
@@ -270,6 +275,7 @@ private fun ArticleListContent(
 private fun ArticleListSingleBean(
     modifier: Modifier = Modifier,
     bean: ArticleList.ArticleUiBean,
+    onCollect: ((id: Long, isCollect: Boolean) -> Unit)? = null,
 ) {
 
     ConstraintLayout(modifier) {
@@ -360,7 +366,7 @@ private fun ArticleListSingleBean(
                 .clickable(
                     interactionSource = remember { MutableInteractionSource() },
                     indication = rememberRipple(bounded = false)
-                ) { }
+                ) { onCollect?.invoke(bean.id, !bean.isCollect) }
                 .padding(2.dp)
                 .size(20.dp)
                 .constrainAs(bottomEndContent) {

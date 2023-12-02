@@ -7,6 +7,9 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.sundayting.wancompose.common.event.ArticleCollectChangeEvent
+import com.sundayting.wancompose.common.event.EventManager
+import com.sundayting.wancompose.common.event.emitToast
 import com.sundayting.wancompose.function.UserLoginFunction.VISITOR_ID
 import com.sundayting.wancompose.network.NetExceptionHandler
 import com.sundayting.wancompose.network.isSuccess
@@ -19,6 +22,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.async
+import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.joinAll
 import kotlinx.coroutines.launch
@@ -32,6 +36,14 @@ class ArticleListViewModel @Inject constructor(
 
     val state = ArticleState()
 
+    init {
+        viewModelScope.launch {
+            EventManager.eventFlow.filterIsInstance<ArticleCollectChangeEvent>().collect { event ->
+                val article = state.articleList.firstOrNull { it.id == event.id } ?: return@collect
+                article.isCollect = event.isCollect
+            }
+        }
+    }
 
     @Stable
     class ArticleState(
@@ -64,6 +76,22 @@ class ArticleListViewModel @Inject constructor(
             launch {
                 mineRepo.curUidFlow.collect {
                     refresh()
+                }
+            }
+        }
+    }
+
+    fun collectOrUnCollectArticle(id: Long, isCollect: Boolean) {
+        viewModelScope.launch {
+            if (isCollect) {
+                if (repo.collectArticle(id).isSuccess()) {
+                    EventManager.emitToast("文章收藏成功，稍后可以在「我的-我的收藏」中查看")
+                    EventManager.emitEvent(ArticleCollectChangeEvent(id, true))
+                }
+            } else {
+                if (repo.unCollectArticle(id).isSuccess()) {
+                    EventManager.emitToast("已取消文章收藏")
+                    EventManager.emitEvent(ArticleCollectChangeEvent(id, false))
                 }
             }
         }

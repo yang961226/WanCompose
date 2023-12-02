@@ -1,6 +1,5 @@
 package com.sundayting.wancompose
 
-import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.BackHandler
@@ -31,8 +30,9 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.core.view.WindowCompat
+import androidx.lifecycle.DefaultLifecycleObserver
+import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.compose.NavHost
@@ -57,25 +57,15 @@ import kotlinx.coroutines.launch
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        WindowCompat.setDecorFitsSystemWindows(window, false)
-        handleEvent()
-        setContent {
-            WanComposeApp()
-        }
-    }
-}
-
-private fun MainActivity.handleEvent() {
-    lifecycleScope.launch {
-        EventManager.eventFlow.filterIsInstance<ToastEvent>().collect {
-            Toast.makeText(
-                this@handleEvent,
-                it.content,
-                if (it.isLong) Toast.LENGTH_LONG else Toast.LENGTH_SHORT
-            ).show()
-        }
+    init {
+        lifecycle.addObserver(object : DefaultLifecycleObserver {
+            override fun onCreate(owner: LifecycleOwner) {
+                WindowCompat.setDecorFitsSystemWindows(window, false)
+                setContent {
+                    WanComposeApp()
+                }
+            }
+        })
     }
 }
 
@@ -92,6 +82,16 @@ val LocalLoginUser = staticCompositionLocalOf<UserEntity?> { null }
 fun WanComposeApp(
     viewModel: WanViewModel = viewModel(),
 ) {
+    val context = LocalContext.current
+    LaunchedEffect(context) {
+        EventManager.eventFlow.filterIsInstance<ToastEvent>().collect {
+            Toast.makeText(
+                context,
+                it.content,
+                if (it.isLong) Toast.LENGTH_LONG else Toast.LENGTH_SHORT
+            ).show()
+        }
+    }
 
     val loginUser by viewModel.curLoginUserFlow.collectAsStateWithLifecycle()
     val isLogin by remember {
@@ -109,7 +109,6 @@ fun WanComposeApp(
     rememberSystemUiController().apply {
         setStatusBarColor(Color.Transparent)
     }
-    val context = LocalContext.current
     LaunchedEffect(isLogin, context) {
         if (isLogin) {
             Toast.makeText(

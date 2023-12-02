@@ -34,3 +34,8 @@ class ToastEvent(
 ) : EventManager.Event
 
 object NeedLoginAgainEvent : EventManager.Event
+
+class ArticleCollectChangeEvent(
+    val id: Long,
+    val isCollect: Boolean,
+) : EventManager.Event

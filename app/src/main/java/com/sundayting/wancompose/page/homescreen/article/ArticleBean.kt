@@ -61,3 +61,10 @@ class ArticleResultBean(
     override val errorCode: Int,
     override val errorMsg: String,
 ) : WanNResult<ArticleListBean>()
+
+@Serializable
+class CollectResult(
+    override val data: Nothing?,
+    override val errorCode: Int,
+    override val errorMsg: String,
+) : WanNResult<Nothing?>()

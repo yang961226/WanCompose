@@ -4,8 +4,10 @@ import com.sundayting.wancompose.network.NResult
 import com.sundayting.wancompose.network.WanNResult
 import com.sundayting.wancompose.page.homescreen.article.ArticleBean
 import com.sundayting.wancompose.page.homescreen.article.ArticleResultBean
+import com.sundayting.wancompose.page.homescreen.article.CollectResult
 import com.sundayting.wancompose.page.homescreen.article.ui.ArticleList
 import de.jensklingenberg.ktorfit.http.GET
+import de.jensklingenberg.ktorfit.http.POST
 import de.jensklingenberg.ktorfit.http.Path
 import kotlinx.serialization.Serializable
 
@@ -17,6 +19,12 @@ interface HomePageService {
 
     @GET("article/list/{path}/json/")
     suspend fun fetchArticleList(@Path("path") page: Int): NResult<ArticleResultBean>
+
+    @POST("lg/collect/{id}/json/")
+    suspend fun collectArticle(@Path("id") id: Long): NResult<CollectResult>
+
+    @POST("lg/uncollect_originId/{id}/json")
+    suspend fun unCollectArticle(@Path("id") id: Long): NResult<CollectResult>
 
     @GET("article/top/json/")
     suspend fun fetchTopArticleList(): NResult<TopArticleResultBean>
