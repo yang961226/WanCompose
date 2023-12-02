@@ -1,5 +1,6 @@
 package com.sundayting.wancompose.page.homescreen.article.ui
 
+import androidx.compose.animation.Crossfade
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -359,23 +360,24 @@ private fun ArticleListSingleBean(
                 )
             )
         }
-        Image(
-            painter = painterResource(id = if (bean.isCollect) R.drawable.ic_like2 else R.drawable.ic_like),
-            contentDescription = null,
-            modifier = Modifier
-                .clickable(
-                    interactionSource = remember { MutableInteractionSource() },
-                    indication = rememberRipple(bounded = false)
-                ) { onCollect?.invoke(bean.id, !bean.isCollect) }
-                .padding(2.dp)
-                .size(20.dp)
-                .constrainAs(bottomEndContent) {
-                    end.linkTo(parent.end)
-                    bottom.linkTo(parent.bottom)
-                },
-            colorFilter = if (bean.isCollect) ColorFilter.tint(Color(0xFFe87045)) else null
-        )
-
+        Crossfade(targetState = bean.isCollect, label = "", modifier = Modifier
+            .constrainAs(bottomEndContent) {
+                end.linkTo(parent.end)
+                bottom.linkTo(parent.bottom)
+            }
+            .clickable(
+                interactionSource = remember { MutableInteractionSource() },
+                indication = rememberRipple(bounded = false)
+            ) { onCollect?.invoke(bean.id, !bean.isCollect) }) { isCollect ->
+            Image(
+                painter = painterResource(id = if (isCollect) R.drawable.ic_like2 else R.drawable.ic_like),
+                contentDescription = null,
+                modifier = Modifier
+                    .padding(2.dp)
+                    .size(20.dp),
+                colorFilter = if (isCollect) ColorFilter.tint(Color(0xFFe87045)) else null
+            )
+        }
     }
 
 }
