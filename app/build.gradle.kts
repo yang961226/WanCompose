@@ -7,7 +7,7 @@ plugins {
     id("org.jetbrains.kotlin.android")
     kotlin("kapt")
     id("com.google.dagger.hilt.android")
-    id("com.google.devtools.ksp") version "1.9.0-1.0.13"
+    id("com.google.devtools.ksp") version "1.9.20-1.0.14"
     kotlin("plugin.serialization") version ("1.9.20")
     id("com.google.protobuf")
     id("de.jensklingenberg.ktorfit") version "1.10.1"
