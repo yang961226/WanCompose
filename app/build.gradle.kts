@@ -10,11 +10,11 @@ plugins {
     id("com.google.devtools.ksp") version "1.9.0-1.0.13"
     kotlin("plugin.serialization") version ("1.9.0")
     id("com.google.protobuf")
-    id("de.jensklingenberg.ktorfit") version "1.0.0"
+    id("de.jensklingenberg.ktorfit") version "1.10.1"
 }
 
 configure<de.jensklingenberg.ktorfit.gradle.KtorfitGradleConfiguration> {
-    version = "1.5.0"
+    enabled = true
 }
 
 class RoomSchemaArgProvider(
@@ -84,7 +84,7 @@ android {
         compose = true
     }
     composeOptions {
-        kotlinCompilerExtensionVersion = "1.5.1"
+        kotlinCompilerExtensionVersion = "1.5.5"
     }
     packaging {
         resources {
@@ -164,11 +164,11 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.0")
     implementation("androidx.constraintlayout:constraintlayout-compose:1.0.1")
 
-    val ktorfitVersion = "1.5.0"
+    val ktorfitVersion = "1.10.2"
     implementation("de.jensklingenberg.ktorfit:ktorfit-lib:$ktorfitVersion")
     ksp("de.jensklingenberg.ktorfit:ktorfit-ksp:$ktorfitVersion")
 
-    val ktorVersion = "2.3.3"
+    val ktorVersion = "2.3.4"
     implementation("io.ktor:ktor-client-android:$ktorVersion")
     implementation("io.ktor:ktor-client-logging-jvm:$ktorVersion")
     implementation("io.ktor:ktor-client-content-negotiation:$ktorVersion")
