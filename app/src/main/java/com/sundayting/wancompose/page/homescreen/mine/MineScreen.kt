@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -47,6 +48,7 @@ import androidx.navigation.compose.rememberNavController
 import com.sundayting.wancompose.R
 import com.sundayting.wancompose.function.UserLoginFunction.UserEntity
 import com.sundayting.wancompose.page.homescreen.HomeScreen
+import com.sundayting.wancompose.page.homescreen.mine.point.PointScreen.navigationToPointScreen
 import com.sundayting.wancompose.page.setting.SettingScreen.navigateToSettingScreen
 import com.sundayting.wancompose.theme.WanColors
 import kotlinx.coroutines.flow.collectLatest
@@ -72,6 +74,7 @@ object MineScreen : HomeScreen.HomeScreenPage {
             ConstraintLayout(
                 Modifier
                     .fillMaxWidth()
+                    .height(230.dp)
                     .background(WanColors.TopColor)
                     .padding(top = 50.dp, bottom = 30.dp)
             ) {
@@ -160,6 +163,9 @@ object MineScreen : HomeScreen.HomeScreenPage {
                         text = (userEntity?.coinCount ?: 0).toString(),
                         style = TextStyle(fontSize = 14.sp, color = Color.Black.copy(0.5f))
                     )
+                },
+                onClick = {
+                    navController.navigationToPointScreen()
                 }
             )
             MineScreenSingleLine(

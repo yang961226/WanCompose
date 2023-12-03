@@ -26,13 +26,13 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.navigation
-import com.sundayting.wancompose.LocalLoginUser
 import com.sundayting.wancompose.R
 import com.sundayting.wancompose.WanComposeDestination
 import com.sundayting.wancompose.page.examplewidgetscreen.ExampleWidgetScreen
 import com.sundayting.wancompose.page.examplewidgetscreen.tantancard.TanTanSwipeCardScreen
 import com.sundayting.wancompose.page.examplewidgetscreen.tantancard.TanTanSwipeCardScreen.navigateToTanTanSwipeCardScreen
 import com.sundayting.wancompose.page.homescreen.article.ui.ArticleList
+import com.sundayting.wancompose.page.homescreen.mine.MineGraph
 import com.sundayting.wancompose.page.homescreen.mine.MineScreen
 import com.sundayting.wancompose.page.webscreen.WebViewScreen.navigateToWebViewScreen
 
@@ -202,12 +202,8 @@ object HomeScreen : WanComposeDestination {
                 TanTanSwipeCardScreen.Screen(Modifier.fillMaxSize())
             }
 
-            composable(MineScreen.route) {
-                MineScreen.Screen(
-                    modifier = Modifier.fillMaxSize(),
-                    userEntity = LocalLoginUser.current,
-                    navController = navController
-                )
+            with(MineGraph) {
+                graph(navController)
             }
         }
     }
