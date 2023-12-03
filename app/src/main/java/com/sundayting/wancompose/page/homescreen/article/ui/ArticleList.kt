@@ -27,6 +27,7 @@ import androidx.compose.material.ripple.rememberRipple
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.Stable
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -160,90 +161,99 @@ private fun ArticleListContent(
 ) {
 
     val pagerState = rememberInfiniteLoopPagerState()
+    val showBanner by remember {
+        derivedStateOf {
+            articleState.bannerList.isNotEmpty()
+        }
+    }
     LazyColumn(modifier, state = lazyListState) {
-        item {
-            val isDragging by pagerState.interactionSource.collectIsDraggedAsState()
-            LaunchedEffect(isDragging) {
-                if (!isDragging) {
-                    while (true) {
-                        delay(3000L)
-                        pagerState.animateScrollToPage(pagerState.currentPage + 1)
+        if (showBanner) {
+            item(key = "Banner") {
+                val isDragging by pagerState.interactionSource.collectIsDraggedAsState()
+                LaunchedEffect(isDragging) {
+                    if (!isDragging) {
+                        while (true) {
+                            delay(3000L)
+                            pagerState.animateScrollToPage(pagerState.currentPage + 1)
+                        }
                     }
-                }
-            }
-
-            Box(
-                Modifier
-                    .fillMaxWidth()
-                    .aspectRatio(2f / 1f)
-            ) {
-
-                var curTitle by remember { mutableStateOf<String?>(null) }
-
-                LaunchedEffect(Unit) {
-                    pagerState.scrollToPage(Int.MAX_VALUE / 2)
-                    snapshotFlow { pagerState.currentPageInInfinitePage(articleState.bannerList.size) }.collect {
-                        curTitle = articleState.bannerList.getOrNull(it)?.title
-                    }
-                }
-
-                InfiniteLoopHorizontalPager(
-                    modifier = Modifier.matchParentSize(),
-                    realPageCount = articleState.bannerList.size,
-                    state = pagerState
-                ) {
-                    val banner = articleState.bannerList.getOrNull(it)
-                    if (banner != null) {
-                        AsyncImage(
-                            modifier = Modifier
-                                .fillMaxSize()
-                                .clickable(
-                                    interactionSource = remember { MutableInteractionSource() },
-                                    indication = rememberRipple()
-                                ) {
-                                    val clickedBanner =
-                                        articleState.bannerList[pagerState.currentPageInInfinitePage(
-                                            articleState.bannerList.size
-                                        )]
-                                    toWebLink(clickedBanner.linkUrl)
-                                },
-                            model = ImageRequest
-                                .Builder(LocalContext.current)
-                                .diskCachePolicy(CachePolicy.ENABLED)
-                                .crossfade(true)
-                                .data(banner.imgUrl)
-                                .build(),
-                            contentDescription = null,
-                            contentScale = ContentScale.Crop
-                        )
-                    }
-
                 }
 
                 Box(
                     Modifier
-                        .align(Alignment.BottomCenter)
-                        .background(Color.Black.copy(0.2f))
-                        .padding(vertical = 2.dp, horizontal = 5.dp)
+                        .animateItemPlacement()
                         .fillMaxWidth()
+                        .aspectRatio(2f / 1f)
                 ) {
-                    Text(
-                        text = curTitle.orEmpty(),
-                        style = TextStyle(
-                            fontSize = 14.sp,
-                            color = Color.White
-                        ),
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis,
-                        modifier = Modifier.fillMaxWidth(0.5f)
-                    )
-                }
-            }
 
+                    var curTitle by remember { mutableStateOf<String?>(null) }
+
+                    LaunchedEffect(Unit) {
+                        pagerState.scrollToPage(Int.MAX_VALUE / 2)
+                        snapshotFlow { pagerState.currentPageInInfinitePage(articleState.bannerList.size) }.collect {
+                            curTitle = articleState.bannerList.getOrNull(it)?.title
+                        }
+                    }
+
+                    InfiniteLoopHorizontalPager(
+                        modifier = Modifier.matchParentSize(),
+                        realPageCount = articleState.bannerList.size,
+                        state = pagerState
+                    ) {
+                        val banner = articleState.bannerList.getOrNull(it)
+                        if (banner != null) {
+                            AsyncImage(
+                                modifier = Modifier
+                                    .fillMaxSize()
+                                    .clickable(
+                                        interactionSource = remember { MutableInteractionSource() },
+                                        indication = rememberRipple()
+                                    ) {
+                                        val clickedBanner =
+                                            articleState.bannerList[pagerState.currentPageInInfinitePage(
+                                                articleState.bannerList.size
+                                            )]
+                                        toWebLink(clickedBanner.linkUrl)
+                                    },
+                                model = ImageRequest
+                                    .Builder(LocalContext.current)
+                                    .diskCachePolicy(CachePolicy.ENABLED)
+                                    .crossfade(true)
+                                    .data(banner.imgUrl)
+                                    .build(),
+                                contentDescription = null,
+                                contentScale = ContentScale.Crop
+                            )
+                        }
+
+                    }
+
+                    Box(
+                        Modifier
+                            .align(Alignment.BottomCenter)
+                            .background(Color.Black.copy(0.2f))
+                            .padding(vertical = 2.dp, horizontal = 5.dp)
+                            .fillMaxWidth()
+                    ) {
+                        Text(
+                            text = curTitle.orEmpty(),
+                            style = TextStyle(
+                                fontSize = 14.sp,
+                                color = Color.White
+                            ),
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis,
+                            modifier = Modifier.fillMaxWidth(0.5f)
+                        )
+                    }
+                }
+
+            }
         }
         items(articleState.articleList, key = { it.id }) {
             ArticleListSingleBean(
                 modifier = Modifier
+                    .animateItemPlacement()
                     .fillMaxWidth()
                     .clickable(
                         interactionSource = remember { MutableInteractionSource() },

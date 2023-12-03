@@ -42,6 +42,7 @@ import androidx.navigation.compose.rememberNavController
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import com.google.accompanist.web.rememberWebViewState
 import com.sundayting.wancompose.common.event.EventManager
+import com.sundayting.wancompose.common.event.ShowLoginPageEvent
 import com.sundayting.wancompose.common.event.ToastEvent
 import com.sundayting.wancompose.function.UserLoginFunction.UserEntity
 import com.sundayting.wancompose.page.homescreen.HomeScreen
@@ -123,6 +124,14 @@ fun WanComposeApp(
     CompositionLocalProvider(
         LocalLoginUser provides loginUser,
     ) {
+        LaunchedEffect(Unit) {
+            EventManager
+                .eventFlow
+                .filterIsInstance<ShowLoginPageEvent>()
+                .collect {
+                    modalSheetState.show()
+                }
+        }
         ModalBottomSheetLayout(
             sheetState = modalSheetState,
             sheetShape = RoundedCornerShape(topStart = 12.dp, topEnd = 12.dp),

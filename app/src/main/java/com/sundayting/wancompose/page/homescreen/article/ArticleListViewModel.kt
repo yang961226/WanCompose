@@ -9,6 +9,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.sundayting.wancompose.common.event.ArticleCollectChangeEvent
 import com.sundayting.wancompose.common.event.EventManager
+import com.sundayting.wancompose.common.event.ShowLoginPageEvent
 import com.sundayting.wancompose.common.event.emitToast
 import com.sundayting.wancompose.function.UserLoginFunction.VISITOR_ID
 import com.sundayting.wancompose.network.NetExceptionHandler
@@ -82,6 +83,10 @@ class ArticleListViewModel @Inject constructor(
     }
 
     fun collectOrUnCollectArticle(id: Long, isCollect: Boolean) {
+        if (mineRepo.curUserFlow.value == null) {
+            EventManager.emitEvent(ShowLoginPageEvent)
+            return
+        }
         viewModelScope.launch {
             if (isCollect) {
                 if (repo.collectArticle(id).isSuccess()) {
