@@ -153,7 +153,14 @@ object MineScreen : HomeScreen.HomeScreenPage {
             }
             MineScreenSingleLine(
                 title = stringResource(id = R.string.my_points),
-                resId = R.drawable.ic_point
+                resId = R.drawable.ic_point,
+                endContent = {
+                    Text(
+                        modifier = Modifier.padding(end = 10.dp),
+                        text = (userEntity?.coinCount ?: 0).toString(),
+                        style = TextStyle(fontSize = 14.sp, color = Color.Black.copy(0.5f))
+                    )
+                }
             )
             MineScreenSingleLine(
                 title = stringResource(id = R.string.my_share),
