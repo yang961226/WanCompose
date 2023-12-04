@@ -1,5 +1,6 @@
 package com.sundayting.wancompose.page.webscreen
 
+import android.annotation.SuppressLint
 import android.content.Intent
 import android.net.Uri
 import android.webkit.WebResourceRequest
@@ -92,6 +93,7 @@ object WebViewScreen : WanComposeDestination {
     }
 
 
+    @SuppressLint("SetJavaScriptEnabled")
     @Composable
     fun Screen(
         modifier: Modifier = Modifier,
@@ -121,6 +123,11 @@ object WebViewScreen : WanComposeDestination {
                         .constrainAs(webViewContent) {
                             centerTo(parent)
                         },
+                    factory = {
+                        WebView(it).apply {
+                            settings.javaScriptEnabled = true
+                        }
+                    },
                     state = webViewState,
                     client = object : AccompanistWebViewClient() {
                         override fun shouldOverrideUrlLoading(
@@ -172,7 +179,7 @@ object WebViewScreen : WanComposeDestination {
                     },
                     onClickShare = {
 
-                    }
+                    },
                 )
 
             }
