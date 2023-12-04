@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -111,6 +112,9 @@ object PointScreen : WanComposeDestination {
             Column(Modifier.fillMaxSize()) {
                 val number = remember { Animatable(0f) }
                 val loginUser = LocalLoginUser.current
+                val listIsEmpty by remember {
+                    derivedStateOf { state.pointRecordList.isEmpty() }
+                }
                 LaunchedEffect(Unit) {
                     snapshotFlow { loginUser?.coinCount ?: 0 }.map { it.toFloat() }.collect {
                         number.animateTo(it, animationSpec = tween(1000))
@@ -128,41 +132,58 @@ object PointScreen : WanComposeDestination {
                         modifier = Modifier.align(Alignment.Center)
                     )
                 }
-                val lazyColumnState = rememberLazyListState()
-                lazyColumnState.onBottomReached {
-                    onLoadMore()
-                }
-                LazyColumn(
-                    modifier = modifier
+                Box(
+                    Modifier
                         .fillMaxSize()
-                        .weight(1f, false),
-                    state = lazyColumnState,
-                    contentPadding = PaddingValues(bottom = 10.dp)
+                        .weight(1f, false)
                 ) {
-                    items(state.pointRecordList, key = { it.id }, contentType = { 1 }) { record ->
-                        PointRecordContent(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .animateItemPlacement(),
-                            state = record
-                        )
-                        Divider(Modifier.fillMaxWidth())
+                    val lazyColumnState = rememberLazyListState()
+                    lazyColumnState.onBottomReached {
+                        onLoadMore()
                     }
-                    if (state.isLoading && state.pointRecordList.isNotEmpty()) {
-                        item {
-                            Box(
-                                Modifier
+                    LazyColumn(
+                        modifier = Modifier
+                            .fillMaxSize(),
+                        state = lazyColumnState,
+                        contentPadding = PaddingValues(bottom = 10.dp)
+                    ) {
+                        items(
+                            state.pointRecordList,
+                            key = { it.id },
+                            contentType = { 1 }) { record ->
+                            PointRecordContent(
+                                modifier = Modifier
                                     .fillMaxWidth()
-                                    .padding(vertical = 10.dp),
-                                contentAlignment = Alignment.Center
-                            ) {
-                                CircularProgressIndicator(
-                                    color = WanColors.TopColor
-                                )
+                                    .animateItemPlacement(),
+                                state = record
+                            )
+                            Divider(Modifier.fillMaxWidth())
+                        }
+                        if (state.isLoading && listIsEmpty.not()) {
+                            item {
+                                Box(
+                                    Modifier
+                                        .fillMaxWidth()
+                                        .padding(vertical = 10.dp),
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    CircularProgressIndicator(
+                                        color = WanColors.TopColor
+                                    )
+                                }
                             }
                         }
                     }
+
+                    if (state.isLoading && listIsEmpty)
+                        Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                            CircularProgressIndicator(
+                                modifier = Modifier.size(50.dp),
+                                color = WanColors.TopColor
+                            )
+                        }
                 }
+
             }
         }
     }
