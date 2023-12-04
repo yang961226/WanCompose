@@ -6,6 +6,9 @@ import androidx.compose.animation.AnimatedContentTransitionScope
 import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExitTransition
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBarsPadding
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.BottomNavigation
 import androidx.compose.material.BottomNavigationItem
@@ -82,6 +85,7 @@ object HomeScreen : WanComposeDestination {
             }
         }
         BottomNavigation(
+            modifier = Modifier.height(70.dp),
             backgroundColor = Color.White,
         ) {
             pageList.forEach { bottomItem ->
@@ -96,11 +100,16 @@ object HomeScreen : WanComposeDestination {
                         Icon(
                             painter = painterResource(id = bottomItem.resId),
                             contentDescription = null,
-                            modifier = Modifier.size(25.dp)
+                            modifier = Modifier
+                                .size(25.dp)
+                                .padding(bottom = 5.dp)
                         )
                     },
                     label = {
-                        Text(stringResource(id = bottomItem.titleId))
+                        Text(
+                            modifier = Modifier.navigationBarsPadding(),
+                            text = stringResource(id = bottomItem.titleId)
+                        )
                     }
                 )
             }

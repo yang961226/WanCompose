@@ -8,7 +8,6 @@ import androidx.compose.animation.AnimatedContentTransitionScope
 import androidx.compose.animation.core.snap
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -62,6 +61,7 @@ class MainActivity : ComponentActivity() {
         lifecycle.addObserver(object : DefaultLifecycleObserver {
             override fun onCreate(owner: LifecycleOwner) {
                 WindowCompat.setDecorFitsSystemWindows(window, false)
+                window.navigationBarColor = android.graphics.Color.TRANSPARENT
                 setContent {
                     WanComposeApp()
                 }
@@ -191,8 +191,7 @@ fun WanComposeApp(
             }
 
             Scaffold(
-                modifier = Modifier
-                    .navigationBarsPadding(),
+                modifier = Modifier,
                 bottomBar = {
                     if (isInMainPage) {
                         HomeScreen.WanBottomNavigation(

@@ -25,6 +25,7 @@ import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -34,9 +35,9 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.navigation.NavController
+import com.sundayting.wancompose.LocalLoginUser
 import com.sundayting.wancompose.R
 import com.sundayting.wancompose.WanComposeDestination
 import com.sundayting.wancompose.common.ui.title.TitleBarProperties
@@ -45,6 +46,7 @@ import com.sundayting.wancompose.common.ui.title.TitleBarWithContent
 import com.sundayting.wancompose.page.homescreen.mine.point.PointScreen.PointRecordContent
 import com.sundayting.wancompose.theme.WanColors
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.map
 import java.text.SimpleDateFormat
 import java.util.Date
 import javax.inject.Inject
@@ -61,23 +63,13 @@ object PointScreen : WanComposeDestination {
         get() = "积分页面"
 
     @HiltViewModel
-    class MyPointViewModel @Inject constructor(
-        savedStateHandle: SavedStateHandle,
-    ) : ViewModel() {
+    class MyPointViewModel @Inject constructor() : ViewModel() {
 
-        companion object {
-
-            const val TOTAL_POINT_KEY = "总积分"
-
-        }
-
-        val state = PointState(savedStateHandle[TOTAL_POINT_KEY] ?: 0)
+        val state = PointState()
     }
 
     @Stable
-    class PointState(
-        val point: Int,
-    ) {
+    class PointState {
         private val _pointRecordList = mutableStateListOf<GetPointRecord>()
         val pointRecordList: List<GetPointRecord> = _pointRecordList
 
@@ -119,8 +111,11 @@ object PointScreen : WanComposeDestination {
         ) {
             Column(Modifier.fillMaxSize()) {
                 val number = remember { Animatable(0f) }
-                LaunchedEffect(state) {
-                    number.animateTo(state.point.toFloat(), animationSpec = tween(1000))
+                val loginUser = LocalLoginUser.current
+                LaunchedEffect(Unit) {
+                    snapshotFlow { loginUser?.coinCount ?: 0 }.map { it.toFloat() }.collect {
+                        number.animateTo(it, animationSpec = tween(1000))
+                    }
                 }
                 Box(
                     Modifier
@@ -237,9 +232,7 @@ private fun PreviewPointRecordContent() {
 @Preview(showBackground = true)
 private fun PreviewPointContent() {
     val state = remember {
-        PointScreen.PointState(
-            point = 52
-        ).apply {
+        PointScreen.PointState().apply {
             addRecord((0..100).map {
                 PointScreen.GetPointRecord(
                     title = "我是第${it}个",
