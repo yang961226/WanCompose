@@ -3,7 +3,9 @@ package com.sundayting.wancompose.page.webscreen
 import android.annotation.SuppressLint
 import android.content.Intent
 import android.net.Uri
+import android.webkit.CookieManager
 import android.webkit.WebResourceRequest
+import android.webkit.WebSettings
 import android.webkit.WebView
 import androidx.annotation.DrawableRes
 import androidx.compose.animation.AnimatedVisibility
@@ -124,8 +126,18 @@ object WebViewScreen : WanComposeDestination {
                             centerTo(parent)
                         },
                     factory = {
-                        WebView(it).apply {
-                            settings.javaScriptEnabled = true
+                        WebView(it).also { webView ->
+                            webView.settings.apply {
+                                javaScriptEnabled = true
+                                javaScriptCanOpenWindowsAutomatically = false
+                                allowFileAccess = true
+                                domStorageEnabled = true
+                                setGeolocationEnabled(true)
+                                cacheMode = WebSettings.LOAD_DEFAULT
+                                mixedContentMode = WebSettings.MIXED_CONTENT_ALWAYS_ALLOW
+                                CookieManager.getInstance()
+                                    .setAcceptThirdPartyCookies(webView, true);
+                            }
                         }
                     },
                     state = webViewState,
