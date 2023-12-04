@@ -59,6 +59,7 @@ import com.sundayting.wancompose.common.ui.ktx.onBottomReached
 import com.sundayting.wancompose.common.ui.title.TitleBarWithContent
 import com.sundayting.wancompose.page.homescreen.HomeScreen
 import com.sundayting.wancompose.page.homescreen.article.ArticleListViewModel
+import com.sundayting.wancompose.theme.WanColors
 import kotlinx.coroutines.delay
 
 object ArticleList : HomeScreen.HomeScreenPage {
@@ -275,7 +276,9 @@ private fun ArticleListContent(
                         .padding(vertical = 10.dp),
                     contentAlignment = Alignment.Center
                 ) {
-                    CircularProgressIndicator()
+                    CircularProgressIndicator(
+                        color = WanColors.TopColor
+                    )
                 }
             }
         }

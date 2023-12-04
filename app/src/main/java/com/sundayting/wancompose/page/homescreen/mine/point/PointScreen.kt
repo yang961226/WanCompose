@@ -6,6 +6,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -13,6 +14,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.Divider
 import androidx.compose.material.Text
@@ -35,21 +37,20 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.ViewModel
 import androidx.navigation.NavController
 import com.sundayting.wancompose.LocalLoginUser
 import com.sundayting.wancompose.R
 import com.sundayting.wancompose.WanComposeDestination
+import com.sundayting.wancompose.common.ui.ktx.onBottomReached
 import com.sundayting.wancompose.common.ui.title.TitleBarProperties
 import com.sundayting.wancompose.common.ui.title.TitleBarWithBackButtonContent
 import com.sundayting.wancompose.common.ui.title.TitleBarWithContent
 import com.sundayting.wancompose.page.homescreen.mine.point.PointScreen.PointRecordContent
+import com.sundayting.wancompose.page.homescreen.mine.point.repo.PointViewModel
 import com.sundayting.wancompose.theme.WanColors
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.map
 import java.text.SimpleDateFormat
 import java.util.Date
-import javax.inject.Inject
 
 object PointScreen : WanComposeDestination {
 
@@ -62,12 +63,6 @@ object PointScreen : WanComposeDestination {
     override val route: String
         get() = "积分页面"
 
-    @HiltViewModel
-    class MyPointViewModel @Inject constructor() : ViewModel() {
-
-        val state = PointState()
-    }
-
     @Stable
     class PointState {
         private val _pointRecordList = mutableStateListOf<GetPointRecord>()
@@ -78,9 +73,12 @@ object PointScreen : WanComposeDestination {
         }
 
         var isLoading by mutableStateOf(false)
+
+        var canLoadMore by mutableStateOf(true)
     }
 
     data class GetPointRecord(
+        val id: Int,
         val title: String,
         val date: Long,
         val points: Int,
@@ -91,6 +89,7 @@ object PointScreen : WanComposeDestination {
         modifier: Modifier = Modifier,
         state: PointState,
         onClickBackButton: () -> Unit,
+        onLoadMore: () -> Unit,
     ) {
         TitleBarWithContent(
             modifier,
@@ -129,12 +128,18 @@ object PointScreen : WanComposeDestination {
                         modifier = Modifier.align(Alignment.Center)
                     )
                 }
+                val lazyColumnState = rememberLazyListState()
+                lazyColumnState.onBottomReached {
+                    onLoadMore()
+                }
                 LazyColumn(
-                    modifier
+                    modifier = modifier
                         .fillMaxSize()
                         .weight(1f, false),
+                    state = lazyColumnState,
+                    contentPadding = PaddingValues(bottom = 10.dp)
                 ) {
-                    items(state.pointRecordList, key = { it.date }, contentType = { 1 }) { record ->
+                    items(state.pointRecordList, key = { it.id }, contentType = { 1 }) { record ->
                         PointRecordContent(
                             modifier = Modifier
                                 .fillMaxWidth()
@@ -143,7 +148,7 @@ object PointScreen : WanComposeDestination {
                         )
                         Divider(Modifier.fillMaxWidth())
                     }
-                    if (state.isLoading) {
+                    if (state.isLoading && state.pointRecordList.isNotEmpty()) {
                         item {
                             Box(
                                 Modifier
@@ -151,7 +156,9 @@ object PointScreen : WanComposeDestination {
                                     .padding(vertical = 10.dp),
                                 contentAlignment = Alignment.Center
                             ) {
-                                CircularProgressIndicator()
+                                CircularProgressIndicator(
+                                    color = WanColors.TopColor
+                                )
                             }
                         }
                     }
@@ -163,13 +170,14 @@ object PointScreen : WanComposeDestination {
     @Composable
     fun Screen(
         modifier: Modifier = Modifier,
-        viewModel: MyPointViewModel = hiltViewModel(),
+        viewModel: PointViewModel = hiltViewModel(),
         onClickBackButton: () -> Unit,
     ) {
         Content(
             modifier,
             state = viewModel.state,
-            onClickBackButton = onClickBackButton
+            onClickBackButton = onClickBackButton,
+            onLoadMore = viewModel::loadMore
         )
     }
 
@@ -221,6 +229,7 @@ private fun PreviewPointRecordContent() {
     PointRecordContent(
         modifier = Modifier.fillMaxWidth(),
         state = PointScreen.GetPointRecord(
+            id = 1,
             title = "签名积分12+2",
             date = System.currentTimeMillis(),
             points = 100
@@ -235,6 +244,7 @@ private fun PreviewPointContent() {
         PointScreen.PointState().apply {
             addRecord((0..100).map {
                 PointScreen.GetPointRecord(
+                    id = it,
                     title = "我是第${it}个",
                     date = System.currentTimeMillis() + it,
                     points = 100
@@ -245,6 +255,7 @@ private fun PreviewPointContent() {
     PointScreen.Content(
         modifier = Modifier.fillMaxSize(),
         state = state,
-        onClickBackButton = {}
+        onClickBackButton = {},
+        onLoadMore = {}
     )
 }

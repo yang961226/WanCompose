@@ -21,7 +21,6 @@ import com.sundayting.wancompose.page.homescreen.article.ui.ArticleList
 import com.sundayting.wancompose.page.homescreen.mine.repo.MineRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.flow.firstOrNull
@@ -114,17 +113,16 @@ class ArticleListViewModel @Inject constructor(
     private var loadJob: Job? = null
 
     private fun load(isRefresh: Boolean) {
-        if (isRefresh.not() && loadJob?.isActive == true) {
+        if (loadJob?.isActive == true) {
             return
         }
-        loadJob?.cancel()
         if (isRefresh) {
             curPage = 0
             state.refreshing = true
         } else {
             state.loadingMore = true
         }
-        loadJob = viewModelScope.launch(NetExceptionHandler + SupervisorJob()) {
+        loadJob = viewModelScope.launch(NetExceptionHandler) {
             joinAll(
                 launch {
                     if (isRefresh) {

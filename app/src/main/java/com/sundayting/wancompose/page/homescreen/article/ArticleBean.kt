@@ -3,6 +3,7 @@ package com.sundayting.wancompose.page.homescreen.article
 
 import androidx.room.Entity
 import com.sundayting.wancompose.function.UserLoginFunction.VISITOR_ID
+import com.sundayting.wancompose.network.WanEmptyNResult
 import com.sundayting.wancompose.network.WanNResult
 import com.sundayting.wancompose.page.homescreen.article.ui.ArticleList
 import kotlinx.serialization.SerialName
@@ -64,7 +65,7 @@ class ArticleResultBean(
 
 @Serializable
 class CollectResult(
-    override val data: Nothing?,
+    override val data: WanEmptyNResult?,
     override val errorCode: Int,
     override val errorMsg: String,
-) : WanNResult<Nothing?>()
+) : WanNResult<WanEmptyNResult?>()

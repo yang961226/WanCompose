@@ -1,6 +1,7 @@
 package com.sundayting.wancompose
 
 import com.sundayting.wancompose.page.homescreen.article.repo.HomePageService
+import com.sundayting.wancompose.page.homescreen.mine.point.repo.PointService
 import com.sundayting.wancompose.page.homescreen.mine.repo.UserService
 import dagger.Module
 import dagger.Provides
@@ -23,6 +24,13 @@ object CommonModule {
     fun provideUserService(
         ktorfit: Ktorfit,
     ): UserService {
+        return ktorfit.create()
+    }
+
+    @Provides
+    fun providePointService(
+        ktorfit: Ktorfit,
+    ): PointService {
         return ktorfit.create()
     }
 
