@@ -1,6 +1,7 @@
 package com.sundayting.wancompose.page.homescreen.article.repo
 
 import com.sundayting.wancompose.network.NResult
+import com.sundayting.wancompose.network.WanEmptyNResult
 import com.sundayting.wancompose.network.WanNResult
 import com.sundayting.wancompose.page.homescreen.article.ArticleBean
 import com.sundayting.wancompose.page.homescreen.article.ArticleResultBean
@@ -12,7 +13,7 @@ import de.jensklingenberg.ktorfit.http.Path
 import kotlinx.serialization.Serializable
 
 
-interface HomePageService {
+interface ArticleService {
 
     @GET("banner/json/")
     suspend fun fetchBanner(): NResult<HomePageBannerResultBean>
@@ -28,6 +29,9 @@ interface HomePageService {
 
     @GET("article/top/json/")
     suspend fun fetchTopArticleList(): NResult<TopArticleResultBean>
+
+    @GET("lg/collect/list/{page}/json")
+    suspend fun fetchCollectedArticle(@Path("page") page: Int): NResult<WanEmptyNResult>
 
 }
 

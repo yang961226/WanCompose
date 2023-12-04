@@ -55,7 +55,7 @@ import java.util.Date
 
 object PointScreen : WanComposeDestination {
 
-    fun NavController.navigationToPointScreen() {
+    fun NavController.navigateToPointScreen() {
         navigate(route) {
             launchSingleTop = true
         }

@@ -48,7 +48,8 @@ import androidx.navigation.compose.rememberNavController
 import com.sundayting.wancompose.R
 import com.sundayting.wancompose.function.UserLoginFunction.UserEntity
 import com.sundayting.wancompose.page.homescreen.HomeScreen
-import com.sundayting.wancompose.page.homescreen.mine.point.PointScreen.navigationToPointScreen
+import com.sundayting.wancompose.page.homescreen.mine.point.PointScreen.navigateToPointScreen
+import com.sundayting.wancompose.page.homescreen.mine.share.MyShareArticleScreen.navigateToMyShareScreen
 import com.sundayting.wancompose.page.setting.SettingScreen.navigateToSettingScreen
 import com.sundayting.wancompose.theme.WanColors
 import kotlinx.coroutines.flow.collectLatest
@@ -165,12 +166,15 @@ object MineScreen : HomeScreen.HomeScreenPage {
                     )
                 },
                 onClick = {
-                    navController.navigationToPointScreen()
+                    navController.navigateToPointScreen()
                 }
             )
             MineScreenSingleLine(
                 title = stringResource(id = R.string.my_share),
-                resId = R.drawable.ic_share
+                resId = R.drawable.ic_share,
+                onClick = {
+                    navController.navigateToMyShareScreen()
+                }
             )
             MineScreenSingleLine(
                 title = stringResource(id = R.string.my_collect),

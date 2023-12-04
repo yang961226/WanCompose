@@ -9,6 +9,7 @@ import androidx.navigation.navigation
 import com.sundayting.wancompose.LocalLoginUser
 import com.sundayting.wancompose.WanComposeDestination
 import com.sundayting.wancompose.page.homescreen.mine.point.PointScreen
+import com.sundayting.wancompose.page.homescreen.mine.share.MyShareArticleScreen
 
 object MineGraph : WanComposeDestination {
     override val route: String
@@ -31,9 +32,13 @@ object MineGraph : WanComposeDestination {
             composable(PointScreen.route) {
                 PointScreen.Screen(
                     modifier = Modifier.fillMaxSize(),
-                    onClickBackButton = {
-                        navController.popBackStack()
-                    }
+                    onClickBackButton = navController::popBackStack
+                )
+            }
+            composable(MyShareArticleScreen.route) {
+                MyShareArticleScreen.Screen(
+                    modifier = Modifier.fillMaxSize(),
+                    onClickBackButton = navController::popBackStack
                 )
             }
         }

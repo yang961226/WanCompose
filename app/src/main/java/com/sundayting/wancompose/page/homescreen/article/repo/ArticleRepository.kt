@@ -8,17 +8,17 @@ import javax.inject.Singleton
 
 @Singleton
 class ArticleRepository @Inject constructor(
-    private val homePageService: HomePageService,
+    private val articleService: ArticleService,
     private val wanDatabase: WanDatabase,
 ) {
 
-    suspend fun fetchHomePageTopArticle() = homePageService.fetchTopArticleList()
+    suspend fun fetchHomePageTopArticle() = articleService.fetchTopArticleList()
 
-    suspend fun fetchHomePageArticle(page: Int) = homePageService.fetchArticleList(page)
-    suspend fun fetchHomePageBanner() = homePageService.fetchBanner()
+    suspend fun fetchHomePageArticle(page: Int) = articleService.fetchArticleList(page)
+    suspend fun fetchHomePageBanner() = articleService.fetchBanner()
 
-    suspend fun collectArticle(id: Long) = homePageService.collectArticle(id)
-    suspend fun unCollectArticle(id: Long) = homePageService.unCollectArticle(id)
+    suspend fun collectArticle(id: Long) = articleService.collectArticle(id)
+    suspend fun unCollectArticle(id: Long) = articleService.unCollectArticle(id)
 
     suspend fun insertArticles(articleList: List<ArticleBean>) =
         wanDatabase.articleDao().insertArticles(articleList)
