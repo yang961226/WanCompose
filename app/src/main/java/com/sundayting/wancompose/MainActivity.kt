@@ -110,14 +110,12 @@ fun WanComposeApp(
     rememberSystemUiController().apply {
         setStatusBarColor(Color.Transparent)
     }
-    LaunchedEffect(isLogin, context) {
-        if (isLogin) {
-            Toast.makeText(
-                context,
-                context.getString(R.string.welcome_back_tip, loginUser?.nick),
-                Toast.LENGTH_LONG
-            ).show()
-            modalSheetState.hide()
+
+    LaunchedEffect(Unit) {
+        snapshotFlow { isLogin }.collect {
+            if (it) {
+                modalSheetState.hide()
+            }
         }
     }
 
