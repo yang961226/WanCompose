@@ -59,7 +59,9 @@ import androidx.navigation.navArgument
 import com.google.accompanist.web.AccompanistWebViewClient
 import com.google.accompanist.web.LoadingState
 import com.google.accompanist.web.WebView
+import com.google.accompanist.web.WebViewNavigator
 import com.google.accompanist.web.WebViewState
+import com.google.accompanist.web.rememberWebViewNavigator
 import com.sundayting.wancompose.R
 import com.sundayting.wancompose.WanComposeDestination
 import com.sundayting.wancompose.common.ui.title.TitleBar
@@ -111,6 +113,29 @@ object WebViewScreen : WanComposeDestination {
                 WebTitle(title, navController)
             },
         ) {
+            val client = remember {
+                object : AccompanistWebViewClient() {
+                    override fun shouldOverrideUrlLoading(
+                        view: WebView,
+                        request: WebResourceRequest,
+                    ): Boolean {
+                        var uri = request.url
+                        val scheme = uri.scheme
+                        if (scheme == "http") {
+                            uri = Uri.parse("https://" + uri.host + uri.path)
+                        }
+                        view.loadUrl(uri.toString())
+                        return true
+                    }
+
+
+                    override fun onPageFinished(view: WebView?, url: String?) {
+                        title = view?.title.orEmpty()
+                    }
+
+                }
+            }
+            val navigator: WebViewNavigator = rememberWebViewNavigator()
             ConstraintLayout(
                 Modifier
                     .fillMaxSize()
@@ -120,6 +145,7 @@ object WebViewScreen : WanComposeDestination {
                     webToolContent,
                 ) = createRefs()
                 WebView(
+                    navigator = navigator,
                     modifier = Modifier
                         .fillMaxSize()
                         .constrainAs(webViewContent) {
@@ -141,26 +167,7 @@ object WebViewScreen : WanComposeDestination {
                         }
                     },
                     state = webViewState,
-                    client = object : AccompanistWebViewClient() {
-                        override fun shouldOverrideUrlLoading(
-                            view: WebView,
-                            request: WebResourceRequest,
-                        ): Boolean {
-                            var uri = request.url
-                            val scheme = uri.scheme
-                            if (scheme == "http") {
-                                uri = Uri.parse("https://" + uri.host + uri.path)
-                            }
-                            view.loadUrl(uri.toString())
-                            return true
-                        }
-
-
-                        override fun onPageFinished(view: WebView?, url: String?) {
-                            title = view?.title.orEmpty()
-                        }
-
-                    }
+                    client = client
                 )
 
                 val context = LocalContext.current
@@ -174,7 +181,13 @@ object WebViewScreen : WanComposeDestination {
                     loadingProgress = remember {
                         derivedStateOf { (webViewState.loadingState as? LoadingState.Loading)?.progress }
                     }.value,
-                    onClickBack = navController::popBackStack,
+                    onClickBack = {
+                        if (navigator.canGoBack) {
+                            navigator.navigateBack()
+                        } else {
+                            navController.popBackStack()
+                        }
+                    },
                     onClickBookmark = {
 
                     },
