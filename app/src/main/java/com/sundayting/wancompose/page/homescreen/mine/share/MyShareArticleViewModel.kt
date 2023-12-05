@@ -1,7 +1,5 @@
 package com.sundayting.wancompose.page.homescreen.mine.share
 
-import android.annotation.SuppressLint
-import android.content.Context
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
@@ -20,16 +18,14 @@ import com.sundayting.wancompose.page.homescreen.article.repo.toArticleUiBean
 import com.sundayting.wancompose.page.homescreen.article.ui.ArticleList
 import com.sundayting.wancompose.page.homescreen.mine.share.repo.MyShareArticleRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
-import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-@SuppressLint("StaticFieldLeak")
 class MyShareArticleViewModel @Inject constructor(
-    @ApplicationContext private val context: Context,
+    private val eventManager: EventManager,
     private val repo: MyShareArticleRepository,
     private val articleRepo: ArticleRepository,
 ) : ViewModel() {
@@ -51,7 +47,7 @@ class MyShareArticleViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
-            EventManager.eventFlow.filterIsInstance<ArticleCollectChangeEvent>().collect { event ->
+            eventManager.eventFlow.filterIsInstance<ArticleCollectChangeEvent>().collect { event ->
                 val article = state.articleList.firstOrNull { it.id == event.id } ?: return@collect
                 article.isCollect = event.isCollect
             }
@@ -69,11 +65,11 @@ class MyShareArticleViewModel @Inject constructor(
         viewModelScope.launch {
             if (isCollect) {
                 if (articleRepo.collectArticle(id).isSuccess()) {
-                    EventManager.emitCollectArticleEvent(context, id, true)
+                    eventManager.emitCollectArticleEvent(id, true)
                 }
             } else {
                 if (articleRepo.unCollectArticle(id).isSuccess()) {
-                    EventManager.emitCollectArticleEvent(context, id, false)
+                    eventManager.emitCollectArticleEvent(id, false)
                 }
             }
         }
@@ -85,11 +81,16 @@ class MyShareArticleViewModel @Inject constructor(
             return
         }
         loadJob = viewModelScope.launch(NetExceptionHandler) {
+            state.isLoadingMore = true
             val result = repo.fetchCollectedArticle(page)
             if (result.isSuccess()) {
                 val data = result.body.requireData()
                 state.canLoadMore = data.curPage < data.pageCount
                 state.addArticleList(data.list.map { it.toArticleUiBean() })
+            }
+        }.also {
+            it.invokeOnCompletion {
+                state.isLoadingMore = false
             }
         }
     }

@@ -65,8 +65,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.sundayting.wancompose.R
 import com.sundayting.wancompose.WanViewModel
-import com.sundayting.wancompose.common.event.EventManager
-import com.sundayting.wancompose.common.event.emitToast
 import com.sundayting.wancompose.theme.WanColors
 import kotlinx.coroutines.launch
 
@@ -77,6 +75,7 @@ fun LoginContent(
     pagerState: PagerState = rememberPagerState { 2 },
     onClickLogin: (username: String, password: String) -> Unit = { _, _ -> },
     onClickRegister: (username: String, password: String, passwordAgain: String) -> Unit = { _, _, _ -> },
+    onPasswordNotRight: () -> Unit = {},
 ) {
     Box(
         modifier
@@ -190,7 +189,7 @@ fun LoginContent(
                             },
                             onClickConfirm = { username, password, passwordAgain ->
                                 if (password != passwordAgain) {
-                                    EventManager.emitToast("再次输入的密码不匹配！")
+                                    onPasswordNotRight()
                                 } else {
                                     onClickRegister(username, password, passwordAgain)
                                 }

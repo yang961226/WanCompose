@@ -26,12 +26,14 @@ import androidx.compose.runtime.snapshotFlow
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.core.view.WindowCompat
 import androidx.lifecycle.DefaultLifecycleObserver
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.compose.NavHost
@@ -43,6 +45,7 @@ import com.google.accompanist.web.rememberWebViewState
 import com.sundayting.wancompose.common.event.EventManager
 import com.sundayting.wancompose.common.event.ShowLoginPageEvent
 import com.sundayting.wancompose.common.event.ToastEvent
+import com.sundayting.wancompose.common.event.emitToast
 import com.sundayting.wancompose.function.UserLoginFunction.UserEntity
 import com.sundayting.wancompose.page.homescreen.HomeScreen
 import com.sundayting.wancompose.page.homescreen.mine.MineScreen
@@ -53,9 +56,13 @@ import com.sundayting.wancompose.page.webscreen.WebViewScreen.urlArg
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
+
+    @Inject
+    lateinit var eventManager: EventManager
 
     init {
         lifecycle.addObserver(object : DefaultLifecycleObserver {
@@ -67,6 +74,18 @@ class MainActivity : ComponentActivity() {
                 }
             }
         })
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                eventManager.eventFlow.filterIsInstance<ToastEvent>().collect {
+                    Toast.makeText(
+                        this@MainActivity,
+                        it.content,
+                        if (it.isLong) Toast.LENGTH_LONG else Toast.LENGTH_SHORT
+                    ).show()
+                }
+            }
+
+        }
     }
 }
 
@@ -83,16 +102,6 @@ val LocalLoginUser = staticCompositionLocalOf<UserEntity?> { null }
 fun WanComposeApp(
     viewModel: WanViewModel = viewModel(),
 ) {
-    val context = LocalContext.current
-    LaunchedEffect(context) {
-        EventManager.eventFlow.filterIsInstance<ToastEvent>().collect {
-            Toast.makeText(
-                context,
-                it.content,
-                if (it.isLong) Toast.LENGTH_LONG else Toast.LENGTH_SHORT
-            ).show()
-        }
-    }
 
     val loginUser by viewModel.curLoginUserFlow.collectAsStateWithLifecycle()
     val isLogin by remember {
@@ -123,7 +132,7 @@ fun WanComposeApp(
         LocalLoginUser provides loginUser,
     ) {
         LaunchedEffect(Unit) {
-            EventManager
+            viewModel.eventManager
                 .eventFlow
                 .filterIsInstance<ShowLoginPageEvent>()
                 .collect {
@@ -147,6 +156,9 @@ fun WanComposeApp(
                     },
                     onClickRegister = { username: String, password: String, passwordAgain: String ->
                         viewModel.register(username, password, passwordAgain)
+                    },
+                    onPasswordNotRight = {
+                        viewModel.eventManager.emitToast("再次输入的密码不匹配！")
                     }
                 )
             },

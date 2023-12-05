@@ -47,7 +47,9 @@ object KtorfitModule {
     }
 
     @Provides
-    fun provideConverterFactory(): Converter.Factory {
+    fun provideConverterFactory(
+        eventManager: EventManager,
+    ): Converter.Factory {
         return object : Converter.Factory {
 
             override fun suspendResponseConverter(
@@ -56,15 +58,16 @@ object KtorfitModule {
             ): Converter.SuspendResponseConverter<HttpResponse, *>? {
                 if (typeData.typeInfo.type == NResult::class) {
                     return object : Converter.SuspendResponseConverter<HttpResponse, Any> {
+                        @Deprecated("Use convert(result: KtorfitResult)")
                         override suspend fun convert(response: HttpResponse): Any {
                             return try {
                                 val body: Any = response.body(typeData.typeArgs.first().typeInfo)
                                 if (body is WanNResult<*>) {
                                     if (body.errorCode != 0) {
                                         if (body.errorCode == -1001) {
-                                            EventManager.emitNeedLoginAgain()
+                                            eventManager.emitNeedLoginAgain()
                                         }
-                                        EventManager.emitToast(body.errorMsg)
+                                        eventManager.emitToast(body.errorMsg)
                                         NResult.Error(WanError(body.errorCode, body.errorMsg))
                                     } else {
                                         NResult.Success(body)
@@ -73,7 +76,7 @@ object KtorfitModule {
                                     NResult.Success(body)
                                 }
                             } catch (ex: Throwable) {
-                                EventManager.emitToast("发生未知异常:[${ex::class.simpleName}]，请联系开发者")
+                                eventManager.emitToast("发生未知异常:[${ex::class.simpleName}]，请联系开发者")
                                 NResult.Error(ex)
                             }
                         }

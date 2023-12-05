@@ -1,7 +1,5 @@
 package com.sundayting.wancompose.page.homescreen.article
 
-import android.annotation.SuppressLint
-import android.content.Context
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
@@ -22,7 +20,6 @@ import com.sundayting.wancompose.page.homescreen.article.repo.toBannerUiBean
 import com.sundayting.wancompose.page.homescreen.article.ui.ArticleList
 import com.sundayting.wancompose.page.homescreen.mine.repo.MineRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
-import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.filterIsInstance
@@ -32,18 +29,17 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-@SuppressLint("StaticFieldLeak")
 class ArticleListViewModel @Inject constructor(
     private val repo: ArticleRepository,
     private val mineRepo: MineRepository,
-    @ApplicationContext private val context: Context,
+    private val eventManager: EventManager,
 ) : ViewModel() {
 
     val state = ArticleState()
 
     init {
         viewModelScope.launch {
-            EventManager.eventFlow.filterIsInstance<ArticleCollectChangeEvent>().collect { event ->
+            eventManager.eventFlow.filterIsInstance<ArticleCollectChangeEvent>().collect { event ->
                 val article = state.articleList.firstOrNull { it.id == event.id } ?: return@collect
                 article.isCollect = event.isCollect
             }
@@ -88,17 +84,17 @@ class ArticleListViewModel @Inject constructor(
 
     fun collectOrUnCollectArticle(id: Long, isCollect: Boolean) {
         if (mineRepo.curUserFlow.value == null) {
-            EventManager.emitEvent(ShowLoginPageEvent)
+            eventManager.emitEvent(ShowLoginPageEvent)
             return
         }
         viewModelScope.launch {
             if (isCollect) {
                 if (repo.collectArticle(id).isSuccess()) {
-                    EventManager.emitCollectArticleEvent(context, id, true)
+                    eventManager.emitCollectArticleEvent(id, true)
                 }
             } else {
                 if (repo.unCollectArticle(id).isSuccess()) {
-                    EventManager.emitCollectArticleEvent(context, id, false)
+                    eventManager.emitCollectArticleEvent(id, false)
                 }
             }
         }

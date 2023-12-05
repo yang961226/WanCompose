@@ -29,6 +29,7 @@ import javax.inject.Singleton
 class MineRepository @Inject constructor(
     private val userService: UserService,
     private val database: WanDatabase,
+    private val eventManager: EventManager,
     @ApplicationContext context: Context,
 ) {
 
@@ -37,7 +38,7 @@ class MineRepository @Inject constructor(
     init {
         scope.launch {
             launch {
-                EventManager.eventFlow.filterIsInstance<NeedLoginAgainEvent>().collect {
+                eventManager.eventFlow.filterIsInstance<NeedLoginAgainEvent>().collect {
                     clearLoginUser()
                 }
             }
