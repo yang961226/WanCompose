@@ -16,7 +16,7 @@ import com.sundayting.wancompose.network.requireData
 import com.sundayting.wancompose.page.homescreen.article.repo.ArticleRepository
 import com.sundayting.wancompose.page.homescreen.article.repo.toArticleUiBean
 import com.sundayting.wancompose.page.homescreen.article.ui.ArticleList
-import com.sundayting.wancompose.page.homescreen.mine.share.repo.MyShareArticleRepository
+import com.sundayting.wancompose.page.homescreen.mine.share.repo.MyCollectedArticleRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.filterIsInstance
@@ -24,16 +24,16 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class MyShareArticleViewModel @Inject constructor(
+class MyCollectedArticleViewModel @Inject constructor(
     private val eventManager: EventManager,
-    private val repo: MyShareArticleRepository,
+    private val repo: MyCollectedArticleRepository,
     private val articleRepo: ArticleRepository,
 ) : ViewModel() {
 
-    val state = MyShareArticleState()
+    val state = MyCollectedArticleState()
 
     @Stable
-    class MyShareArticleState {
+    class MyCollectedArticleState {
         private val _articleList = mutableStateListOf<ArticleList.ArticleUiBean>()
         val articleList: List<ArticleList.ArticleUiBean> = _articleList
 
@@ -43,13 +43,18 @@ class MyShareArticleViewModel @Inject constructor(
         fun addArticleList(list: List<ArticleList.ArticleUiBean>) {
             _articleList.addAll(list)
         }
+
+        fun removeArticle(id: Long) {
+            _articleList.removeIf { it.id == id }
+        }
     }
 
     init {
         viewModelScope.launch {
             eventManager.eventFlow.filterIsInstance<ArticleCollectChangeEvent>().collect { event ->
-                val article = state.articleList.firstOrNull { it.id == event.id } ?: return@collect
-                article.isCollect = event.isCollect
+                if (event.isCollect.not()) {
+                    state.removeArticle(event.id)
+                }
             }
         }
     }
@@ -61,16 +66,10 @@ class MyShareArticleViewModel @Inject constructor(
         loadMore()
     }
 
-    fun collectArticle(id: Long, isCollect: Boolean) {
+    fun unCollectArticle(id: Long) {
         viewModelScope.launch {
-            if (isCollect) {
-                if (articleRepo.collectArticle(id).isSuccess()) {
-                    eventManager.emitCollectArticleEvent(id, true)
-                }
-            } else {
-                if (articleRepo.unCollectArticle(id).isSuccess()) {
-                    eventManager.emitCollectArticleEvent(id, false)
-                }
+            if (articleRepo.unCollectArticle(id).isSuccess()) {
+                eventManager.emitCollectArticleEvent(id, false)
             }
         }
     }

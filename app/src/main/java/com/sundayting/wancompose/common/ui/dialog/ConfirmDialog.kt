@@ -34,9 +34,9 @@ import com.sundayting.wancompose.theme.WanColors
 
 @Composable
 fun ConfirmDialog(
-    content: @Composable BoxScope.() -> Unit,
     onConfirm: () -> Unit = {},
     onDismiss: () -> Unit,
+    content: @Composable BoxScope.() -> Unit,
 ) {
 
     Dialog(onDismissRequest = onDismiss) {

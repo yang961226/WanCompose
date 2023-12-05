@@ -47,10 +47,10 @@ class MyCollectArticleBean(
     val link: String,
     val niceDate: String,
     val origin: String,
-    val originId: Int,
+    val originId: Long,
     val publishTime: Long,
     val title: String,
-    val userId: Int,
+    val userId: Long,
 )
 
 @Serializable
@@ -72,15 +72,15 @@ fun MyCollectArticleBean.toArticleUiBean(): ArticleList.ArticleUiBean {
     return ArticleList.ArticleUiBean(
         title = this.title,
         date = niceDate,
-        id = id,
+        id = originId,
         chapter = ArticleList.ArticleUiBean.Chapter(
             chapterName = chapterName,
             superChapterName = ""
         ),
         authorOrSharedUser = ArticleList.ArticleUiBean.AuthorOrSharedUser(author = author),
         link = link,
-
-        )
+        isCollect = true
+    )
 }
 
 

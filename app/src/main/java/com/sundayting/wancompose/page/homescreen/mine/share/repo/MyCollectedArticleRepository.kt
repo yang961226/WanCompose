@@ -5,7 +5,7 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-class MyShareArticleRepository @Inject constructor(
+class MyCollectedArticleRepository @Inject constructor(
     private val service: ArticleService,
 ) {
 

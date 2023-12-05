@@ -4,6 +4,7 @@ import androidx.compose.animation.Crossfade
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -18,29 +19,34 @@ import androidx.compose.material.ripple.rememberRipple
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.sundayting.wancompose.R
 import com.sundayting.wancompose.WanComposeDestination
+import com.sundayting.wancompose.common.ui.dialog.ConfirmDialog
 import com.sundayting.wancompose.common.ui.ktx.onBottomReached
 import com.sundayting.wancompose.common.ui.title.TitleBarWithBackButtonContent
 import com.sundayting.wancompose.common.ui.title.TitleBarWithContent
+import com.sundayting.wancompose.page.homescreen.article.ui.ArticleList
 import com.sundayting.wancompose.page.homescreen.article.ui.ArticleListSingleBean
 import com.sundayting.wancompose.theme.WanColors
 
-object MyShareArticleScreen : WanComposeDestination {
+object MyCollectedArticle : WanComposeDestination {
     override val route: String
-        get() = "我的分享页面"
+        get() = "我的收藏页面"
 
-    fun NavController.navigateToMyShareScreen() {
+    fun NavController.navigateToMyCollectedScreen() {
         navigate(route) {
             launchSingleTop = true
         }
@@ -49,38 +55,60 @@ object MyShareArticleScreen : WanComposeDestination {
     @Composable
     fun Screen(
         modifier: Modifier = Modifier,
-        viewModel: MyShareArticleViewModel = hiltViewModel(),
+        viewModel: MyCollectedArticleViewModel = hiltViewModel(),
         onClickBackButton: () -> Unit,
         onClickArticle: (String) -> Unit,
     ) {
-        MyShareArticleContent(
+        MyCollectedArticleContent(
             modifier = modifier,
             state = viewModel.state,
             onClickBackButton = onClickBackButton,
             onLoadMore = viewModel::loadMore,
             onClickArticle = onClickArticle,
-            onCollect = { id: Long, isCollect: Boolean ->
-                viewModel.collectArticle(id, isCollect)
+            onUnCollected = {
+                viewModel.unCollectArticle(it.id)
             }
         )
     }
 
     @Composable
-    fun MyShareArticleContent(
+    fun MyCollectedArticleContent(
         modifier: Modifier = Modifier,
-        state: MyShareArticleViewModel.MyShareArticleState,
+        state: MyCollectedArticleViewModel.MyCollectedArticleState,
         onClickBackButton: () -> Unit,
         onClickArticle: (String) -> Unit,
-        onCollect: ((id: Long, isCollect: Boolean) -> Unit)? = null,
+        onUnCollected: (articleUiBean: ArticleList.ArticleUiBean) -> Unit,
         onLoadMore: () -> Unit,
     ) {
+
+        var confirmUnCollectArticle by remember {
+            mutableStateOf<ArticleList.ArticleUiBean?>(null)
+        }
+        confirmUnCollectArticle?.let { article ->
+            ConfirmDialog(
+                onConfirm = {
+                    onUnCollected(article)
+                    confirmUnCollectArticle = null
+                },
+                onDismiss = { confirmUnCollectArticle = null }
+            ) {
+                Text(
+                    text = stringResource(
+                        id = R.string.article_uncollect_confirm,
+                        article.title
+                    ),
+                    style = TextStyle(fontSize = 16.sp, color = Color.Black),
+                    textAlign = TextAlign.Center
+                )
+            }
+        }
 
         TitleBarWithContent(
             modifier = modifier,
             titleBarContent = {
                 TitleBarWithBackButtonContent(onClickBackButton = onClickBackButton) {
                     Text(
-                        stringResource(id = R.string.my_share),
+                        stringResource(id = R.string.my_collect),
                         style = TextStyle(
                             fontSize = 16.sp, color = Color.White
                         ),
@@ -110,21 +138,28 @@ object MyShareArticleScreen : WanComposeDestination {
                         state = lazyListState
                     ) {
                         items(state.articleList, key = { it.id }) {
-                            ArticleListSingleBean(
-                                modifier = Modifier
-                                    .animateItemPlacement()
+                            Column(
+                                Modifier
                                     .fillMaxWidth()
-                                    .clickable(
-                                        interactionSource = remember { MutableInteractionSource() },
-                                        indication = rememberRipple()
-                                    ) {
-                                        onClickArticle(it.link)
+                                    .animateItemPlacement()
+                            ) {
+                                ArticleListSingleBean(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .clickable(
+                                            interactionSource = remember { MutableInteractionSource() },
+                                            indication = rememberRipple()
+                                        ) {
+                                            onClickArticle(it.link)
+                                        }
+                                        .padding(10.dp),
+                                    bean = it,
+                                    onCollect = { _, _ ->
+                                        confirmUnCollectArticle = it
                                     }
-                                    .padding(10.dp),
-                                bean = it,
-                                onCollect = onCollect
-                            )
-                            Divider(Modifier.fillMaxWidth())
+                                )
+                                Divider(Modifier.fillMaxWidth())
+                            }
                         }
                         if (state.isLoadingMore) {
                             item {

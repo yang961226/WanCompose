@@ -9,7 +9,7 @@ import androidx.navigation.navigation
 import com.sundayting.wancompose.LocalLoginUser
 import com.sundayting.wancompose.WanComposeDestination
 import com.sundayting.wancompose.page.homescreen.mine.point.PointScreen
-import com.sundayting.wancompose.page.homescreen.mine.share.MyShareArticleScreen
+import com.sundayting.wancompose.page.homescreen.mine.share.MyCollectedArticle
 import com.sundayting.wancompose.page.webscreen.WebViewScreen.navigateToWebViewScreen
 
 object MineGraph : WanComposeDestination {
@@ -36,8 +36,8 @@ object MineGraph : WanComposeDestination {
                     onClickBackButton = navController::popBackStack
                 )
             }
-            composable(MyShareArticleScreen.route) {
-                MyShareArticleScreen.Screen(
+            composable(MyCollectedArticle.route) {
+                MyCollectedArticle.Screen(
                     modifier = Modifier.fillMaxSize(),
                     onClickBackButton = navController::popBackStack,
                     onClickArticle = {

@@ -49,7 +49,7 @@ import com.sundayting.wancompose.R
 import com.sundayting.wancompose.function.UserLoginFunction.UserEntity
 import com.sundayting.wancompose.page.homescreen.HomeScreen
 import com.sundayting.wancompose.page.homescreen.mine.point.PointScreen.navigateToPointScreen
-import com.sundayting.wancompose.page.homescreen.mine.share.MyShareArticleScreen.navigateToMyShareScreen
+import com.sundayting.wancompose.page.homescreen.mine.share.MyCollectedArticle.navigateToMyCollectedScreen
 import com.sundayting.wancompose.page.setting.SettingScreen.navigateToSettingScreen
 import com.sundayting.wancompose.theme.WanColors
 import kotlinx.coroutines.flow.collectLatest
@@ -172,13 +172,13 @@ object MineScreen : HomeScreen.HomeScreenPage {
             MineScreenSingleLine(
                 title = stringResource(id = R.string.my_share),
                 resId = R.drawable.ic_share,
-                onClick = {
-                    navController.navigateToMyShareScreen()
-                }
             )
             MineScreenSingleLine(
                 title = stringResource(id = R.string.my_collect),
-                resId = R.drawable.ic_like
+                resId = R.drawable.ic_like,
+                onClick = {
+                    navController.navigateToMyCollectedScreen()
+                }
             )
             MineScreenSingleLine(
                 title = stringResource(id = R.string.system_setting),
