@@ -31,7 +31,10 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.navigation
 import com.sundayting.wancompose.R
 import com.sundayting.wancompose.WanComposeDestination
-import com.sundayting.wancompose.page.examplewidgetscreen.ExampleWidgetScreen
+import com.sundayting.wancompose.page.examplewidgetscreen.ExampleWidget
+import com.sundayting.wancompose.page.examplewidgetscreen.ExampleWidgetNavGraph
+import com.sundayting.wancompose.page.examplewidgetscreen.pointinput.PointInput
+import com.sundayting.wancompose.page.examplewidgetscreen.pointinput.PointInput.navigateToPointInput
 import com.sundayting.wancompose.page.examplewidgetscreen.tantancard.TanTanSwipeCardScreen
 import com.sundayting.wancompose.page.examplewidgetscreen.tantancard.TanTanSwipeCardScreen.navigateToTanTanSwipeCardScreen
 import com.sundayting.wancompose.page.homescreen.article.ui.ArticleList
@@ -63,7 +66,7 @@ object HomeScreen : WanComposeDestination {
         HomeScreenPage.BottomItem(
             resId = R.drawable.ic_example,
             titleId = R.string.bottom_tab_example,
-            page = ExampleWidgetScreen
+            page = ExampleWidget
         ),
         HomeScreenPage.BottomItem(
             resId = R.drawable.ic_mine,
@@ -193,22 +196,30 @@ object HomeScreen : WanComposeDestination {
                     }
                 )
             }
-            composable(ExampleWidgetScreen.route) {
-                ExampleWidgetScreen.Screen(
-                    Modifier
-                        .fillMaxSize(),
-                    onClick = { bean ->
-                        when (bean.name) {
-                            "探探滑卡" -> {
-                                navController.navigateToTanTanSwipeCardScreen()
+
+            navigation(
+                route = ExampleWidgetNavGraph.route,
+                startDestination = ExampleWidget.route
+            ) {
+                composable(ExampleWidget.route) {
+                    ExampleWidget.Screen(
+                        Modifier
+                            .fillMaxSize(),
+                        onClick = { bean ->
+                            when (bean.name) {
+                                "探探滑卡" -> navController.navigateToTanTanSwipeCardScreen()
+                                "手势" -> navController.navigateToPointInput()
                             }
                         }
-                    }
-                )
-            }
+                    )
+                }
 
-            composable(TanTanSwipeCardScreen.route) {
-                TanTanSwipeCardScreen.Screen(Modifier.fillMaxSize())
+                composable(TanTanSwipeCardScreen.route) {
+                    TanTanSwipeCardScreen.Screen(Modifier.fillMaxSize())
+                }
+                composable(PointInput.route) {
+                    PointInput.Screen(Modifier.fillMaxSize())
+                }
             }
 
             with(MineGraph) {

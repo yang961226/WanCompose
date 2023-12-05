@@ -71,7 +71,7 @@ private fun ExampleCardItem(
 
 }
 
-object ExampleWidgetScreen : HomeScreen.HomeScreenPage {
+object ExampleWidget : HomeScreen.HomeScreenPage {
     override val route: String
         get() = "代码案例"
 
@@ -79,11 +79,18 @@ object ExampleWidgetScreen : HomeScreen.HomeScreenPage {
         ExampleCardBean(
             name = "探探滑卡",
             resId = R.drawable.ic_tantan_preview
+        ),
+        ExampleCardBean(
+            name = "手势",
+            resId = R.drawable.ic_example
         )
     )
 
     @Composable
-    fun Screen(modifier: Modifier = Modifier, onClick: (ExampleCardBean) -> Unit) {
+    fun Screen(
+        modifier: Modifier = Modifier,
+        onClick: (ExampleCardBean) -> Unit,
+    ) {
         TitleBarWithContent(
             modifier,
             titleBarContent = {

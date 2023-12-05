@@ -46,6 +46,8 @@ import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.sundayting.wancompose.R
+import com.sundayting.wancompose.common.event.EventManager
+import com.sundayting.wancompose.common.event.emitToast
 import com.sundayting.wancompose.function.UserLoginFunction.UserEntity
 import com.sundayting.wancompose.page.homescreen.HomeScreen
 import com.sundayting.wancompose.page.homescreen.mine.point.PointScreen.navigateToPointScreen
@@ -172,6 +174,9 @@ object MineScreen : HomeScreen.HomeScreenPage {
             MineScreenSingleLine(
                 title = stringResource(id = R.string.my_share),
                 resId = R.drawable.ic_share,
+                onClick = {
+                    EventManager.getInstance().emitToast("开发中")
+                }
             )
             MineScreenSingleLine(
                 title = stringResource(id = R.string.my_collect),
