@@ -107,13 +107,15 @@ object WebViewScreen : WanComposeDestination {
 
         var title by remember { mutableStateOf("") }
 
+        val context = LocalContext.current
+
         TitleBarWithContent(
             modifier = modifier.navigationBarsPadding(),
             titleBarContent = {
                 WebTitle(title, navController)
             },
         ) {
-            val client = remember {
+            val client = remember(context) {
                 object : AccompanistWebViewClient() {
                     override fun shouldOverrideUrlLoading(
                         view: WebView,
@@ -124,7 +126,13 @@ object WebViewScreen : WanComposeDestination {
                         if (scheme == "http") {
                             uri = Uri.parse("https://" + uri.host + uri.path)
                         }
-                        view.loadUrl(uri.toString())
+                        if (uri.scheme != "https" && uri.scheme != "http") {
+                            val intent = Intent(Intent.ACTION_VIEW, uri)
+                            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED)
+                            context.startActivity(intent)
+                        } else {
+                            view.loadUrl(uri.toString())
+                        }
                         return true
                     }
 
@@ -132,7 +140,6 @@ object WebViewScreen : WanComposeDestination {
                     override fun onPageFinished(view: WebView?, url: String?) {
                         title = view?.title.orEmpty()
                     }
-
                 }
             }
             val navigator: WebViewNavigator = rememberWebViewNavigator()
