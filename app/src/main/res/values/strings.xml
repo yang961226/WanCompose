@@ -32,4 +32,6 @@
     <string name="my_share">我的分享</string>
     <string name="my_collect">我的收藏</string>
     <string name="system_setting">系统设置</string>
+    <string name="article_collect_success">文章收藏成功，稍后可以在「我的-我的收藏」中查看</string>
+    <string name="article_uncollect_success">"已取消文章收藏"</string>
 </resources>

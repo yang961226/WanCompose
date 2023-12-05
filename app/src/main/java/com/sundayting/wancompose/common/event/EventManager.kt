@@ -1,5 +1,7 @@
 package com.sundayting.wancompose.common.event
 
+import android.content.Context
+import com.sundayting.wancompose.R
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
@@ -26,6 +28,19 @@ fun EventManager.emitToast(content: String, isLong: Boolean = false) {
 
 fun EventManager.emitNeedLoginAgain() {
     emitEvent(NeedLoginAgainEvent)
+}
+
+fun EventManager.emitCollectArticleEvent(
+    context: Context,
+    id: Long,
+    isCollect: Boolean,
+) {
+    if (isCollect) {
+        emitToast(context.getString(R.string.article_collect_success))
+    } else {
+        emitToast(context.getString(R.string.article_uncollect_success))
+    }
+    emitEvent(ArticleCollectChangeEvent(id, isCollect))
 }
 
 class ToastEvent(

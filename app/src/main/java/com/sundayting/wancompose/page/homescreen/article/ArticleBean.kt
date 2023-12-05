@@ -32,6 +32,7 @@ data class ArticleBean(
 @Serializable
 data class ArticleListBean(
     val curPage: Int,
+    val pageCount: Int,
     @SerialName("datas")
     val list: List<ArticleBean>,
 )

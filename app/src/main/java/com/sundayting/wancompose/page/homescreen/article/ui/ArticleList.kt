@@ -286,7 +286,7 @@ private fun ArticleListContent(
 }
 
 @Composable
-private fun ArticleListSingleBean(
+fun ArticleListSingleBean(
     modifier: Modifier = Modifier,
     bean: ArticleList.ArticleUiBean,
     onCollect: ((id: Long, isCollect: Boolean) -> Unit)? = null,
@@ -305,7 +305,6 @@ private fun ArticleListSingleBean(
             Modifier.constrainAs(topStartContent) {
                 top.linkTo(parent.top)
                 start.linkTo(parent.start)
-
             },
             verticalAlignment = Alignment.CenterVertically
         ) {

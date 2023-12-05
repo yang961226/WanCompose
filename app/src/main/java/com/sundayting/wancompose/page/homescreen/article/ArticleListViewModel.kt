@@ -1,5 +1,7 @@
 package com.sundayting.wancompose.page.homescreen.article
 
+import android.annotation.SuppressLint
+import android.content.Context
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
@@ -10,7 +12,7 @@ import androidx.lifecycle.viewModelScope
 import com.sundayting.wancompose.common.event.ArticleCollectChangeEvent
 import com.sundayting.wancompose.common.event.EventManager
 import com.sundayting.wancompose.common.event.ShowLoginPageEvent
-import com.sundayting.wancompose.common.event.emitToast
+import com.sundayting.wancompose.common.event.emitCollectArticleEvent
 import com.sundayting.wancompose.function.UserLoginFunction.VISITOR_ID
 import com.sundayting.wancompose.network.NetExceptionHandler
 import com.sundayting.wancompose.network.isSuccess
@@ -20,6 +22,7 @@ import com.sundayting.wancompose.page.homescreen.article.repo.toBannerUiBean
 import com.sundayting.wancompose.page.homescreen.article.ui.ArticleList
 import com.sundayting.wancompose.page.homescreen.mine.repo.MineRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.filterIsInstance
@@ -29,9 +32,11 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
+@SuppressLint("StaticFieldLeak")
 class ArticleListViewModel @Inject constructor(
     private val repo: ArticleRepository,
     private val mineRepo: MineRepository,
+    @ApplicationContext private val context: Context,
 ) : ViewModel() {
 
     val state = ArticleState()
@@ -89,13 +94,11 @@ class ArticleListViewModel @Inject constructor(
         viewModelScope.launch {
             if (isCollect) {
                 if (repo.collectArticle(id).isSuccess()) {
-                    EventManager.emitToast("文章收藏成功，稍后可以在「我的-我的收藏」中查看")
-                    EventManager.emitEvent(ArticleCollectChangeEvent(id, true))
+                    EventManager.emitCollectArticleEvent(context, id, true)
                 }
             } else {
                 if (repo.unCollectArticle(id).isSuccess()) {
-                    EventManager.emitToast("已取消文章收藏")
-                    EventManager.emitEvent(ArticleCollectChangeEvent(id, false))
+                    EventManager.emitCollectArticleEvent(context, id, false)
                 }
             }
         }
