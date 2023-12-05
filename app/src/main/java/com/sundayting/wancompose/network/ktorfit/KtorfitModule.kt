@@ -14,6 +14,7 @@ import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import de.jensklingenberg.ktorfit.Ktorfit
 import de.jensklingenberg.ktorfit.converter.Converter
+import de.jensklingenberg.ktorfit.converter.KtorfitResult
 import de.jensklingenberg.ktorfit.internal.TypeData
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
@@ -58,26 +59,31 @@ object KtorfitModule {
             ): Converter.SuspendResponseConverter<HttpResponse, *>? {
                 if (typeData.typeInfo.type == NResult::class) {
                     return object : Converter.SuspendResponseConverter<HttpResponse, Any> {
-                        @Deprecated("Use convert(result: KtorfitResult)")
-                        override suspend fun convert(response: HttpResponse): Any {
+
+                        override suspend fun convert(result: KtorfitResult): Any {
                             return try {
-                                val body: Any = response.body(typeData.typeArgs.first().typeInfo)
-                                if (body is WanNResult<*>) {
-                                    if (body.errorCode != 0) {
-                                        if (body.errorCode == -1001) {
-                                            eventManager.emitNeedLoginAgain()
-                                        }
-                                        eventManager.emitToast(body.errorMsg)
-                                        NResult.Error(WanError(body.errorCode, body.errorMsg))
-                                    } else {
-                                        NResult.Success(body)
-                                    }
-                                } else {
-                                    NResult.Success(body)
-                                }
+                                super.convert(result)
                             } catch (ex: Throwable) {
                                 eventManager.emitToast("发生未知异常:[${ex::class.simpleName}]，请联系开发者")
                                 NResult.Error(ex)
+                            }
+                        }
+
+                        @Deprecated("Use convert(result: KtorfitResult)")
+                        override suspend fun convert(response: HttpResponse): Any {
+                            val body: Any = response.body(typeData.typeArgs.first().typeInfo)
+                            return if (body is WanNResult<*>) {
+                                if (body.errorCode != 0) {
+                                    if (body.errorCode == -1001) {
+                                        eventManager.emitNeedLoginAgain()
+                                    }
+                                    eventManager.emitToast(body.errorMsg)
+                                    NResult.Error(WanError(body.errorCode, body.errorMsg))
+                                } else {
+                                    NResult.Success(body)
+                                }
+                            } else {
+                                NResult.Success(body)
                             }
                         }
                     }
