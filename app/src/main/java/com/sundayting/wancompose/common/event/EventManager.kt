@@ -1,7 +1,9 @@
 package com.sundayting.wancompose.common.event
 
+import android.app.Application
 import android.content.Context
 import androidx.annotation.StringRes
+import androidx.compose.runtime.staticCompositionLocalOf
 import com.sundayting.wancompose.R
 import com.sundayting.wancompose.WanComposeApplication
 import dagger.hilt.EntryPoint
@@ -15,6 +17,8 @@ import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 import javax.inject.Singleton
+
+val LocalEventManager = staticCompositionLocalOf<EventManager> { error("找不到EventManager") }
 
 @Singleton
 class EventManager @Inject constructor(
@@ -30,9 +34,11 @@ class EventManager @Inject constructor(
 
     companion object {
 
-        fun getInstance(): EventManager {
+        fun getInstance(
+            application: Application? = null,
+        ): EventManager {
             val entryPoint = EntryPointAccessors.fromApplication(
-                WanComposeApplication.instance,
+                application ?: WanComposeApplication.instance,
                 EventManagerProviderEntryPoint::class.java
             )
             return entryPoint.eventManager()

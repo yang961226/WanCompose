@@ -218,7 +218,9 @@ object HomeScreen : WanComposeDestination {
                     TanTanSwipeCardScreen.Screen(Modifier.fillMaxSize())
                 }
                 composable(PointInput.route) {
-                    PointInput.Screen(Modifier.fillMaxSize())
+                    PointInput.Screen(Modifier.fillMaxSize(), onClickBackButton = {
+                        navController.popBackStack()
+                    })
                 }
             }
 

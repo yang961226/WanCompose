@@ -1,5 +1,6 @@
 package com.sundayting.wancompose
 
+import android.app.Application
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.BackHandler
@@ -26,6 +27,7 @@ import androidx.compose.runtime.snapshotFlow
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.core.view.WindowCompat
 import androidx.lifecycle.DefaultLifecycleObserver
@@ -43,6 +45,7 @@ import androidx.navigation.compose.rememberNavController
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import com.google.accompanist.web.rememberWebViewState
 import com.sundayting.wancompose.common.event.EventManager
+import com.sundayting.wancompose.common.event.LocalEventManager
 import com.sundayting.wancompose.common.event.ShowLoginPageEvent
 import com.sundayting.wancompose.common.event.ToastEvent
 import com.sundayting.wancompose.common.event.emitToast
@@ -127,9 +130,14 @@ fun WanComposeApp(
             }
         }
     }
+    val context = LocalContext.current
+    val eventManager = remember(context) {
+        EventManager.getInstance(context.applicationContext as Application)
+    }
 
     CompositionLocalProvider(
         LocalLoginUser provides loginUser,
+        LocalEventManager provides eventManager
     ) {
         LaunchedEffect(Unit) {
             viewModel.eventManager
