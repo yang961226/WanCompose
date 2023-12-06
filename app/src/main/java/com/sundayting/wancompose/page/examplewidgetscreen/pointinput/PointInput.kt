@@ -5,9 +5,13 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
+import androidx.compose.foundation.gestures.Orientation
+import androidx.compose.foundation.gestures.rememberScrollableState
+import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -31,6 +35,7 @@ import androidx.compose.material.ripple.rememberRipple
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -38,6 +43,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -154,7 +160,8 @@ object PointInput : WanComposeDestination {
                 .fillMaxHeight()
                 .clickable { onClick() }
                 .border(1.dp, Color.Black, shape = RoundedCornerShape(10.dp))
-                .padding(2.dp), contentAlignment = Alignment.Center
+                .padding(2.dp),
+            contentAlignment = Alignment.Center
         ) {
             Text(text)
         }
@@ -320,6 +327,44 @@ object PointInput : WanComposeDestination {
 
                 }
             }
+
+            PointInputItem(commonModifier, title = "scrollable") {
+                var offset by remember { mutableFloatStateOf(0f) }
+                val scrollState = rememberScrollableState { delta ->
+                    offset = (offset + delta).coerceIn(-150f, 150f)
+                    delta
+                }
+                Row(
+                    Modifier
+                        .fillMaxWidth()
+                        .graphicsLayer {
+                            translationX = offset
+                        }
+                        .scrollable(scrollState, orientation = Orientation.Horizontal),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    repeat(20) {
+                        Box(
+                            Modifier
+                                .size(50.dp)
+                                .background(Color.Red)
+                        )
+                        Box(
+                            Modifier
+                                .size(50.dp)
+                                .background(Color.Green)
+                        )
+                        Box(
+                            Modifier
+                                .size(50.dp)
+                                .background(Color.Blue)
+                        )
+                    }
+
+                }
+
+                Text(offset.toString())
+            }
         }
     }
 
@@ -327,7 +372,7 @@ object PointInput : WanComposeDestination {
     private fun PointInputItem(
         modifier: Modifier = Modifier,
         title: String,
-        content: @Composable () -> Unit,
+        content: @Composable BoxScope.() -> Unit,
     ) {
         Row(
             modifier
