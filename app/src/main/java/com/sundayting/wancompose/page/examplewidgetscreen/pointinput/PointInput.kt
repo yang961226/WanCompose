@@ -1,17 +1,22 @@
 package com.sundayting.wancompose.page.examplewidgetscreen.pointinput
 
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.splineBasedDecay
 import androidx.compose.foundation.LocalIndication
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.gestures.Orientation
+import androidx.compose.foundation.gestures.draggable
+import androidx.compose.foundation.gestures.rememberDraggableState
 import androidx.compose.foundation.gestures.rememberScrollableState
 import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -19,6 +24,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -44,7 +50,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
@@ -55,6 +63,7 @@ import com.sundayting.wancompose.common.ui.title.TitleBarProperties
 import com.sundayting.wancompose.common.ui.title.TitleBarWithBackButtonContent
 import com.sundayting.wancompose.common.ui.title.TitleBarWithContent
 import kotlinx.coroutines.launch
+import kotlin.math.roundToInt
 
 object PointInput : WanComposeDestination {
     override val route: String
@@ -89,7 +98,7 @@ object PointInput : WanComposeDestination {
                 Modifier
                     .fillMaxSize()
             ) {
-                val state = rememberPagerState { 2 }
+                val state = rememberPagerState { 3 }
                 val scope = rememberCoroutineScope()
                 CompositionLocalProvider(
                     LocalIndication provides rememberRipple()
@@ -106,6 +115,7 @@ object PointInput : WanComposeDestination {
                         when (page) {
                             0 -> ClickablePage(Modifier.fillMaxSize())
                             1 -> ScrollPage(Modifier.fillMaxSize())
+                            2 -> DragPage(Modifier.fillMaxSize())
                         }
                     }
                     Row(
@@ -134,10 +144,22 @@ object PointInput : WanComposeDestination {
                                 if (state.currentPage == 1) Color.LightGray else Color.Transparent,
                                 shape = RoundedCornerShape(10.dp)
                             ),
-                            text = "高级Api：拖动相关",
+                            text = "高级Api：滚动相关",
                             onClick = {
                                 scope.launch {
                                     state.animateScrollToPage(1)
+                                }
+                            }
+                        )
+                        OptionItem(
+                            modifier = Modifier.background(
+                                if (state.currentPage == 2) Color.LightGray else Color.Transparent,
+                                shape = RoundedCornerShape(10.dp)
+                            ),
+                            text = "高级Api：拖动相关",
+                            onClick = {
+                                scope.launch {
+                                    state.animateScrollToPage(2)
                                 }
                             }
                         )
@@ -365,6 +387,66 @@ object PointInput : WanComposeDestination {
 
                 Text(offset.toString())
             }
+        }
+    }
+
+    @Composable
+    private fun DragPage(
+        modifier: Modifier = Modifier,
+    ) {
+        Column(modifier, verticalArrangement = Arrangement.spacedBy(10.dp)) {
+            val commonModifier = remember {
+                Modifier
+                    .fillMaxSize()
+                    .weight(1f, false)
+            }
+            PointInputItem(commonModifier, title = "draggable") {
+                var max by remember { mutableStateOf(0.dp) }
+                val min = 0.dp
+                val (minPx, maxPx) = with(LocalDensity.current) { min.toPx() to max.toPx() }
+                var offsetPosition by remember { mutableFloatStateOf(0f) }
+                val state = rememberDraggableState { delta ->
+                    val newValue = offsetPosition + delta
+                    offsetPosition = newValue.coerceIn(minPx, maxPx)
+                }
+                val density = LocalDensity.current
+                BoxWithConstraints(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .draggable(
+                            orientation = Orientation.Horizontal,
+                            state = state,
+                            onDragStopped = { velocity ->
+                                state.drag {
+                                    var latestValue = offsetPosition
+                                    Animatable(initialValue = latestValue).apply {
+                                        //滑动到边界的时候停止动画
+                                        updateBounds(minPx, maxPx)
+                                        //衰减停止
+                                        animateDecay(
+                                            initialVelocity = velocity,
+                                            animationSpec = splineBasedDecay(density)
+                                        ) {
+                                            dragBy(this.value - latestValue)
+                                            latestValue = this.value
+                                        }
+                                    }
+                                }
+                            }
+                        )
+                        .background(Color.Black)
+                ) {
+                    max = maxWidth - 50.dp
+                    Box(
+                        Modifier
+                            .offset { IntOffset(offsetPosition.roundToInt(), 0) }
+                            .size(50.dp)
+                            .background(Color.Red)
+                    )
+                }
+            }
+
+
         }
     }
 
