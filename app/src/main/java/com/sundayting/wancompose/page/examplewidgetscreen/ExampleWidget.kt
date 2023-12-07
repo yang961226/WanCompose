@@ -82,7 +82,7 @@ object ExampleWidget : HomeScreen.HomeScreenPage {
         ),
         ExampleCardBean(
             name = "手势",
-            resId = R.drawable.ic_example
+            resId = R.drawable.icon_point_input
         )
     )
 

@@ -8,6 +8,7 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.gestures.Orientation
+import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.gestures.draggable
 import androidx.compose.foundation.gestures.rememberDraggableState
 import androidx.compose.foundation.gestures.rememberScrollableState
@@ -48,13 +49,18 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.unit.toSize
 import androidx.navigation.NavController
 import com.sundayting.wancompose.WanComposeDestination
 import com.sundayting.wancompose.common.event.LocalEventManager
@@ -446,6 +452,42 @@ object PointInput : WanComposeDestination {
                 }
             }
 
+            PointInputItem(commonModifier, title = "pointerInput实现") {
+                val offsetX = remember { mutableFloatStateOf(0f) }
+                val offsetY = remember { mutableFloatStateOf(0f) }
+                var size by remember { mutableStateOf(Size.Zero) }
+                Box(
+                    Modifier
+                        .fillMaxSize()
+                        .onSizeChanged {
+                            size = it.toSize()
+                        }
+                ) {
+                    Box(
+                        Modifier
+                            .size(50.dp)
+                            .offset {
+                                IntOffset(
+                                    offsetX.floatValue.roundToInt(),
+                                    offsetY.floatValue.roundToInt()
+                                )
+                            }
+                            .background(Color.Red)
+                            .pointerInput(Unit) {
+                                detectDragGestures { _, dragAmount ->
+                                    val original = Offset(offsetX.floatValue, offsetY.floatValue)
+                                    val summed = original + dragAmount
+                                    val newValue = Offset(
+                                        x = summed.x.coerceIn(0f, size.width - 50.dp.toPx()),
+                                        y = summed.y.coerceIn(0f, size.height - 50.dp.toPx())
+                                    )
+                                    offsetX.floatValue = newValue.x
+                                    offsetY.floatValue = newValue.y
+                                }
+                            }
+                    )
+                }
+            }
 
         }
     }
