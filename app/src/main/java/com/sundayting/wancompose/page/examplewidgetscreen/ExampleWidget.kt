@@ -83,6 +83,10 @@ object ExampleWidget : HomeScreen.HomeScreenPage {
         ExampleCardBean(
             name = "手势",
             resId = R.drawable.icon_point_input
+        ),
+        ExampleCardBean(
+            "嵌套滑动",
+            resId = R.drawable.icon_point_input
         )
     )
 

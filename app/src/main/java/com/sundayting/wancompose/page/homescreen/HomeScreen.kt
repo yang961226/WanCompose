@@ -33,6 +33,8 @@ import com.sundayting.wancompose.R
 import com.sundayting.wancompose.WanComposeDestination
 import com.sundayting.wancompose.page.examplewidgetscreen.ExampleWidget
 import com.sundayting.wancompose.page.examplewidgetscreen.ExampleWidgetNavGraph
+import com.sundayting.wancompose.page.examplewidgetscreen.nestscroll.NestScroll
+import com.sundayting.wancompose.page.examplewidgetscreen.nestscroll.NestScroll.navigateToNestScroll
 import com.sundayting.wancompose.page.examplewidgetscreen.pointinput.PointInput
 import com.sundayting.wancompose.page.examplewidgetscreen.pointinput.PointInput.navigateToPointInput
 import com.sundayting.wancompose.page.examplewidgetscreen.tantancard.TanTanSwipeCardScreen
@@ -209,6 +211,7 @@ object HomeScreen : WanComposeDestination {
                             when (bean.name) {
                                 "探探滑卡" -> navController.navigateToTanTanSwipeCardScreen()
                                 "手势" -> navController.navigateToPointInput()
+                                "嵌套滑动" -> navController.navigateToNestScroll()
                             }
                         }
                     )
@@ -219,6 +222,11 @@ object HomeScreen : WanComposeDestination {
                 }
                 composable(PointInput.route) {
                     PointInput.Screen(Modifier.fillMaxSize(), onClickBackButton = {
+                        navController.popBackStack()
+                    })
+                }
+                composable(NestScroll.route) {
+                    NestScroll.Screen(Modifier.fillMaxSize(), onClickBackButton = {
                         navController.popBackStack()
                     })
                 }
