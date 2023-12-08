@@ -1,7 +1,7 @@
 package com.sundayting.wancompose.page.examplewidgetscreen.pointinput
 
 import androidx.compose.animation.core.Animatable
-import androidx.compose.animation.splineBasedDecay
+import androidx.compose.animation.core.AnimationVector1D
 import androidx.compose.foundation.LocalIndication
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -37,8 +37,11 @@ import androidx.compose.foundation.selection.toggleable
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Divider
+import androidx.compose.material.FractionalThreshold
 import androidx.compose.material.Text
+import androidx.compose.material.rememberSwipeableState
 import androidx.compose.material.ripple.rememberRipple
+import androidx.compose.material.swipeable
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
@@ -104,7 +107,7 @@ object PointInput : WanComposeDestination {
                 Modifier
                     .fillMaxSize()
             ) {
-                val state = rememberPagerState { 3 }
+                val state = rememberPagerState { 4 }
                 val scope = rememberCoroutineScope()
                 CompositionLocalProvider(
                     LocalIndication provides rememberRipple()
@@ -122,6 +125,7 @@ object PointInput : WanComposeDestination {
                             0 -> ClickablePage(Modifier.fillMaxSize())
                             1 -> ScrollPage(Modifier.fillMaxSize())
                             2 -> DragPage(Modifier.fillMaxSize())
+                            3 -> CustomPointInput1(Modifier.fillMaxSize())
                         }
                     }
                     Row(
@@ -162,10 +166,22 @@ object PointInput : WanComposeDestination {
                                 if (state.currentPage == 2) Color.LightGray else Color.Transparent,
                                 shape = RoundedCornerShape(10.dp)
                             ),
-                            text = "高级Api：拖动相关",
+                            text = "高级Api：拖动、滑动",
                             onClick = {
                                 scope.launch {
                                     state.animateScrollToPage(2)
+                                }
+                            }
+                        )
+                        OptionItem(
+                            modifier = Modifier.background(
+                                if (state.currentPage == 3) Color.LightGray else Color.Transparent,
+                                shape = RoundedCornerShape(10.dp)
+                            ),
+                            text = "低级Api：自定义手势(1)",
+                            onClick = {
+                                scope.launch {
+                                    state.animateScrollToPage(3)
                                 }
                             }
                         )
@@ -416,29 +432,33 @@ object PointInput : WanComposeDestination {
                     offsetPosition = newValue.coerceIn(minPx, maxPx)
                 }
                 val density = LocalDensity.current
+                var curAnimatable: Animatable<Float, AnimationVector1D>? = null
                 BoxWithConstraints(
                     modifier = Modifier
                         .fillMaxWidth()
                         .draggable(
                             orientation = Orientation.Horizontal,
                             state = state,
-                            onDragStopped = { velocity ->
-                                state.drag {
-                                    var latestValue = offsetPosition
-                                    Animatable(initialValue = latestValue).apply {
-                                        //滑动到边界的时候停止动画
-                                        updateBounds(minPx, maxPx)
-                                        //衰减停止
-                                        animateDecay(
-                                            initialVelocity = velocity,
-                                            animationSpec = splineBasedDecay(density)
-                                        ) {
-                                            dragBy(this.value - latestValue)
-                                            latestValue = this.value
-                                        }
-                                    }
-                                }
-                            }
+//                            onDragStarted = {
+//                                curAnimatable?.stop()
+//                            },
+//                            onDragStopped = { velocity ->
+//                                state.drag {
+//                                    var latestValue = offsetPosition
+//                                    curAnimatable = Animatable(initialValue = latestValue).apply {
+//                                        //滑动到边界的时候停止动画
+//                                        updateBounds(minPx, maxPx)
+//                                        //衰减停止
+//                                        animateDecay(
+//                                            initialVelocity = velocity,
+//                                            animationSpec = splineBasedDecay(density)
+//                                        ) {
+//                                            dragBy(this.value - latestValue)
+//                                            latestValue = this.value
+//                                        }
+//                                    }
+//                                }
+//                            }
                         )
                         .background(Color.Black)
                 ) {
@@ -451,8 +471,57 @@ object PointInput : WanComposeDestination {
                     )
                 }
             }
+            PointInputItem(commonModifier, title = "swipeable") {
 
-            PointInputItem(commonModifier, title = "pointerInput实现") {
+                val squareSize = 48.dp
+                val width = squareSize * 3
+
+                val swipeableState = rememberSwipeableState(0)
+                val sizePx = with(LocalDensity.current) { squareSize.toPx() }
+                val anchors = mapOf(
+                    sizePx * 0 to 0,
+                    sizePx * 1 to 1,
+                    sizePx * 2 to 2
+                ) // Maps anchor points (in px) to states
+
+                Column {
+                    Box(
+                        modifier = Modifier
+                            .width(width)
+                            .swipeable(
+                                state = swipeableState,
+                                anchors = anchors,
+                                thresholds = { _, _ -> FractionalThreshold(0.3f) },
+                                orientation = Orientation.Horizontal
+                            )
+                            .background(Color.LightGray)
+                    ) {
+                        Box(
+                            Modifier
+                                .offset { IntOffset(swipeableState.offset.value.roundToInt(), 0) }
+                                .size(squareSize)
+                                .background(Color.DarkGray)
+                        )
+                    }
+                    Text("当前位置：${swipeableState.currentValue}")
+                }
+
+            }
+        }
+    }
+
+    @Composable
+    private fun CustomPointInput1(
+        modifier: Modifier = Modifier,
+    ) {
+        Column(modifier, verticalArrangement = Arrangement.spacedBy(10.dp)) {
+            val commonModifier = remember {
+                Modifier
+                    .fillMaxSize()
+                    .weight(1f, false)
+            }
+
+            PointInputItem(commonModifier, title = "拖动") {
                 val offsetX = remember { mutableFloatStateOf(0f) }
                 val offsetY = remember { mutableFloatStateOf(0f) }
                 var size by remember { mutableStateOf(Size.Zero) }
@@ -474,7 +543,8 @@ object PointInput : WanComposeDestination {
                             }
                             .background(Color.Red)
                             .pointerInput(Unit) {
-                                detectDragGestures { _, dragAmount ->
+                                detectDragGestures { change, dragAmount ->
+                                    change.consume()
                                     val original = Offset(offsetX.floatValue, offsetY.floatValue)
                                     val summed = original + dragAmount
                                     val newValue = Offset(
@@ -488,7 +558,6 @@ object PointInput : WanComposeDestination {
                     )
                 }
             }
-
         }
     }
 
