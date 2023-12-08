@@ -9,6 +9,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.detectDragGestures
+import androidx.compose.foundation.gestures.detectTransformGestures
 import androidx.compose.foundation.gestures.draggable
 import androidx.compose.foundation.gestures.rememberDraggableState
 import androidx.compose.foundation.gestures.rememberScrollableState
@@ -55,6 +56,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.onSizeChanged
@@ -72,7 +74,10 @@ import com.sundayting.wancompose.common.ui.title.TitleBarProperties
 import com.sundayting.wancompose.common.ui.title.TitleBarWithBackButtonContent
 import com.sundayting.wancompose.common.ui.title.TitleBarWithContent
 import kotlinx.coroutines.launch
+import kotlin.math.PI
+import kotlin.math.cos
 import kotlin.math.roundToInt
+import kotlin.math.sin
 
 object PointInput : WanComposeDestination {
     override val route: String
@@ -107,7 +112,7 @@ object PointInput : WanComposeDestination {
                 Modifier
                     .fillMaxSize()
             ) {
-                val state = rememberPagerState { 4 }
+                val state = rememberPagerState { 5 }
                 val scope = rememberCoroutineScope()
                 CompositionLocalProvider(
                     LocalIndication provides rememberRipple()
@@ -125,7 +130,8 @@ object PointInput : WanComposeDestination {
                             0 -> ClickablePage(Modifier.fillMaxSize())
                             1 -> ScrollPage(Modifier.fillMaxSize())
                             2 -> DragPage(Modifier.fillMaxSize())
-                            3 -> CustomPointInput1(Modifier.fillMaxSize())
+                            3 -> Transformable(Modifier.fillMaxSize())
+                            4 -> CustomPointInput1(Modifier.fillMaxSize())
                         }
                     }
                     Row(
@@ -178,10 +184,22 @@ object PointInput : WanComposeDestination {
                                 if (state.currentPage == 3) Color.LightGray else Color.Transparent,
                                 shape = RoundedCornerShape(10.dp)
                             ),
-                            text = "低级Api：自定义手势(1)",
+                            text = "多点平移缩放旋转",
                             onClick = {
                                 scope.launch {
                                     state.animateScrollToPage(3)
+                                }
+                            }
+                        )
+                        OptionItem(
+                            modifier = Modifier.background(
+                                if (state.currentPage == 4) Color.LightGray else Color.Transparent,
+                                shape = RoundedCornerShape(10.dp)
+                            ),
+                            text = "低级Api：自定义手势(1)",
+                            onClick = {
+                                scope.launch {
+                                    state.animateScrollToPage(4)
                                 }
                             }
                         )
@@ -508,6 +526,68 @@ object PointInput : WanComposeDestination {
 
             }
         }
+    }
+
+    @Composable
+    private fun Transformable(
+        modifier: Modifier = Modifier,
+    ) {
+        Column(modifier, verticalArrangement = Arrangement.spacedBy(10.dp)) {
+            val commonModifier = remember {
+                Modifier
+                    .fillMaxSize()
+                    .weight(1f, false)
+            }
+            PointInputItem(commonModifier, title = "多点触摸") {
+                fun Offset.rotateBy(angle: Float): Offset {
+                    val angleInRadians = angle * PI / 180
+                    return Offset(
+                        (x * cos(angleInRadians) - y * sin(angleInRadians)).toFloat(),
+                        (x * sin(angleInRadians) + y * cos(angleInRadians)).toFloat()
+                    )
+                }
+
+                var offset by remember { mutableStateOf(Offset.Zero) }
+                var zoom by remember { mutableFloatStateOf(1f) }
+                var angle by remember { mutableFloatStateOf(0f) }
+
+                Box(
+                    Modifier
+                        .pointerInput(Unit) {
+                            detectTransformGestures(
+                                onGesture = { centroid, pan, gestureZoom, gestureRotate ->
+                                    val oldScale = zoom
+                                    val newScale = zoom * gestureZoom
+
+                                    // For natural zooming and rotating, the centroid of the gesture should
+                                    // be the fixed point where zooming and rotating occurs.
+                                    // We compute where the centroid was (in the pre-transformed coordinate
+                                    // space), and then compute where it will be after this delta.
+                                    // We then compute what the new offset should be to keep the centroid
+                                    // visually stationary for rotating and zooming, and also apply the pan.
+                                    offset =
+                                        (offset + centroid / oldScale).rotateBy(gestureRotate) -
+                                                (centroid / newScale + pan / oldScale)
+                                    zoom = newScale
+                                    angle += gestureRotate
+                                }
+                            )
+                        }
+                        .graphicsLayer {
+                            translationX = -offset.x * zoom
+                            translationY = -offset.y * zoom
+                            scaleX = zoom
+                            scaleY = zoom
+                            rotationZ = angle
+                            transformOrigin = TransformOrigin(0f, 0f)
+                        }
+                        .background(Color.Blue)
+                        .fillMaxSize()
+                )
+            }
+        }
+
+
     }
 
     @Composable
