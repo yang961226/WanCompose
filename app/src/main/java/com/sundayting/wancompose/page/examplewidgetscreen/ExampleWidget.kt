@@ -86,7 +86,7 @@ object ExampleWidget : HomeScreen.HomeScreenPage {
         ),
         ExampleCardBean(
             "嵌套滑动",
-            resId = R.drawable.icon_point_input
+            resId = R.drawable.ic_nest_scroll
         )
     )
 
