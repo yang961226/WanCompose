@@ -10,10 +10,10 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.remember
@@ -49,12 +49,6 @@ object NestScroll : WanComposeDestination {
         }
     }
 
-    @Stable
-    class NestState {
-
-
-    }
-
     @Composable
     fun Screen(modifier: Modifier = Modifier, onClickBackButton: () -> Unit) {
         TitleBarWithContent(
@@ -75,95 +69,108 @@ object NestScroll : WanComposeDestination {
                 }
             }
         ) {
-
-            val scrollState = rememberScrollState()
-
-            var collapsingTopHeight by remember { mutableFloatStateOf(0f) }
-
-            var offset by remember { mutableFloatStateOf(0f) }
-
-            fun calculateOffset(delta: Float): Offset {
-                val oldOffset = offset
-                val newOffset = (oldOffset + delta).coerceIn(-collapsingTopHeight, 0f)
-                offset = newOffset
-                return Offset(0f, newOffset - oldOffset)
+            val state = rememberPagerState {
+                2
             }
+            CustomNestScrollByMyself(Modifier.fillMaxSize())
 
-            val scope = rememberCoroutineScope()
+        }
+    }
+}
 
-            val nestedScrollConnection = remember {
-                object : NestedScrollConnection {
-                    override fun onPreScroll(
-                        available: Offset,
-                        source: NestedScrollSource,
-                    ): Offset {
-                        if (source == NestedScrollSource.Drag) {
-                            scope.launch {
-                                scrollState.stopScroll()
-                            }
-                        }
-                        return when {
-                            available.y >= 0 -> Offset.Zero
-                            offset == -collapsingTopHeight -> Offset.Zero
-                            else -> calculateOffset(available.y)
-                        }
+@Composable
+private fun NestScrollByCv(modifier: Modifier = Modifier) {
+
+}
+
+@Composable
+private fun CustomNestScrollByMyself(modifier: Modifier = Modifier) {
+    val scrollState = rememberScrollState()
+
+    var collapsingTopHeight by remember { mutableFloatStateOf(0f) }
+
+    var offset by remember { mutableFloatStateOf(0f) }
+
+    fun calculateOffset(delta: Float): Offset {
+        val oldOffset = offset
+        val newOffset = (oldOffset + delta).coerceIn(-collapsingTopHeight, 0f)
+        offset = newOffset
+        return Offset(0f, newOffset - oldOffset)
+    }
+
+    val scope = rememberCoroutineScope()
+
+    val nestedScrollConnection = remember {
+        object : NestedScrollConnection {
+            override fun onPreScroll(
+                available: Offset,
+                source: NestedScrollSource,
+            ): Offset {
+                if (source == NestedScrollSource.Drag) {
+                    scope.launch {
+                        scrollState.stopScroll()
                     }
-
-
-                    override fun onPostScroll(
-                        consumed: Offset,
-                        available: Offset,
-                        source: NestedScrollSource,
-                    ): Offset =
-                        when {
-                            available.y <= 0 -> Offset.Zero
-                            offset == 0f -> Offset.Zero
-                            else -> calculateOffset(available.y)
-                        }
+                }
+                return when {
+                    available.y >= 0 -> Offset.Zero
+                    offset == -collapsingTopHeight -> Offset.Zero
+                    else -> calculateOffset(available.y)
                 }
             }
 
-            Box(
-                modifier = modifier
-                    .fillMaxSize()
-                    .nestedScroll(nestedScrollConnection),
-            ) {
-                Box(
-                    modifier = Modifier
-                        .scrollable(
-                            scrollState,
-                            orientation = Orientation.Vertical,
-                            reverseDirection = true
-                        )
-                        .onSizeChanged { size ->
-                            collapsingTopHeight = size.height.toFloat()
-                        }
-                        .offset { IntOffset(x = 0, y = offset.roundToInt()) },
-                    content = {
-                        Box(
-                            Modifier
-                                .fillMaxWidth()
-                                .height(400.dp)
-                                .background(Color.Red)
-                        )
-                    },
-                )
-                Box(
-                    modifier = Modifier.offset {
-                        IntOffset(
-                            x = 0,
-                            y = (collapsingTopHeight + offset).roundToInt()
-                        )
-                    },
-                    content = {
-                        LazyColumn(Modifier.fillMaxWidth()) {
-                            items(1000) {
-                                Text("我是$it")
-                            }
-                        }
-                    },
-                )
-            }
+
+            override fun onPostScroll(
+                consumed: Offset,
+                available: Offset,
+                source: NestedScrollSource,
+            ): Offset =
+                when {
+                    available.y <= 0 -> Offset.Zero
+                    offset == 0f -> Offset.Zero
+                    else -> calculateOffset(available.y)
+                }
         }
+    }
+
+    Box(
+        modifier = modifier
+            .fillMaxSize()
+            .nestedScroll(nestedScrollConnection),
+    ) {
+        Box(
+            modifier = Modifier
+                .scrollable(
+                    scrollState,
+                    orientation = Orientation.Vertical,
+                    reverseDirection = true
+                )
+                .onSizeChanged { size ->
+                    collapsingTopHeight = size.height.toFloat()
+                }
+                .offset { IntOffset(x = 0, y = offset.roundToInt()) },
+            content = {
+                Box(
+                    Modifier
+                        .fillMaxWidth()
+                        .height(400.dp)
+                        .background(Color.Red)
+                )
+            },
+        )
+        Box(
+            modifier = Modifier.offset {
+                IntOffset(
+                    x = 0,
+                    y = (collapsingTopHeight + offset).roundToInt()
+                )
+            },
+            content = {
+                LazyColumn(Modifier.fillMaxWidth()) {
+                    items(1000) {
+                        Text("我是$it")
+                    }
+                }
+            },
+        )
     }
 }
