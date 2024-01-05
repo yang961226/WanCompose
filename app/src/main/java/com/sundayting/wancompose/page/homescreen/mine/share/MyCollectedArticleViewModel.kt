@@ -30,11 +30,13 @@ class MyCollectedArticleViewModel @Inject constructor(
     private val articleRepo: ArticleRepository,
 ) : ViewModel() {
 
-    val state = MyCollectedArticleState()
+    val state = MyCollectedArticleState(repo.cachedArticleList)
 
     @Stable
-    class MyCollectedArticleState {
-        private val _articleList = mutableStateListOf<ArticleList.ArticleUiBean>()
+    class MyCollectedArticleState(list: List<ArticleList.ArticleUiBean> = listOf()) {
+        private val _articleList = mutableStateListOf<ArticleList.ArticleUiBean>().apply {
+            addAll(list)
+        }
         val articleList: List<ArticleList.ArticleUiBean> = _articleList
 
         var isLoadingMore by mutableStateOf(false)
@@ -53,7 +55,9 @@ class MyCollectedArticleViewModel @Inject constructor(
         viewModelScope.launch {
             eventManager.eventFlow.filterIsInstance<ArticleCollectChangeEvent>().collect { event ->
                 if (event.isCollect.not()) {
-                    state.removeArticle(event.id)
+                    state.removeArticle(event.bean.id)
+                } else {
+                    state.addArticleList(listOf(event.bean))
                 }
             }
         }
@@ -63,29 +67,34 @@ class MyCollectedArticleViewModel @Inject constructor(
     private var page: Int = 0
 
     init {
-        loadMore()
+        if (!repo.cachedArticleListSuccess) {
+            loadMore()
+        }
     }
 
-    fun unCollectArticle(id: Long) {
+    fun unCollectArticle(bean: ArticleList.ArticleUiBean) {
         viewModelScope.launch {
-            if (articleRepo.unCollectArticle(id).isSuccess()) {
-                eventManager.emitCollectArticleEvent(id, false)
+            if (articleRepo.unCollectArticle(bean.id).isSuccess()) {
+                eventManager.emitCollectArticleEvent(bean)
             }
         }
     }
 
     private var loadJob: Job? = null
     fun loadMore() {
-        if (loadJob?.isActive == true || !state.canLoadMore) {
+        if (loadJob?.isActive == true || !state.canLoadMore || repo.cachedArticleListSuccess) {
             return
         }
         loadJob = viewModelScope.launch(NetExceptionHandler) {
             state.isLoadingMore = true
             val result = repo.fetchCollectedArticle(page)
             if (result.isSuccess()) {
+                repo.cachedArticleListSuccess = true
                 val data = result.body.requireData()
                 state.canLoadMore = data.curPage < data.pageCount
-                state.addArticleList(data.list.map { it.toArticleUiBean() })
+                val list = data.list.map { it.toArticleUiBean() }
+                state.addArticleList(list)
+                repo.cachedArticleList.addAll(list)
             }
         }.also {
             it.invokeOnCompletion {

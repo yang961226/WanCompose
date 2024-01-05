@@ -66,7 +66,7 @@ object MyCollectedArticle : WanComposeDestination {
             onLoadMore = viewModel::loadMore,
             onClickArticle = onClickArticle,
             onUnCollected = {
-                viewModel.unCollectArticle(it.id)
+                viewModel.unCollectArticle(it)
             }
         )
     }
@@ -154,7 +154,7 @@ object MyCollectedArticle : WanComposeDestination {
                                         }
                                         .padding(10.dp),
                                     bean = it,
-                                    onCollect = { _, _ ->
+                                    onCollect = {
                                         confirmUnCollectArticle = it
                                     }
                                 )

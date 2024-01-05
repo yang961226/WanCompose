@@ -6,6 +6,7 @@ import androidx.annotation.StringRes
 import androidx.compose.runtime.staticCompositionLocalOf
 import com.sundayting.wancompose.R
 import com.sundayting.wancompose.WanComposeApplication
+import com.sundayting.wancompose.page.homescreen.article.ui.ArticleList
 import dagger.hilt.EntryPoint
 import dagger.hilt.InstallIn
 import dagger.hilt.android.EntryPointAccessors
@@ -75,15 +76,14 @@ fun EventManager.emitNeedLoginAgain() {
 }
 
 fun EventManager.emitCollectArticleEvent(
-    id: Long,
-    isCollect: Boolean,
+    bean: ArticleList.ArticleUiBean,
 ) {
-    if (isCollect) {
+    if (!bean.isCollect) {
         emitToast(context.getString(R.string.article_collect_success))
     } else {
         emitToast(context.getString(R.string.article_uncollect_success))
     }
-    emitEvent(ArticleCollectChangeEvent(id, isCollect))
+    emitEvent(ArticleCollectChangeEvent(bean, !bean.isCollect))
 }
 
 class ToastEvent(
@@ -94,7 +94,7 @@ class ToastEvent(
 object NeedLoginAgainEvent : EventManager.Event
 
 class ArticleCollectChangeEvent(
-    val id: Long,
+    val bean: ArticleList.ArticleUiBean,
     val isCollect: Boolean,
 ) : EventManager.Event
 

@@ -146,8 +146,8 @@ object ArticleList : HomeScreen.HomeScreenPage {
                         articleState = viewModel.state,
                         lazyListState = lazyListState,
                         toWebLink = toWebLink,
-                        onCollect = { id, isCollect ->
-                            viewModel.collectOrUnCollectArticle(id, isCollect)
+                        onCollect = {
+                            viewModel.collectOrUnCollectArticle(it)
                         }
                     )
                     PullRefreshIndicator(
@@ -170,7 +170,7 @@ private fun ArticleListContent(
     articleState: ArticleListViewModel.ArticleState,
     lazyListState: LazyListState = rememberLazyListState(),
     toWebLink: (url: String) -> Unit = {},
-    onCollect: ((id: Long, isCollect: Boolean) -> Unit)? = null,
+    onCollect: ((bean: ArticleList.ArticleUiBean) -> Unit)? = null,
 ) {
 
     val pagerState = rememberInfiniteLoopPagerState()
@@ -362,7 +362,7 @@ private fun ArticleListContent(
 fun ArticleListSingleBean(
     modifier: Modifier = Modifier,
     bean: ArticleList.ArticleUiBean,
-    onCollect: ((id: Long, isCollect: Boolean) -> Unit)? = null,
+    onCollect: ((bean: ArticleList.ArticleUiBean) -> Unit)? = null,
 ) {
 
     ConstraintLayout(modifier) {
@@ -453,7 +453,8 @@ fun ArticleListSingleBean(
             .clickable(
                 interactionSource = remember { MutableInteractionSource() },
                 indication = rememberRipple(bounded = false)
-            ) { onCollect?.invoke(bean.id, !bean.isCollect) }) { isCollect ->
+            ) { onCollect?.invoke(bean) }
+        ) { isCollect ->
             Image(
                 painter = painterResource(id = if (isCollect) R.drawable.ic_like2 else R.drawable.ic_like),
                 contentDescription = null,
