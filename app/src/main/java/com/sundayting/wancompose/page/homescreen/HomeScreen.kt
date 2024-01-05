@@ -90,7 +90,9 @@ object HomeScreen : WanComposeDestination {
             }
         }
         BottomNavigation(
-            modifier = Modifier.height(70.dp),
+            modifier = Modifier
+                .navigationBarsPadding()
+                .height(70.dp),
             backgroundColor = Color.White,
         ) {
             pageList.forEach { bottomItem ->
@@ -112,7 +114,7 @@ object HomeScreen : WanComposeDestination {
                     },
                     label = {
                         Text(
-                            modifier = Modifier.navigationBarsPadding(),
+                            modifier = Modifier,
                             text = stringResource(id = bottomItem.titleId)
                         )
                     }
