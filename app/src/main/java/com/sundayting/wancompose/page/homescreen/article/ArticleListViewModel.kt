@@ -51,6 +51,8 @@ class ArticleListViewModel @Inject constructor(
         list: List<ArticleList.ArticleUiBean> = listOf(),
     ) {
 
+        var isShowLoadingBox by mutableStateOf(true)
+
         private val _articleList = mutableStateListOf<ArticleList.ArticleUiBean>().apply {
             addAll(list)
         }
@@ -126,6 +128,7 @@ class ArticleListViewModel @Inject constructor(
                 launch {
                     if (isRefresh) {
                         val result = repo.fetchHomePageBanner()
+                        state.isShowLoadingBox = false
                         if (result.isSuccess()) {
                             result.body.requireData().let { list ->
                                 state.bannerList.clear()

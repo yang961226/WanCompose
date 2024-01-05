@@ -7,16 +7,22 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsDraggedAsState
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.Divider
 import androidx.compose.material.Text
@@ -25,9 +31,9 @@ import androidx.compose.material.pullrefresh.pullRefresh
 import androidx.compose.material.pullrefresh.rememberPullRefreshState
 import androidx.compose.material.ripple.rememberRipple
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.Stable
-import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -56,6 +62,8 @@ import com.sundayting.wancompose.common.ui.infinitepager.InfiniteLoopHorizontalP
 import com.sundayting.wancompose.common.ui.infinitepager.currentPageInInfinitePage
 import com.sundayting.wancompose.common.ui.infinitepager.rememberInfiniteLoopPagerState
 import com.sundayting.wancompose.common.ui.ktx.onBottomReached
+import com.sundayting.wancompose.common.ui.loading.LoadingBox
+import com.sundayting.wancompose.common.ui.loading.LocalLoadingBoxIsLoading
 import com.sundayting.wancompose.common.ui.title.TitleBarWithContent
 import com.sundayting.wancompose.page.homescreen.HomeScreen
 import com.sundayting.wancompose.page.homescreen.article.ArticleListViewModel
@@ -108,42 +116,46 @@ object ArticleList : HomeScreen.HomeScreenPage {
         toWebLink: (url: String) -> Unit = {},
     ) {
 
-        val pullRefreshState =
-            rememberPullRefreshState(viewModel.state.refreshing, viewModel::refresh)
-
-        TitleBarWithContent(
-            modifier,
-            titleBarContent = {
-                Text(
-                    stringResource(id = R.string.bottom_tab_home), style = TextStyle(
-                        fontSize = 16.sp, color = Color.White
-                    ), modifier = Modifier.align(Alignment.Center)
-                )
-            }
+        CompositionLocalProvider(
+            LocalLoadingBoxIsLoading provides viewModel.state.isShowLoadingBox
         ) {
-            Box(
-                Modifier
-                    .fillMaxSize()
-                    .pullRefresh(pullRefreshState)
-            ) {
-                val lazyListState = rememberLazyListState()
-                lazyListState.onBottomReached {
-                    viewModel.loadMore()
+            val pullRefreshState =
+                rememberPullRefreshState(viewModel.state.refreshing, viewModel::refresh)
+
+            TitleBarWithContent(
+                modifier,
+                titleBarContent = {
+                    Text(
+                        stringResource(id = R.string.bottom_tab_home), style = TextStyle(
+                            fontSize = 16.sp, color = Color.White
+                        ), modifier = Modifier.align(Alignment.Center)
+                    )
                 }
-                ArticleListContent(
-                    modifier = Modifier.matchParentSize(),
-                    articleState = viewModel.state,
-                    lazyListState = lazyListState,
-                    toWebLink = toWebLink,
-                    onCollect = { id, isCollect ->
-                        viewModel.collectOrUnCollectArticle(id, isCollect)
+            ) {
+                Box(
+                    Modifier
+                        .fillMaxSize()
+                        .pullRefresh(pullRefreshState)
+                ) {
+                    val lazyListState = rememberLazyListState()
+                    lazyListState.onBottomReached {
+                        viewModel.loadMore()
                     }
-                )
-                PullRefreshIndicator(
-                    viewModel.state.refreshing,
-                    pullRefreshState,
-                    Modifier.align(Alignment.TopCenter)
-                )
+                    ArticleListContent(
+                        modifier = Modifier.matchParentSize(),
+                        articleState = viewModel.state,
+                        lazyListState = lazyListState,
+                        toWebLink = toWebLink,
+                        onCollect = { id, isCollect ->
+                            viewModel.collectOrUnCollectArticle(id, isCollect)
+                        }
+                    )
+                    PullRefreshIndicator(
+                        viewModel.state.refreshing,
+                        pullRefreshState,
+                        Modifier.align(Alignment.TopCenter)
+                    )
+                }
             }
         }
     }
@@ -162,13 +174,73 @@ private fun ArticleListContent(
 ) {
 
     val pagerState = rememberInfiniteLoopPagerState()
-    val showBanner by remember {
-        derivedStateOf {
-            articleState.bannerList.isNotEmpty()
+
+    LoadingBox(
+        modifier,
+        loadingContent = {
+            Column(
+                Modifier
+                    .fillMaxSize()
+                    .verticalScroll(state = rememberScrollState(), enabled = false)
+            ) {
+                Box(
+                    Modifier
+                        .fillMaxWidth()
+                        .aspectRatio(2f / 1f)
+                        .background(Color.LightGray.copy(0.5f))
+                ) {
+                    Box(
+                        Modifier
+                            .align(Alignment.BottomCenter)
+                            .background(Color.LightGray.copy(0.7f))
+                            .height(20.dp)
+                            .fillMaxWidth()
+                    )
+                }
+                repeat(20) {
+                    Column {
+                        Column(
+                            Modifier
+                                .fillMaxWidth()
+                                .padding(10.dp)
+                        ) {
+                            Box(
+                                Modifier
+                                    .size(40.dp, 15.dp)
+                                    .background(
+                                        Color.LightGray.copy(0.5f),
+                                        shape = RoundedCornerShape(5.dp)
+                                    )
+                            )
+
+                            Box(
+                                Modifier
+                                    .padding(vertical = 10.dp)
+                                    .size(150.dp, 15.dp)
+                                    .background(
+                                        Color.LightGray.copy(0.5f),
+                                        shape = RoundedCornerShape(5.dp)
+                                    )
+                            )
+
+                            Box(
+                                Modifier
+                                    .size(80.dp, 15.dp)
+                                    .background(
+                                        Color.LightGray.copy(0.5f),
+                                        shape = RoundedCornerShape(5.dp)
+                                    )
+                            )
+
+                        }
+                        Divider(Modifier.fillMaxWidth())
+                    }
+
+                }
+            }
         }
-    }
-    LazyColumn(modifier, state = lazyListState) {
-        if (showBanner) {
+    ) {
+        LazyColumn(Modifier.fillMaxSize(), state = lazyListState) {
             item(key = "Banner") {
                 val isDragging by pagerState.interactionSource.collectIsDraggedAsState()
                 LaunchedEffect(isDragging) {
@@ -233,7 +305,8 @@ private fun ArticleListContent(
                         Modifier
                             .align(Alignment.BottomCenter)
                             .background(Color.Black.copy(0.2f))
-                            .padding(vertical = 2.dp, horizontal = 5.dp)
+                            .padding(horizontal = 5.dp)
+                            .heightIn(min = 20.dp)
                             .fillMaxWidth()
                     ) {
                         Text(
@@ -248,41 +321,41 @@ private fun ArticleListContent(
                         )
                     }
                 }
-
             }
-        }
-        items(articleState.articleList, key = { it.id }) {
-            ArticleListSingleBean(
-                modifier = Modifier
-                    .animateItemPlacement()
-                    .fillMaxWidth()
-                    .clickable(
-                        interactionSource = remember { MutableInteractionSource() },
-                        indication = rememberRipple()
-                    ) {
-                        toWebLink(it.link)
-                    }
-                    .padding(10.dp),
-                bean = it,
-                onCollect = onCollect
-            )
-            Divider(Modifier.fillMaxWidth())
-        }
-        if (articleState.loadingMore) {
-            item {
-                Box(
-                    Modifier
+            items(articleState.articleList, key = { it.id }) {
+                ArticleListSingleBean(
+                    modifier = Modifier
+                        .animateItemPlacement()
                         .fillMaxWidth()
-                        .padding(vertical = 10.dp),
-                    contentAlignment = Alignment.Center
-                ) {
-                    CircularProgressIndicator(
-                        color = WanColors.TopColor
-                    )
+                        .clickable(
+                            interactionSource = remember { MutableInteractionSource() },
+                            indication = rememberRipple()
+                        ) {
+                            toWebLink(it.link)
+                        }
+                        .padding(10.dp),
+                    bean = it,
+                    onCollect = onCollect
+                )
+                Divider(Modifier.fillMaxWidth())
+            }
+            if (articleState.loadingMore) {
+                item {
+                    Box(
+                        Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 10.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        CircularProgressIndicator(
+                            color = WanColors.TopColor
+                        )
+                    }
                 }
             }
         }
     }
+
 }
 
 @Composable
@@ -397,27 +470,32 @@ fun ArticleListSingleBean(
 @Composable
 @Preview(showBackground = true)
 private fun PreviewArticleListContent() {
-    ArticleListContent(Modifier.fillMaxSize(), articleState = remember {
-        ArticleListViewModel.ArticleState(
-            (0L..100L).map {
-                ArticleList.ArticleUiBean(
-                    title = "我是标题我是标题我是标题我是标题我是标题我是标题",
-                    date = "1小时之前",
-                    isNew = true,
-                    isStick = true,
-                    chapter = ArticleList.ArticleUiBean.Chapter(
-                        superChapterName = "广场Tab",
-                        chapterName = "自助"
-                    ),
-                    authorOrSharedUser = ArticleList.ArticleUiBean.AuthorOrSharedUser(
-                        author = "小茗同学",
-                    ),
-                    id = it,
-                    isCollect = (it % 2) == 0L
-                )
-            }
-        )
-    })
+    CompositionLocalProvider(
+        LocalLoadingBoxIsLoading provides true
+    ) {
+        ArticleListContent(Modifier.fillMaxSize(), articleState = remember {
+            ArticleListViewModel.ArticleState(
+                (0L..100L).map {
+                    ArticleList.ArticleUiBean(
+                        title = "我是标题我是标题我是标题我是标题我是标题我是标题",
+                        date = "1小时之前",
+                        isNew = true,
+                        isStick = true,
+                        chapter = ArticleList.ArticleUiBean.Chapter(
+                            superChapterName = "广场Tab",
+                            chapterName = "自助"
+                        ),
+                        authorOrSharedUser = ArticleList.ArticleUiBean.AuthorOrSharedUser(
+                            author = "小茗同学",
+                        ),
+                        id = it,
+                        isCollect = (it % 2) == 0L
+                    )
+                }
+            )
+        })
+    }
+
 }
 
 
