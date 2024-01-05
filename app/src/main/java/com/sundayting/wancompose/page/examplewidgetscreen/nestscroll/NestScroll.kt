@@ -7,7 +7,6 @@ import androidx.compose.foundation.gestures.ScrollScope
 import androidx.compose.foundation.gestures.ScrollableState
 import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -15,11 +14,16 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Text
+import androidx.compose.material.pullrefresh.PullRefreshIndicator
+import androidx.compose.material.pullrefresh.pullRefresh
+import androidx.compose.material.pullrefresh.rememberPullRefreshState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -38,6 +42,8 @@ import com.sundayting.wancompose.WanComposeDestination
 import com.sundayting.wancompose.common.ui.title.TitleBarProperties
 import com.sundayting.wancompose.common.ui.title.TitleBarWithBackButtonContent
 import com.sundayting.wancompose.common.ui.title.TitleBarWithContent
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import kotlin.math.max
 import kotlin.math.roundToInt
 
@@ -71,27 +77,50 @@ object NestScroll : WanComposeDestination {
                 }
             }
         ) {
-            NestScroll(state = remember { CollapsingToolbarScrollState() }, toolBar = {
-                Box(
-                    Modifier
-                        .fillMaxWidth()
-                        .height(300.dp)
-                        .background(Color.LightGray),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text("滑我")
-                }
-            }, body = {
-                Column(
-                    Modifier
-                        .fillMaxSize()
-                        .verticalScroll(rememberScrollState())
-                ) {
-                    repeat(100) {
-                        Text("哈哈哈哈哈:${it}")
+            var isRefreshing by remember { mutableStateOf(false) }
+            val scope = rememberCoroutineScope()
+            val pullRefreshState = rememberPullRefreshState(
+                refreshing = isRefreshing,
+                onRefresh = {
+                    scope.launch {
+                        isRefreshing = true
+                        delay(2000)
+                        isRefreshing = false
                     }
-                }
-            })
+                })
+            Box(Modifier.fillMaxSize()) {
+                NestScroll(
+                    modifier = Modifier.pullRefresh(pullRefreshState),
+                    state = remember { CollapsingToolbarScrollState() },
+                    toolBar = {
+                        Box(
+                            Modifier
+                                .fillMaxWidth()
+                                .height(300.dp)
+                                .background(Color.LightGray),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Text("滑我")
+                        }
+                    },
+                    body = {
+                        LazyColumn(
+                            Modifier
+                                .fillMaxSize()
+                        ) {
+                            items(100) {
+                                Text("我是第:${it}")
+                            }
+                        }
+                    })
+
+                PullRefreshIndicator(
+                    modifier = Modifier.align(Alignment.TopCenter),
+                    refreshing = isRefreshing,
+                    state = pullRefreshState
+                )
+            }
+
 
         }
     }
