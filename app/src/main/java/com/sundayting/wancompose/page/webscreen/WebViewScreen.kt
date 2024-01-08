@@ -69,7 +69,10 @@ import com.sundayting.wancompose.common.event.EventManager
 import com.sundayting.wancompose.common.event.emitToast
 import com.sundayting.wancompose.common.ui.title.TitleBar
 import com.sundayting.wancompose.common.ui.title.TitleBarWithContent
+import com.sundayting.wancompose.page.homescreen.article.ui.ArticleList
 import com.sundayting.wancompose.theme.WanColors
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
 import java.net.URLEncoder
 import java.nio.charset.StandardCharsets
 
@@ -78,35 +81,49 @@ object WebViewScreen : WanComposeDestination {
     override val route: String
         get() = "浏览器"
 
-    const val urlArg = "urlKey"
-    const val isCollectArg = "isCollectKey"
-    const val articleIdArg = "articleId"
+    const val argumentKey = "argumentKey"
 
-    val routeWithArgs = "$route/{$urlArg}/{$isCollectArg}/{$articleIdArg}"
+    val routeWithArgs = "$route/{$argumentKey}"
 
     val arguments = listOf(
-        navArgument(urlArg) { type = NavType.StringType },
-        navArgument(isCollectArg) { type = NavType.BoolType },
-        navArgument(articleIdArg) { type = NavType.LongType }
+        navArgument(argumentKey) { type = NavType.StringType },
     )
 
+
     fun NavController.navigateToWebViewScreen(
-        url: String,
-        articleId: Long,
-        isCollect: Boolean,
+        articleUiBean: ArticleList.ArticleUiBean,
     ) {
         navigate(
             "$route/${
-                URLEncoder.encode(
-                    url,
-                    StandardCharsets.UTF_8.toString()
+                Json.encodeToString(
+                    articleUiBean.copy(
+                        link = URLEncoder.encode(
+                            articleUiBean.link,
+                            StandardCharsets.UTF_8.toString()
+                        )
+                    )
                 )
-            }/$isCollect/$articleId"
+            }"
         ) {
             launchSingleTop = true
         }
     }
 
+    fun NavController.navigateToWebViewScreen(
+        bannerUiBean: ArticleList.BannerUiBean,
+    ) {
+        navigateToWebViewScreen(
+            ArticleList.ArticleUiBean(
+                title = "",
+                date = "",
+                id = -1,
+                isStick = false,
+                chapter = ArticleList.ArticleUiBean.Chapter("", ""),
+                authorOrSharedUser = ArticleList.ArticleUiBean.AuthorOrSharedUser(),
+                link = bannerUiBean.linkUrl,
+            )
+        )
+    }
 
     @SuppressLint("SetJavaScriptEnabled")
     @Composable
@@ -194,32 +211,25 @@ object WebViewScreen : WanComposeDestination {
                         derivedStateOf { (viewModel.webViewUiState.webViewState.loadingState as? LoadingState.Loading)?.progress }
                     }.value,
                     toolList = viewModel.webViewUiState.toolList,
-                    isCollect = viewModel.webViewUiState.isCollected,
+                    isCollect = viewModel.webViewUiState.articleUiBean.isCollect,
                     onClick = {
                         when (it) {
-                            WebToolWidgetEnum.Share -> {
-                                EventManager.getInstance().emitToast("开发中")
-                            }
+                            WebToolWidgetEnum.Share -> EventManager.getInstance()
+                                .emitToast("开发中")
 
-                            WebToolWidgetEnum.Browser -> {
-                                context.startActivity(
-                                    Intent(
-                                        Intent.ACTION_VIEW,
-                                        Uri.parse(viewModel.webViewUiState.webViewState.lastLoadedUrl)
-                                    )
+                            WebToolWidgetEnum.Browser -> context.startActivity(
+                                Intent(
+                                    Intent.ACTION_VIEW,
+                                    Uri.parse(viewModel.webViewUiState.webViewState.lastLoadedUrl)
                                 )
-                            }
+                            )
 
-                            WebToolWidgetEnum.Collect -> {
+                            WebToolWidgetEnum.Collect -> viewModel.collectOrUnCollectArticle()
 
-                            }
-
-                            WebToolWidgetEnum.Back -> {
-                                if (navigator.canGoBack) {
-                                    navigator.navigateBack()
-                                } else {
-                                    navController.popBackStack()
-                                }
+                            WebToolWidgetEnum.Back -> if (navigator.canGoBack) {
+                                navigator.navigateBack()
+                            } else {
+                                navController.popBackStack()
                             }
                         }
                     },
@@ -390,7 +400,11 @@ private fun WebToolWidget(
 @Composable
 @Preview(showBackground = true)
 private fun PreviewWebToolButton() {
-    WebToolButton(resId = R.drawable.ic_close, backgroundColor = WanColors.CollectColor)
+    WebToolButton(
+        resId = R.drawable.ic_close,
+        backgroundColor = WanColors.CollectColor,
+        contentColorFilter = ColorFilter.tint(Color.White)
+    )
 }
 
 private val buttonSize = 50.dp

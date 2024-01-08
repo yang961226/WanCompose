@@ -196,18 +196,10 @@ object HomeScreen : WanComposeDestination {
                 ArticleList.Screen(
                     modifier = Modifier.fillMaxSize(),
                     onClickArticle = {
-                        navController.navigateToWebViewScreen(
-                            url = it.link,
-                            articleId = it.id,
-                            isCollect = it.isCollect
-                        )
+                        navController.navigateToWebViewScreen(it)
                     },
                     onClickBanner = {
-                        navController.navigateToWebViewScreen(
-                            url = it.linkUrl,
-                            articleId = -1,
-                            isCollect = false
-                        )
+                        navController.navigateToWebViewScreen(it)
                     }
                 )
             }

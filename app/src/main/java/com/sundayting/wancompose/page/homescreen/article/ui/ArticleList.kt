@@ -69,6 +69,7 @@ import com.sundayting.wancompose.page.homescreen.HomeScreen
 import com.sundayting.wancompose.page.homescreen.article.ArticleListViewModel
 import com.sundayting.wancompose.theme.WanColors
 import kotlinx.coroutines.delay
+import kotlinx.serialization.Serializable
 
 object ArticleList : HomeScreen.HomeScreenPage {
 
@@ -76,7 +77,8 @@ object ArticleList : HomeScreen.HomeScreenPage {
         get() = "文章列表"
 
     @Stable
-    class ArticleUiBean(
+    @Serializable
+    data class ArticleUiBean(
         val title: String,
         val date: String,
         val id: Long,
@@ -85,20 +87,20 @@ object ArticleList : HomeScreen.HomeScreenPage {
         val chapter: Chapter,
         val authorOrSharedUser: AuthorOrSharedUser,
         val link: String = "",
-        isCollect: Boolean = false,
+        val isCollect: Boolean = false,
     ) {
 
+        @Serializable
         data class Chapter(
             val chapterName: String,
             val superChapterName: String,
         )
 
+        @Serializable
         data class AuthorOrSharedUser(
             val author: String = "",
             val sharedUser: String = "",
         )
-
-        var isCollect by mutableStateOf(isCollect)
 
     }
 

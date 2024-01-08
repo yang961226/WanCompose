@@ -40,9 +40,14 @@ class ArticleListViewModel @Inject constructor(
     init {
         viewModelScope.launch {
             eventManager.eventFlow.filterIsInstance<ArticleCollectChangeEvent>().collect { event ->
-                val article =
-                    state.articleList.firstOrNull { it.id == event.bean.id } ?: return@collect
-                article.isCollect = event.isCollect
+                val index =
+                    state.articleList.indexOfFirst { it.id == event.bean.id }.takeIf { it != -1 }
+                        ?: return@collect
+
+                state.changeArticle(
+                    index,
+                    state.articleList[index].copy(isCollect = event.isCollect)
+                )
             }
         }
     }
@@ -58,6 +63,10 @@ class ArticleListViewModel @Inject constructor(
             addAll(list)
         }
         val articleList: List<ArticleList.ArticleUiBean> = _articleList
+
+        fun changeArticle(index: Int, article: ArticleList.ArticleUiBean) {
+            _articleList[index] = article
+        }
 
         fun addArticle(list: List<ArticleList.ArticleUiBean>, clearFirst: Boolean = false) {
             if (clearFirst) {
@@ -85,12 +94,14 @@ class ArticleListViewModel @Inject constructor(
         }
     }
 
+    private var changeCollectJob: Job? = null
+
     fun collectOrUnCollectArticle(bean: ArticleList.ArticleUiBean) {
-        if (mineRepo.curUserFlow.value == null) {
+        if (mineRepo.curUserFlow.value == null && changeCollectJob?.isActive == true) {
             eventManager.emitEvent(ShowLoginPageEvent)
             return
         }
-        viewModelScope.launch {
+        changeCollectJob = viewModelScope.launch {
             if (!bean.isCollect) {
                 if (repo.collectArticle(bean.id).isSuccess()) {
                     eventManager.emitCollectArticleEvent(bean)
