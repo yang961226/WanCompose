@@ -195,8 +195,19 @@ object HomeScreen : WanComposeDestination {
             composable(ArticleList.route) {
                 ArticleList.Screen(
                     modifier = Modifier.fillMaxSize(),
-                    toWebLink = {
-                        navController.navigateToWebViewScreen(it)
+                    onClickArticle = {
+                        navController.navigateToWebViewScreen(
+                            url = it.link,
+                            articleId = it.id,
+                            isCollect = it.isCollect
+                        )
+                    },
+                    onClickBanner = {
+                        navController.navigateToWebViewScreen(
+                            url = it.linkUrl,
+                            articleId = -1,
+                            isCollect = false
+                        )
                     }
                 )
             }

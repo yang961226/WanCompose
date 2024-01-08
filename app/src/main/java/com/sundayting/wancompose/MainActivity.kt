@@ -43,7 +43,6 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
-import com.google.accompanist.web.rememberWebViewState
 import com.sundayting.wancompose.common.event.EventManager
 import com.sundayting.wancompose.common.event.LocalEventManager
 import com.sundayting.wancompose.common.event.ShowLoginPageEvent
@@ -55,7 +54,6 @@ import com.sundayting.wancompose.page.homescreen.mine.MineScreen
 import com.sundayting.wancompose.page.homescreen.mine.ui.LoginContent
 import com.sundayting.wancompose.page.setting.SettingScreen
 import com.sundayting.wancompose.page.webscreen.WebViewScreen
-import com.sundayting.wancompose.page.webscreen.WebViewScreen.urlArg
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.launch
@@ -274,10 +272,9 @@ fun WanComposeApp(
                     composable(
                         route = WebViewScreen.routeWithArgs,
                         arguments = WebViewScreen.arguments,
-                    ) { entry ->
+                    ) {
                         WebViewScreen.Screen(
                             Modifier.fillMaxSize(),
-                            rememberWebViewState(url = entry.arguments?.getString(urlArg) ?: ""),
                             navController = navController
                         )
                     }

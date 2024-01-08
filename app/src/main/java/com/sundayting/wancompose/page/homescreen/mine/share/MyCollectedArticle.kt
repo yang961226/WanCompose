@@ -57,7 +57,7 @@ object MyCollectedArticle : WanComposeDestination {
         modifier: Modifier = Modifier,
         viewModel: MyCollectedArticleViewModel = hiltViewModel(),
         onClickBackButton: () -> Unit,
-        onClickArticle: (String) -> Unit,
+        onClickArticle: (articleUiBean: ArticleList.ArticleUiBean) -> Unit,
     ) {
         MyCollectedArticleContent(
             modifier = modifier,
@@ -76,7 +76,7 @@ object MyCollectedArticle : WanComposeDestination {
         modifier: Modifier = Modifier,
         state: MyCollectedArticleViewModel.MyCollectedArticleState,
         onClickBackButton: () -> Unit,
-        onClickArticle: (String) -> Unit,
+        onClickArticle: (articleUiBean: ArticleList.ArticleUiBean) -> Unit,
         onUnCollected: (articleUiBean: ArticleList.ArticleUiBean) -> Unit,
         onLoadMore: () -> Unit,
     ) {
@@ -150,7 +150,7 @@ object MyCollectedArticle : WanComposeDestination {
                                             interactionSource = remember { MutableInteractionSource() },
                                             indication = rememberRipple()
                                         ) {
-                                            onClickArticle(it.link)
+                                            onClickArticle(it)
                                         }
                                         .padding(10.dp),
                                     bean = it,

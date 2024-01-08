@@ -35,6 +35,7 @@ import androidx.compose.material.ripple.rememberRipple
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -53,6 +54,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.ConstraintLayout
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import androidx.navigation.NavType
 import androidx.navigation.navArgument
@@ -60,10 +62,11 @@ import com.google.accompanist.web.AccompanistWebViewClient
 import com.google.accompanist.web.LoadingState
 import com.google.accompanist.web.WebView
 import com.google.accompanist.web.WebViewNavigator
-import com.google.accompanist.web.WebViewState
 import com.google.accompanist.web.rememberWebViewNavigator
 import com.sundayting.wancompose.R
 import com.sundayting.wancompose.WanComposeDestination
+import com.sundayting.wancompose.common.event.EventManager
+import com.sundayting.wancompose.common.event.emitToast
 import com.sundayting.wancompose.common.ui.title.TitleBar
 import com.sundayting.wancompose.common.ui.title.TitleBarWithContent
 import com.sundayting.wancompose.theme.WanColors
@@ -76,21 +79,29 @@ object WebViewScreen : WanComposeDestination {
         get() = "浏览器"
 
     const val urlArg = "urlKey"
+    const val isCollectArg = "isCollectKey"
+    const val articleIdArg = "articleId"
 
-    val routeWithArgs = "$route/{$urlArg}"
+    val routeWithArgs = "$route/{$urlArg}/{$isCollectArg}/{$articleIdArg}"
 
     val arguments = listOf(
-        navArgument(urlArg) { type = NavType.StringType }
+        navArgument(urlArg) { type = NavType.StringType },
+        navArgument(isCollectArg) { type = NavType.BoolType },
+        navArgument(articleIdArg) { type = NavType.LongType }
     )
 
-    fun NavController.navigateToWebViewScreen(url: String) {
+    fun NavController.navigateToWebViewScreen(
+        url: String,
+        articleId: Long,
+        isCollect: Boolean,
+    ) {
         navigate(
             "$route/${
                 URLEncoder.encode(
                     url,
                     StandardCharsets.UTF_8.toString()
                 )
-            }"
+            }/$isCollect/$articleId"
         ) {
             launchSingleTop = true
         }
@@ -101,7 +112,7 @@ object WebViewScreen : WanComposeDestination {
     @Composable
     fun Screen(
         modifier: Modifier = Modifier,
-        webViewState: WebViewState,
+        viewModel: WebViewViewModel = hiltViewModel(),
         navController: NavController,
     ) {
 
@@ -171,44 +182,45 @@ object WebViewScreen : WanComposeDestination {
                             }
                         }
                     },
-                    state = webViewState,
+                    state = viewModel.webViewUiState.webViewState,
                     client = client
                 )
-
-                val context = LocalContext.current
-
-
                 WebToolWidget(
                     Modifier.constrainAs(webToolContent) {
                         start.linkTo(parent.start, 30.dp)
                         bottom.linkTo(parent.bottom, 60.dp)
                     },
                     loadingProgress = remember {
-                        derivedStateOf { (webViewState.loadingState as? LoadingState.Loading)?.progress }
+                        derivedStateOf { (viewModel.webViewUiState.webViewState.loadingState as? LoadingState.Loading)?.progress }
                     }.value,
-                    onClickBack = {
-                        if (navigator.canGoBack) {
-                            navigator.navigateBack()
-                        } else {
-                            navController.popBackStack()
+                    toolList = viewModel.webViewUiState.toolList,
+                    onClick = {
+                        when (it) {
+                            WebToolWidgetEnum.Share -> {
+                                EventManager.getInstance().emitToast("开发中")
+                            }
+
+                            WebToolWidgetEnum.Browser -> {
+                                context.startActivity(
+                                    Intent(
+                                        Intent.ACTION_VIEW,
+                                        Uri.parse(viewModel.webViewUiState.webViewState.lastLoadedUrl)
+                                    )
+                                )
+                            }
+
+                            WebToolWidgetEnum.Collect -> {
+
+                            }
+
+                            WebToolWidgetEnum.Back -> {
+                                if (navigator.canGoBack) {
+                                    navigator.navigateBack()
+                                } else {
+                                    navController.popBackStack()
+                                }
+                            }
                         }
-                    },
-                    onClickBookmark = {
-
-                    },
-                    onClickBrowser = {
-                        context.startActivity(
-                            Intent(
-                                Intent.ACTION_VIEW,
-                                Uri.parse(webViewState.lastLoadedUrl)
-                            )
-                        )
-                    },
-                    onClickLike = {
-
-                    },
-                    onClickShare = {
-
                     },
                 )
 
@@ -255,8 +267,23 @@ private fun PreviewWebToolWidget() {
             .width(50.dp)
             .padding(bottom = 10.dp), contentAlignment = Alignment.BottomCenter
     ) {
-        WebToolWidget()
+        WebToolWidget(
+            toolList = listOf(
+                WebToolWidgetEnum.Collect,
+                WebToolWidgetEnum.Browser,
+                WebToolWidgetEnum.Share
+            )
+        )
     }
+
+}
+
+enum class WebToolWidgetEnum {
+
+    Share,
+    Browser,
+    Collect,
+    Back
 
 }
 
@@ -264,11 +291,8 @@ private fun PreviewWebToolWidget() {
 private fun WebToolWidget(
     modifier: Modifier = Modifier,
     loadingProgress: Float? = null,
-    onClickBack: () -> Unit = {},
-    onClickLike: () -> Unit = {},
-    onClickBookmark: () -> Unit = {},
-    onClickBrowser: () -> Unit = {},
-    onClickShare: () -> Unit = {},
+    toolList: List<WebToolWidgetEnum>,
+    onClick: (WebToolWidgetEnum) -> Unit = {},
 ) {
 
     var open by remember { mutableStateOf(false) }
@@ -281,22 +305,6 @@ private fun WebToolWidget(
     val rotate by openTransition.animateFloat(label = "") { isOpen ->
         if (isOpen) 180f else 0f
     }
-    val buttonOneOffset by openTransition.animateDp(label = "组件1") { isOpen ->
-        if (isOpen) -(buttonSize + 10.dp) else 0.dp
-    }
-
-    val buttonTwoOffset by openTransition.animateDp(label = "组件2") { isOpen ->
-        if (isOpen) -((buttonSize + 10.dp) * 2) else 0.dp
-    }
-
-    val buttonThreeOffset by openTransition.animateDp(label = "组件3") { isOpen ->
-        if (isOpen) -((buttonSize + 10.dp) * 3) else 0.dp
-    }
-
-    val buttonFourOffset by openTransition.animateDp(label = "组件4") { isOpen ->
-        if (isOpen) -((buttonSize + 10.dp) * 4) else 0.dp
-    }
-
 
     Box(modifier.size(60.dp), contentAlignment = Alignment.Center) {
         AnimatedVisibility(
@@ -310,58 +318,32 @@ private fun WebToolWidget(
                 progress = loadingProgress ?: 0f,
             )
         }
-        WebToolButton(
-            Modifier
-                .offset(y = buttonOneOffset)
-                .alpha(alpha)
-                .clickable(
-                    enabled = open,
-                    interactionSource = remember { MutableInteractionSource() },
-                    indication = rememberRipple(
-                        radius = 25.dp
-                    )
-                ) { onClickLike() },
-            resId = R.drawable.ic_like
-        )
-        WebToolButton(
-            Modifier
-                .offset(y = buttonTwoOffset)
-                .alpha(alpha)
-                .clickable(
-                    enabled = open,
-                    interactionSource = remember { MutableInteractionSource() },
-                    indication = rememberRipple(
-                        radius = 25.dp
-                    )
-                ) { onClickBookmark() },
-            resId = R.drawable.ic_bookmark
-        )
-        WebToolButton(
-            Modifier
-                .offset(y = buttonThreeOffset)
-                .alpha(alpha)
-                .clickable(
-                    enabled = open,
-                    interactionSource = remember { MutableInteractionSource() },
-                    indication = rememberRipple(
-                        radius = 25.dp
-                    )
-                ) { onClickBrowser() },
-            resId = R.drawable.ic_net
-        )
-        WebToolButton(
-            Modifier
-                .offset(y = buttonFourOffset)
-                .alpha(alpha)
-                .clickable(
-                    enabled = open,
-                    interactionSource = remember { MutableInteractionSource() },
-                    indication = rememberRipple(
-                        radius = 25.dp
-                    )
-                ) { onClickShare() },
-            resId = R.drawable.ic_share
-        )
+        toolList.forEachIndexed { index, enum ->
+            key(enum) {
+                val offset by openTransition.animateDp(label = enum.toString()) { isOpen ->
+                    if (isOpen) -(buttonSize + 10.dp * (index + 1)) else 0.dp
+                }
+                WebToolButton(
+                    Modifier
+                        .offset(y = offset)
+                        .alpha(alpha)
+                        .clickable(
+                            enabled = open,
+                            interactionSource = remember { MutableInteractionSource() },
+                            indication = rememberRipple(
+                                radius = 25.dp
+                            )
+                        ) { onClick(enum) },
+                    resId = when (enum) {
+                        WebToolWidgetEnum.Share -> R.drawable.ic_share
+                        WebToolWidgetEnum.Browser -> R.drawable.ic_net
+                        WebToolWidgetEnum.Collect -> R.drawable.ic_like
+                        WebToolWidgetEnum.Back -> error("")
+                    }
+                )
+            }
+
+        }
         WebToolButton(
             modifier = Modifier
                 .graphicsLayer {
@@ -380,7 +362,7 @@ private fun WebToolWidget(
                         if (open) {
                             open = false
                         } else {
-                            onClickBack()
+                            onClick(WebToolWidgetEnum.Back)
                         }
                     }
                 ),

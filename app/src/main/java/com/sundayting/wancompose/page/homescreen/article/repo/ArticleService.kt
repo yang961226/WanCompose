@@ -96,7 +96,7 @@ class TopArticleResultBean(
 data class HomePageBannerBean(
     val imagePath: String,
     val url: String,
-    val id: Int,
+    val id: Long,
     val title: String,
 )
 

@@ -105,7 +105,7 @@ object ArticleList : HomeScreen.HomeScreenPage {
     data class BannerUiBean(
         val imgUrl: String,
         val linkUrl: String,
-        val id: Int,
+        val id: Long,
         val title: String,
     )
 
@@ -113,7 +113,8 @@ object ArticleList : HomeScreen.HomeScreenPage {
     fun Screen(
         modifier: Modifier = Modifier,
         viewModel: ArticleListViewModel = hiltViewModel(),
-        toWebLink: (url: String) -> Unit = {},
+        onClickArticle: (article: ArticleUiBean) -> Unit = {},
+        onClickBanner: (banner: BannerUiBean) -> Unit = {},
     ) {
 
         CompositionLocalProvider(
@@ -145,7 +146,8 @@ object ArticleList : HomeScreen.HomeScreenPage {
                         modifier = Modifier.matchParentSize(),
                         articleState = viewModel.state,
                         lazyListState = lazyListState,
-                        toWebLink = toWebLink,
+                        onClickArticle = onClickArticle,
+                        onClickBanner = onClickBanner,
                         onCollect = {
                             viewModel.collectOrUnCollectArticle(it)
                         }
@@ -169,7 +171,8 @@ private fun ArticleListContent(
     modifier: Modifier = Modifier,
     articleState: ArticleListViewModel.ArticleState,
     lazyListState: LazyListState = rememberLazyListState(),
-    toWebLink: (url: String) -> Unit = {},
+    onClickArticle: (article: ArticleList.ArticleUiBean) -> Unit = {},
+    onClickBanner: (banner: ArticleList.BannerUiBean) -> Unit = {},
     onCollect: ((bean: ArticleList.ArticleUiBean) -> Unit)? = null,
 ) {
 
@@ -282,11 +285,11 @@ private fun ArticleListContent(
                                         interactionSource = remember { MutableInteractionSource() },
                                         indication = rememberRipple()
                                     ) {
-                                        val clickedBanner =
+                                        onClickBanner(
                                             articleState.bannerList[pagerState.currentPageInInfinitePage(
                                                 articleState.bannerList.size
                                             )]
-                                        toWebLink(clickedBanner.linkUrl)
+                                        )
                                     },
                                 model = ImageRequest
                                     .Builder(LocalContext.current)
@@ -331,7 +334,7 @@ private fun ArticleListContent(
                             interactionSource = remember { MutableInteractionSource() },
                             indication = rememberRipple()
                         ) {
-                            toWebLink(it.link)
+                            onClickArticle(it)
                         }
                         .padding(10.dp),
                     bean = it,

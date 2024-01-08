@@ -41,7 +41,11 @@ object MineGraph : WanComposeDestination {
                     modifier = Modifier.fillMaxSize(),
                     onClickBackButton = navController::popBackStack,
                     onClickArticle = {
-                        navController.navigateToWebViewScreen(it)
+                        navController.navigateToWebViewScreen(
+                            url = it.link,
+                            articleId = it.id,
+                            isCollect = it.isCollect
+                        )
                     }
                 )
             }
