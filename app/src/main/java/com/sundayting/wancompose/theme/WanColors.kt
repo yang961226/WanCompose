@@ -6,6 +6,6 @@ object WanColors {
 
     val TopColor = Color(0xFF5380ec)
 
-    val CollectColor = Color(0xFFe87045)
+    val CollectColor = Color(0xFFE94E2D)
 
 }

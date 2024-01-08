@@ -339,9 +339,17 @@ private fun WebToolWidget(
                     resId = when (enum) {
                         WebToolWidgetEnum.Share -> R.drawable.ic_share
                         WebToolWidgetEnum.Browser -> R.drawable.ic_net
-                        WebToolWidgetEnum.Collect -> R.drawable.ic_like
+                        WebToolWidgetEnum.Collect -> {
+                            if (isCollect) R.drawable.ic_like2 else R.drawable.ic_like
+                        }
+
                         WebToolWidgetEnum.Back -> error("")
-                    }
+                    },
+                    contentColorFilter = if (enum == WebToolWidgetEnum.Collect && isCollect) ColorFilter.tint(
+                        WanColors.CollectColor
+                    ) else ColorFilter.tint(
+                        Color.Black
+                    ),
                 )
             }
 
@@ -369,6 +377,9 @@ private fun WebToolWidget(
                     }
                 ),
             backgroundColor = if (isCollect) WanColors.CollectColor else Color.White,
+            contentColorFilter = if (isCollect) ColorFilter.tint(Color.White) else ColorFilter.tint(
+                Color.Black
+            ),
             resId = if (open) R.drawable.ic_close else R.drawable.ic_direction_left
         )
 
@@ -389,6 +400,7 @@ private fun WebToolButton(
     modifier: Modifier = Modifier,
     @DrawableRes resId: Int,
     backgroundColor: Color = Color.White,
+    contentColorFilter: ColorFilter = ColorFilter.tint(Color.Black),
 ) {
     Surface(
         modifier.size(buttonSize),
@@ -401,7 +413,8 @@ private fun WebToolButton(
             contentDescription = null,
             modifier = Modifier
                 .padding(15.dp),
-            contentScale = ContentScale.Crop
+            contentScale = ContentScale.Crop,
+            colorFilter = contentColorFilter
         )
     }
 }
