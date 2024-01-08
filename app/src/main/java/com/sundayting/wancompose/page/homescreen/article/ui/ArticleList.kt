@@ -464,7 +464,7 @@ fun ArticleListSingleBean(
                 modifier = Modifier
                     .padding(2.dp)
                     .size(20.dp),
-                colorFilter = if (isCollect) ColorFilter.tint(Color(0xFFe87045)) else null
+                colorFilter = if (isCollect) ColorFilter.tint(WanColors.CollectColor) else null
             )
         }
     }
@@ -476,6 +476,19 @@ fun ArticleListSingleBean(
 private fun PreviewArticleListContent() {
     CompositionLocalProvider(
         LocalLoadingBoxIsLoading provides true
+    ) {
+        ArticleListContent(Modifier.fillMaxSize(), articleState = remember {
+            ArticleListViewModel.ArticleState()
+        })
+    }
+
+}
+
+@Composable
+@Preview(showBackground = true)
+private fun PreviewArticleListContent2() {
+    CompositionLocalProvider(
+        LocalLoadingBoxIsLoading provides false
     ) {
         ArticleListContent(Modifier.fillMaxSize(), articleState = remember {
             ArticleListViewModel.ArticleState(

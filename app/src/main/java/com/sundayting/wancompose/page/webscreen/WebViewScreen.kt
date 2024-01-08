@@ -194,6 +194,7 @@ object WebViewScreen : WanComposeDestination {
                         derivedStateOf { (viewModel.webViewUiState.webViewState.loadingState as? LoadingState.Loading)?.progress }
                     }.value,
                     toolList = viewModel.webViewUiState.toolList,
+                    isCollect = viewModel.webViewUiState.isCollected,
                     onClick = {
                         when (it) {
                             WebToolWidgetEnum.Share -> {
@@ -292,6 +293,7 @@ private fun WebToolWidget(
     modifier: Modifier = Modifier,
     loadingProgress: Float? = null,
     toolList: List<WebToolWidgetEnum>,
+    isCollect: Boolean = false,
     onClick: (WebToolWidgetEnum) -> Unit = {},
 ) {
 
@@ -321,7 +323,7 @@ private fun WebToolWidget(
         toolList.forEachIndexed { index, enum ->
             key(enum) {
                 val offset by openTransition.animateDp(label = enum.toString()) { isOpen ->
-                    if (isOpen) -(buttonSize + 10.dp * (index + 1)) else 0.dp
+                    if (isOpen) -(buttonSize + 10.dp) * (index + 1) else 0.dp
                 }
                 WebToolButton(
                     Modifier
@@ -366,6 +368,7 @@ private fun WebToolWidget(
                         }
                     }
                 ),
+            backgroundColor = if (isCollect) WanColors.CollectColor else Color.White,
             resId = if (open) R.drawable.ic_close else R.drawable.ic_direction_left
         )
 
@@ -376,7 +379,7 @@ private fun WebToolWidget(
 @Composable
 @Preview(showBackground = true)
 private fun PreviewWebToolButton() {
-    WebToolButton(resId = R.drawable.ic_close)
+    WebToolButton(resId = R.drawable.ic_close, backgroundColor = WanColors.CollectColor)
 }
 
 private val buttonSize = 50.dp
@@ -385,11 +388,13 @@ private val buttonSize = 50.dp
 private fun WebToolButton(
     modifier: Modifier = Modifier,
     @DrawableRes resId: Int,
+    backgroundColor: Color = Color.White,
 ) {
     Surface(
         modifier.size(buttonSize),
         shape = CircleShape,
         elevation = 2.dp,
+        color = backgroundColor
     ) {
         Image(
             painter = painterResource(id = resId),
