@@ -54,6 +54,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavHostController
 import coil.compose.AsyncImage
 import coil.request.CachePolicy
 import coil.request.ImageRequest
@@ -67,6 +68,8 @@ import com.sundayting.wancompose.common.ui.loading.LocalLoadingBoxIsLoading
 import com.sundayting.wancompose.common.ui.title.TitleBarWithContent
 import com.sundayting.wancompose.page.homescreen.HomeScreen
 import com.sundayting.wancompose.page.homescreen.article.ArticleListViewModel
+import com.sundayting.wancompose.page.scan.ScanScreen.navigateToScanScreen
+import com.sundayting.wancompose.page.webscreen.WebViewScreen.navigateToWebViewScreen
 import com.sundayting.wancompose.theme.WanColors
 import kotlinx.coroutines.delay
 import kotlinx.serialization.Serializable
@@ -115,8 +118,7 @@ object ArticleList : HomeScreen.HomeScreenPage {
     fun Screen(
         modifier: Modifier = Modifier,
         viewModel: ArticleListViewModel = hiltViewModel(),
-        onClickArticle: (article: ArticleUiBean) -> Unit = {},
-        onClickBanner: (banner: BannerUiBean) -> Unit = {},
+        navController: NavHostController,
     ) {
 
         CompositionLocalProvider(
@@ -128,6 +130,23 @@ object ArticleList : HomeScreen.HomeScreenPage {
             TitleBarWithContent(
                 modifier,
                 titleBarContent = {
+                    Image(
+                        painter = painterResource(id = R.drawable.ic_scan),
+                        contentDescription = null,
+                        modifier = Modifier
+                            .align(Alignment.CenterStart)
+                            .padding(start = 15.dp)
+                            .size(20.dp)
+                            .clickable(
+                                interactionSource = remember { MutableInteractionSource() },
+                                indication = null
+                            ) {
+                                navController.navigateToScanScreen()
+                            },
+                        contentScale = ContentScale.Fit,
+                        colorFilter = ColorFilter.tint(Color.White)
+                    )
+
                     Text(
                         stringResource(id = R.string.bottom_tab_home), style = TextStyle(
                             fontSize = 16.sp, color = Color.White
@@ -148,8 +167,12 @@ object ArticleList : HomeScreen.HomeScreenPage {
                         modifier = Modifier.matchParentSize(),
                         articleState = viewModel.state,
                         lazyListState = lazyListState,
-                        onClickArticle = onClickArticle,
-                        onClickBanner = onClickBanner,
+                        onClickArticle = {
+                            navController.navigateToWebViewScreen(it)
+                        },
+                        onClickBanner = {
+                            navController.navigateToWebViewScreen(it)
+                        },
                         onCollect = {
                             viewModel.collectOrUnCollectArticle(it)
                         }

@@ -5,6 +5,9 @@ import androidx.annotation.StringRes
 import androidx.compose.animation.AnimatedContentTransitionScope
 import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExitTransition
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -41,7 +44,7 @@ import com.sundayting.wancompose.page.examplewidgetscreen.tantancard.TanTanSwipe
 import com.sundayting.wancompose.page.homescreen.article.ui.ArticleList
 import com.sundayting.wancompose.page.homescreen.mine.MineGraph
 import com.sundayting.wancompose.page.homescreen.mine.MineScreen
-import com.sundayting.wancompose.page.webscreen.WebViewScreen.navigateToWebViewScreen
+import com.sundayting.wancompose.page.scan.ScanScreen
 
 object HomeScreen : WanComposeDestination {
 
@@ -136,6 +139,10 @@ object HomeScreen : WanComposeDestination {
         return startInHome && targetInHome
     }
 
+    private fun isScanTransition(targetRoute: String?): Boolean {
+        return targetRoute == ScanScreen.route
+    }
+
     private val DEFAULT_ENTER_TRANSITION: (AnimatedContentTransitionScope<NavBackStackEntry>.() -> EnterTransition?) =
         {
             if (isHomeTransition(initialState.destination.route, targetState.destination.route)) {
@@ -150,6 +157,8 @@ object HomeScreen : WanComposeDestination {
         {
             if (isHomeTransition(initialState.destination.route, targetState.destination.route)) {
                 ExitTransition.None
+            } else if (isScanTransition(targetState.destination.route)) {
+                fadeOut(tween(5000))
             } else {
                 slideOutOfContainer(
                     towards = AnimatedContentTransitionScope.SlideDirection.Left,
@@ -161,6 +170,8 @@ object HomeScreen : WanComposeDestination {
         {
             if (isHomeTransition(initialState.destination.route, targetState.destination.route)) {
                 EnterTransition.None
+            } else if (isScanTransition(targetState.destination.route)) {
+                fadeIn(tween(5000))
             } else {
                 slideIntoContainer(
                     towards = AnimatedContentTransitionScope.SlideDirection.Right,
@@ -193,12 +204,7 @@ object HomeScreen : WanComposeDestination {
             composable(ArticleList.route) {
                 ArticleList.Screen(
                     modifier = Modifier.fillMaxSize(),
-                    onClickArticle = {
-                        navController.navigateToWebViewScreen(it)
-                    },
-                    onClickBanner = {
-                        navController.navigateToWebViewScreen(it)
-                    }
+                    navController = navController,
                 )
             }
 

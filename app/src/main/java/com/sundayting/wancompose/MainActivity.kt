@@ -6,6 +6,7 @@ import androidx.activity.compose.BackHandler
 import androidx.activity.compose.setContent
 import androidx.compose.animation.AnimatedContentTransitionScope
 import androidx.compose.animation.core.snap
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.navigationBarsPadding
@@ -53,6 +54,7 @@ import com.sundayting.wancompose.function.UserLoginFunction.UserEntity
 import com.sundayting.wancompose.page.homescreen.HomeScreen
 import com.sundayting.wancompose.page.homescreen.mine.MineScreen
 import com.sundayting.wancompose.page.homescreen.mine.ui.LoginContent
+import com.sundayting.wancompose.page.scan.ScanScreen
 import com.sundayting.wancompose.page.setting.SettingScreen
 import com.sundayting.wancompose.page.webscreen.WebViewScreen
 import dagger.hilt.android.AndroidEntryPoint
@@ -267,6 +269,31 @@ fun WanComposeApp(
                         route = SettingScreen.route,
                     ) {
                         SettingScreen.Screen(
+                            Modifier.fillMaxSize(),
+                            navController = navController
+                        )
+                    }
+
+                    composable(
+                        route = ScanScreen.route,
+                        enterTransition = {
+                            slideIntoContainer(
+                                AnimatedContentTransitionScope.SlideDirection.Up,
+                                animationSpec = tween(
+                                    durationMillis = 300
+                                )
+                            )
+                        },
+                        exitTransition = {
+                            slideOutOfContainer(
+                                AnimatedContentTransitionScope.SlideDirection.Down,
+                                animationSpec = tween(
+                                    durationMillis = 300
+                                )
+                            )
+                        },
+                    ) {
+                        ScanScreen.Screen(
                             Modifier.fillMaxSize(),
                             navController = navController
                         )
