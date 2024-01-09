@@ -35,4 +35,6 @@
     <string name="article_collect_success">文章收藏成功，稍后可以在「我的-我的收藏」中查看</string>
     <string name="article_uncollect_success">"已取消文章收藏"</string>
     <string name="article_uncollect_confirm">是否要取消收藏文章：\n「%s」</string>
+    <string name="i_know">我知道了</string>
+    <string name="long_click_for_more_tool">长按返回按钮有更多快捷菜单</string>
 </resources>

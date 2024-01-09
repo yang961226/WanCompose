@@ -7,7 +7,6 @@ import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExitTransition
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.BottomNavigation
@@ -91,8 +90,7 @@ object HomeScreen : WanComposeDestination {
         }
         BottomNavigation(
             modifier = Modifier
-                .navigationBarsPadding()
-                .height(70.dp),
+                .height(50.dp),
             backgroundColor = Color.White,
         ) {
             pageList.forEach { bottomItem ->

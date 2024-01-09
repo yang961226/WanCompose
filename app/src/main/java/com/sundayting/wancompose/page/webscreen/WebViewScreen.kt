@@ -9,12 +9,15 @@ import android.webkit.WebSettings
 import android.webkit.WebView
 import androidx.annotation.DrawableRes
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.Crossfade
 import androidx.compose.animation.core.animateDp
 import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.updateTransition
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.gestures.awaitEachGesture
@@ -29,6 +32,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
@@ -44,14 +48,27 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.geometry.CornerRadius
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Rect
+import androidx.compose.ui.geometry.RoundRect
+import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.ClipOp
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.graphics.drawscope.clipPath
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.PointerEventType
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.layout.positionInRoot
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
@@ -146,6 +163,10 @@ object WebViewScreen : WanComposeDestination {
             mutableStateOf(false)
         }
 
+        var toolPosition by remember {
+            mutableStateOf(Offset.Zero)
+        }
+
         TitleBarWithContent(
             modifier = modifier.navigationBarsPadding(),
             titleBarContent = {
@@ -225,10 +246,11 @@ object WebViewScreen : WanComposeDestination {
                 val vibratorHelper = LocalVibratorHelper.current
 
                 WebToolWidget(
-                    Modifier.constrainAs(webToolContent) {
-                        start.linkTo(parent.start, 30.dp)
-                        bottom.linkTo(parent.bottom, 60.dp)
-                    },
+                    Modifier
+                        .constrainAs(webToolContent) {
+                            start.linkTo(parent.start, 30.dp)
+                            bottom.linkTo(parent.bottom, 60.dp)
+                        },
                     loadingProgress = remember {
                         derivedStateOf { (viewModel.webViewUiState.webViewState.loadingState as? LoadingState.Loading)?.progress }
                     }.value,
@@ -262,11 +284,82 @@ object WebViewScreen : WanComposeDestination {
                             }
                         }
                     },
+                    onCloseButtonPositionChanged = {
+                        toolPosition = it
+                    }
                 )
 
             }
         }
 
+        Crossfade(targetState = viewModel.webViewUiState.needShowGuide, label = "") { isVisible ->
+            if (isVisible) {
+                Box(Modifier.fillMaxSize()) {
+                    Canvas(
+                        Modifier
+                            .fillMaxSize()
+                            .pointerInput(Unit) {}
+                    ) {
+                        clipPath(
+                            Path().apply {
+                                addRoundRect(
+                                    RoundRect(
+                                        rect = Rect(
+                                            offset = toolPosition - Offset(
+                                                10.dp.toPx(),
+                                                10.dp.toPx()
+                                            ),
+                                            size = Size(
+                                                (buttonSize + 20.dp).toPx(),
+                                                (buttonSize + 20.dp).toPx()
+                                            )
+                                        ),
+                                        cornerRadius = CornerRadius(
+                                            (buttonSize / 2 + 20.dp).toPx()
+                                        )
+                                    )
+                                )
+                            }, clipOp = ClipOp.Difference
+                        ) {
+                            drawRect(SolidColor(Color.Black.copy(alpha = 0.7f)))
+                        }
+                    }
+
+                    Text(
+                        text = stringResource(id = R.string.i_know),
+                        style = TextStyle(
+                            fontSize = 15.sp,
+                            color = Color.White
+                        ),
+                        modifier = Modifier
+                            .align(Alignment.BottomCenter)
+                            .padding(bottom = 70.dp)
+                            .clip(RoundedCornerShape(50))
+                            .clickable(
+                                interactionSource = remember { MutableInteractionSource() },
+                                indication = rememberRipple()
+                            ) {
+                                viewModel.webViewUiState.needShowGuide = false
+                            }
+                            .background(WanColors.TopColor)
+                            .padding(vertical = 10.dp, horizontal = 30.dp)
+                    )
+
+                    Text(
+                        text = stringResource(id = R.string.long_click_for_more_tool),
+                        style = TextStyle(
+                            fontSize = 15.sp,
+                            color = Color.White
+                        ),
+                        modifier = Modifier
+                            .align(Alignment.BottomCenter)
+                            .padding(bottom = 140.dp)
+                            .background(Color.Black.copy(0.5f), shape = RoundedCornerShape(50))
+                            .padding(10.dp)
+                    )
+                }
+            }
+        }
     }
 }
 
@@ -342,6 +435,7 @@ private fun WebToolWidget(
     toolList: List<WebToolWidgetEnum>,
     isCollect: Boolean = false,
     onClick: (WebToolWidgetEnum) -> Unit = {},
+    onCloseButtonPositionChanged: (Offset) -> Unit = {},
 ) {
 
     val openValue = openProvide()
@@ -403,6 +497,7 @@ private fun WebToolWidget(
         }
         WebToolButton(
             modifier = Modifier
+                .onGloballyPositioned { onCloseButtonPositionChanged(it.positionInRoot()) }
                 .graphicsLayer {
                     this.rotationZ = rotate
                 }
@@ -414,10 +509,6 @@ private fun WebToolWidget(
                     ),
                     onLongClick = {
                         onOpenChanged(!openValue)
-//                        open = open.not()
-//                        if (open) {
-//                            vibratorHelper.vibrateLongClick()
-//                        }
                     },
                     onClick = {
                         if (openValue) {

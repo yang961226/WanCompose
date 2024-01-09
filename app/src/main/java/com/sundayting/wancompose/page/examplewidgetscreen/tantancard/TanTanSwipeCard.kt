@@ -295,17 +295,18 @@ private fun TanTanSingleCard(
         Animatable(0f)
     }
 
-    val vibratorHelper = LocalVibratorHelper.current
 
-
-    LaunchedEffect(Unit) {
-        snapshotFlow { yRotateTag }.drop(1).collectLatest {
-            vibratorHelper.vibrateLongClick()
-            yRotateAnimate.animateTo(
-                0f, animationSpec = spring(
-                    stiffness = Spring.StiffnessMediumLow,
-                ), initialVelocity = if (it > 0) 100f else -100f
-            )
+    if (LocalInspectionMode.current.not()) {
+        val vibratorHelper = LocalVibratorHelper.current
+        LaunchedEffect(Unit) {
+            snapshotFlow { yRotateTag }.drop(1).collectLatest {
+                vibratorHelper.vibrateLongClick()
+                yRotateAnimate.animateTo(
+                    0f, animationSpec = spring(
+                        stiffness = Spring.StiffnessMediumLow,
+                    ), initialVelocity = if (it > 0) 100f else -100f
+                )
+            }
         }
     }
 

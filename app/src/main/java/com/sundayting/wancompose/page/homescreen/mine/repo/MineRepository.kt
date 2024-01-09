@@ -1,10 +1,10 @@
 package com.sundayting.wancompose.page.homescreen.mine.repo
 
-import android.content.Context
+import androidx.datastore.core.DataStore
+import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
 import com.sundayting.wancompose.common.event.EventManager
 import com.sundayting.wancompose.common.event.NeedLoginAgainEvent
-import com.sundayting.wancompose.datastore.dataStore
 import com.sundayting.wancompose.db.WanDatabase
 import com.sundayting.wancompose.function.UserLoginFunction
 import com.sundayting.wancompose.function.UserLoginFunction.CURRENT_LOGIN_ID_KEY
@@ -12,8 +12,8 @@ import com.sundayting.wancompose.function.UserLoginFunction.UserInfoBean
 import com.sundayting.wancompose.function.UserLoginFunction.VISITOR_ID
 import com.sundayting.wancompose.network.isSuccess
 import com.sundayting.wancompose.network.requireData
-import dagger.hilt.android.qualifiers.ApplicationContext
-import kotlinx.coroutines.MainScope
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.filterIsInstance
@@ -30,10 +30,10 @@ class MineRepository @Inject constructor(
     private val userService: UserService,
     private val database: WanDatabase,
     private val eventManager: EventManager,
-    @ApplicationContext context: Context,
+    private val dataStore: DataStore<Preferences>,
 ) {
 
-    val scope = MainScope()
+    private val scope = CoroutineScope(SupervisorJob())
 
     init {
         scope.launch {
@@ -43,10 +43,7 @@ class MineRepository @Inject constructor(
                 }
             }
         }
-
     }
-
-    private val dataStore = context.dataStore
 
     val curUserFlow = dataStore.data
         .mapLatest { it[CURRENT_LOGIN_ID_KEY] }

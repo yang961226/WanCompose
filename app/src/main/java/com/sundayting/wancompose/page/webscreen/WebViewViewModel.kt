@@ -5,6 +5,10 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.datastore.core.DataStore
+import androidx.datastore.preferences.core.Preferences
+import androidx.datastore.preferences.core.booleanPreferencesKey
+import androidx.datastore.preferences.core.edit
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -19,6 +23,8 @@ import com.sundayting.wancompose.page.homescreen.article.ui.ArticleList
 import com.sundayting.wancompose.page.homescreen.mine.repo.MineRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.flow.firstOrNull
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlinx.serialization.json.Json
 import javax.inject.Inject
@@ -29,7 +35,14 @@ class WebViewViewModel @Inject constructor(
     private val articleRepo: ArticleRepository,
     private val mineRepo: MineRepository,
     private val eventManager: EventManager,
+    private val dataStore: DataStore<Preferences>,
 ) : ViewModel() {
+
+    companion object {
+
+        private val IS_SHOW_GUIDE_KEY = booleanPreferencesKey("是否显示过新手引导")
+
+    }
 
     val webViewUiState = Json.decodeFromString<ArticleList.ArticleUiBean>(
         savedStateHandle.get<String>(WebViewScreen.argumentKey)
@@ -44,11 +57,25 @@ class WebViewViewModel @Inject constructor(
         )
     }
 
+    init {
+        viewModelScope.launch {
+            val isShowGuide = dataStore.data.map { it[IS_SHOW_GUIDE_KEY] }.firstOrNull() ?: false
+            if (!isShowGuide) {
+                webViewUiState.needShowGuide = true
+                dataStore.edit {
+                    it[IS_SHOW_GUIDE_KEY] = true
+                }
+            }
+        }
+    }
+
     @Stable
     class WebViewUiState(
         articleUiBean: ArticleList.ArticleUiBean,
         toolList: List<WebToolWidgetEnum>,
     ) {
+
+        var needShowGuide by mutableStateOf(false)
 
         var articleUiBean by mutableStateOf(articleUiBean)
 
