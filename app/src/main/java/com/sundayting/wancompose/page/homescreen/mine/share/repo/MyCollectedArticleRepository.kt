@@ -26,6 +26,9 @@ class MyCollectedArticleRepository @Inject constructor(
         scope.launch {
             EventManager.getInstance().eventFlow.filterIsInstance<ArticleCollectChangeEvent>()
                 .collect { event ->
+                    if (!cachedArticleListSuccess) {
+                        return@collect
+                    }
                     if (event.isCollect) {
                         cachedArticleList.add(event.bean)
                     } else {
