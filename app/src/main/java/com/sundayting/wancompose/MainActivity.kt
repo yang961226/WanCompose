@@ -9,6 +9,7 @@ import androidx.compose.animation.AnimatedContentTransitionScope
 import androidx.compose.animation.core.snap
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -206,7 +207,7 @@ fun WanComposeApp(
             }
 
             Scaffold(
-                modifier = Modifier,
+                modifier = Modifier.navigationBarsPadding(),
                 bottomBar = {
                     if (isInMainPage) {
                         HomeScreen.WanBottomNavigation(
