@@ -63,7 +63,10 @@ class WebViewViewModel @Inject constructor(
     private var changeCollectJob: Job? = null
 
     fun collectOrUnCollectArticle() {
-        if (mineRepo.curUserFlow.value == null && changeCollectJob?.isActive == true) {
+        if (changeCollectJob?.isActive == true) {
+            return
+        }
+        if (mineRepo.curUserFlow.value == null) {
             eventManager.emitEvent(ShowLoginPageEvent)
             return
         }
