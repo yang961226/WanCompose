@@ -17,6 +17,7 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
+import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
@@ -38,6 +39,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -45,6 +47,8 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.input.pointer.PointerEventType
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -67,6 +71,7 @@ import com.sundayting.wancompose.R
 import com.sundayting.wancompose.WanComposeDestination
 import com.sundayting.wancompose.common.event.EventManager
 import com.sundayting.wancompose.common.event.emitToast
+import com.sundayting.wancompose.common.helper.LocalVibratorHelper
 import com.sundayting.wancompose.common.ui.title.TitleBar
 import com.sundayting.wancompose.common.ui.title.TitleBarWithContent
 import com.sundayting.wancompose.page.homescreen.article.ui.ArticleList
@@ -137,6 +142,10 @@ object WebViewScreen : WanComposeDestination {
 
         val context = LocalContext.current
 
+        var isOpenToolBoxOpen by rememberSaveable {
+            mutableStateOf(false)
+        }
+
         TitleBarWithContent(
             modifier = modifier.navigationBarsPadding(),
             titleBarContent = {
@@ -181,6 +190,16 @@ object WebViewScreen : WanComposeDestination {
                     navigator = navigator,
                     modifier = Modifier
                         .fillMaxSize()
+                        .pointerInput(Unit) {
+                            awaitEachGesture {
+                                while (true) {
+                                    val event = awaitPointerEvent()
+                                    if (event.type == PointerEventType.Move) {
+                                        isOpenToolBoxOpen = false
+                                    }
+                                }
+                            }
+                        }
                         .constrainAs(webViewContent) {
                             centerTo(parent)
                         },
@@ -202,6 +221,9 @@ object WebViewScreen : WanComposeDestination {
                     state = viewModel.webViewUiState.webViewState,
                     client = client
                 )
+
+                val vibratorHelper = LocalVibratorHelper.current
+
                 WebToolWidget(
                     Modifier.constrainAs(webToolContent) {
                         start.linkTo(parent.start, 30.dp)
@@ -212,6 +234,13 @@ object WebViewScreen : WanComposeDestination {
                     }.value,
                     toolList = viewModel.webViewUiState.toolList,
                     isCollect = viewModel.webViewUiState.articleUiBean.isCollect,
+                    openProvide = { isOpenToolBoxOpen },
+                    onOpenChanged = {
+                        if (it) {
+                            vibratorHelper.vibrateLongClick()
+                        }
+                        isOpenToolBoxOpen = it
+                    },
                     onClick = {
                         when (it) {
                             WebToolWidgetEnum.Share -> EventManager.getInstance()
@@ -283,7 +312,13 @@ private fun PreviewWebToolWidget() {
                 WebToolWidgetEnum.Collect,
                 WebToolWidgetEnum.Browser,
                 WebToolWidgetEnum.Share
-            )
+            ),
+            openProvide = {
+                true
+            },
+            onOpenChanged = {
+
+            }
         )
     }
 
@@ -301,15 +336,17 @@ enum class WebToolWidgetEnum {
 @Composable
 private fun WebToolWidget(
     modifier: Modifier = Modifier,
+    openProvide: () -> Boolean,
+    onOpenChanged: (Boolean) -> Unit,
     loadingProgress: Float? = null,
     toolList: List<WebToolWidgetEnum>,
     isCollect: Boolean = false,
     onClick: (WebToolWidgetEnum) -> Unit = {},
 ) {
 
-    var open by remember { mutableStateOf(false) }
+    val openValue = openProvide()
 
-    val openTransition = updateTransition(targetState = open, label = "")
+    val openTransition = updateTransition(targetState = openValue, label = "")
     val alpha by openTransition.animateFloat(label = "alpha") { isOpen ->
         if (isOpen) 1f else 0f
     }
@@ -340,7 +377,7 @@ private fun WebToolWidget(
                         .offset(y = offset)
                         .alpha(alpha)
                         .clickable(
-                            enabled = open,
+                            enabled = openValue,
                             interactionSource = remember { MutableInteractionSource() },
                             indication = rememberRipple(
                                 radius = 25.dp
@@ -376,11 +413,15 @@ private fun WebToolWidget(
                         radius = 25.dp
                     ),
                     onLongClick = {
-                        open = open.not()
+                        onOpenChanged(!openValue)
+//                        open = open.not()
+//                        if (open) {
+//                            vibratorHelper.vibrateLongClick()
+//                        }
                     },
                     onClick = {
-                        if (open) {
-                            open = false
+                        if (openValue) {
+                            onOpenChanged(false)
                         } else {
                             onClick(WebToolWidgetEnum.Back)
                         }
@@ -390,7 +431,7 @@ private fun WebToolWidget(
             contentColorFilter = if (isCollect) ColorFilter.tint(Color.White) else ColorFilter.tint(
                 Color.Black
             ),
-            resId = if (open) R.drawable.ic_close else R.drawable.ic_direction_left
+            resId = if (openValue) R.drawable.ic_close else R.drawable.ic_direction_left
         )
 
     }

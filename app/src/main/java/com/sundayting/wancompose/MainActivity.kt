@@ -1,6 +1,5 @@
 package com.sundayting.wancompose
 
-import android.app.Application
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.BackHandler
@@ -28,7 +27,6 @@ import androidx.compose.runtime.snapshotFlow
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.core.view.WindowCompat
 import androidx.lifecycle.DefaultLifecycleObserver
@@ -49,6 +47,8 @@ import com.sundayting.wancompose.common.event.LocalEventManager
 import com.sundayting.wancompose.common.event.ShowLoginPageEvent
 import com.sundayting.wancompose.common.event.ToastEvent
 import com.sundayting.wancompose.common.event.emitToast
+import com.sundayting.wancompose.common.helper.LocalVibratorHelper
+import com.sundayting.wancompose.common.helper.VibratorHelper
 import com.sundayting.wancompose.function.UserLoginFunction.UserEntity
 import com.sundayting.wancompose.page.homescreen.HomeScreen
 import com.sundayting.wancompose.page.homescreen.mine.MineScreen
@@ -66,12 +66,20 @@ class MainActivity : ComponentActivity() {
     @Inject
     lateinit var eventManager: EventManager
 
+    @Inject
+    lateinit var vibratorHelper: VibratorHelper
+
     init {
         lifecycle.addObserver(object : DefaultLifecycleObserver {
             override fun onCreate(owner: LifecycleOwner) {
                 WindowCompat.setDecorFitsSystemWindows(window, false)
                 setContent {
-                    WanComposeApp()
+                    CompositionLocalProvider(
+                        LocalEventManager provides eventManager,
+                        LocalVibratorHelper provides vibratorHelper
+                    ) {
+                        WanComposeApp()
+                    }
                 }
             }
         })
@@ -128,14 +136,8 @@ fun WanComposeApp(
             }
         }
     }
-    val context = LocalContext.current
-    val eventManager = remember(context) {
-        EventManager.getInstance(context.applicationContext as Application)
-    }
-
     CompositionLocalProvider(
         LocalLoginUser provides loginUser,
-        LocalEventManager provides eventManager
     ) {
         LaunchedEffect(Unit) {
             viewModel.eventManager
