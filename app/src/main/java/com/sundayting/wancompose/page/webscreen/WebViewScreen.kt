@@ -259,7 +259,7 @@ object WebViewScreen : WanComposeDestination {
                     openProvide = { isOpenToolBoxOpen },
                     onOpenChanged = {
                         if (it) {
-                            vibratorHelper.vibrateLongClick()
+                            vibratorHelper.vibrateClick()
                         }
                         isOpenToolBoxOpen = it
                     },

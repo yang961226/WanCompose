@@ -25,38 +25,22 @@ object PermissionCheckHelper {
 
     }
 
-
-    /**
-     * 检查权限状态
-     */
-    fun checkPermissionStatus(context: Context, permission: String): PermissionStatus {
-        return if (ContextCompat.checkSelfPermission(
-                context,
-                permission
-            ) == PackageManager.PERMISSION_GRANTED
-        ) {
-            PermissionStatus.Granted
-        } else {
-            PermissionStatus.Denied
-        }
-    }
-
     fun checkPermissionAfterRequest(context: Context, permission: String): PermissionStatus {
         return if (ContextCompat.checkSelfPermission(
                 context,
                 permission
             ) == PackageManager.PERMISSION_GRANTED
         ) {
-            PermissionStatus.Granted
+            Granted
         } else {
             return if (!ActivityCompat.shouldShowRequestPermissionRationale(
                     context as Activity,
                     permission
                 )
             ) {
-                PermissionStatus.PermanentDenied
+                PermanentDenied
             } else {
-                PermissionStatus.Denied
+                Denied
             }
         }
     }

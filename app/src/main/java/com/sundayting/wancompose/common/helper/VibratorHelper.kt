@@ -35,11 +35,11 @@ class VibratorHelper @Inject constructor(
     }
 
     @Suppress("DEPRECATION")
-    fun vibrateLongClick() {
+    fun vibrateClick() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             vibrator.vibrate(VibrationEffect.createOneShot(10, DEFAULT_AMPLITUDE))
         } else {
-            vibrator.vibrate(100)
+            vibrator.vibrate(10)
         }
     }
 

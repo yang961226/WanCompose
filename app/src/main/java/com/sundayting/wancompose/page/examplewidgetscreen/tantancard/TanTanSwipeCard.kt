@@ -300,7 +300,7 @@ private fun TanTanSingleCard(
         val vibratorHelper = LocalVibratorHelper.current
         LaunchedEffect(Unit) {
             snapshotFlow { yRotateTag }.drop(1).collectLatest {
-                vibratorHelper.vibrateLongClick()
+                vibratorHelper.vibrateClick()
                 yRotateAnimate.animateTo(
                     0f, animationSpec = spring(
                         stiffness = Spring.StiffnessMediumLow,

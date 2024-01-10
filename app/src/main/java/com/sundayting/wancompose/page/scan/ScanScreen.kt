@@ -13,14 +13,26 @@ import androidx.camera.core.CameraSelector
 import androidx.camera.core.Preview
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.view.PreviewView
+import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.VectorConverter
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.animateValue
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.keyframes
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
@@ -36,8 +48,10 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
@@ -45,6 +59,8 @@ import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
@@ -54,6 +70,7 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.sundayting.wancompose.R
 import com.sundayting.wancompose.WanComposeDestination
+import com.sundayting.wancompose.common.helper.LocalVibratorHelper
 import com.sundayting.wancompose.common.helper.PermissionCheckHelper
 
 object ScanScreen : WanComposeDestination {
@@ -212,6 +229,8 @@ object ScanScreen : WanComposeDestination {
         modifier: Modifier = Modifier,
     ) {
 
+        val vibratorHelper = LocalVibratorHelper.current
+
         ConstraintLayout(
             modifier.fillMaxSize()
         ) {
@@ -288,6 +307,7 @@ object ScanScreen : WanComposeDestination {
                         indication = rememberRipple()
                     ) {
                         camera?.let {
+                            vibratorHelper.vibrateClick()
                             isTorchOpen = !isTorchOpen
                             it.cameraControl.enableTorch(isTorchOpen)
                         }
@@ -297,6 +317,14 @@ object ScanScreen : WanComposeDestination {
                     .size(35.dp),
                 colorFilter = ColorFilter.tint(Color.White)
             )
+
+            ScanLight(
+                Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 30.dp)
+                    .constrainAs(createRef()) {
+                        centerTo(parent)
+                    })
         }
 
     }
@@ -306,4 +334,69 @@ object ScanScreen : WanComposeDestination {
             launchSingleTop = true
         }
     }
+}
+
+@Composable
+private fun ScanLight(
+    modifier: Modifier = Modifier,
+) {
+
+    val infiniteTransition = rememberInfiniteTransition(label = "")
+    val offsetY by infiniteTransition.animateValue(
+        initialValue = 0.dp,
+        targetValue = 375.dp,
+        typeConverter = Dp.VectorConverter,
+        animationSpec = infiniteRepeatable(
+            animation = tween(durationMillis = 3000, easing = LinearEasing),
+            repeatMode = RepeatMode.Restart
+        ), label = ""
+    )
+
+    val alpha by infiniteTransition.animateFloat(
+        initialValue = 0f,
+        targetValue = 0f,
+        animationSpec = infiniteRepeatable(
+            animation = keyframes {
+                durationMillis = 3000
+                0f at 0
+                1f at 500
+                1f at 2500
+                0f at 3000
+            },
+            repeatMode = RepeatMode.Restart
+        ), label = ""
+    )
+
+    Box(modifier.height(400.dp)) {
+        Box(
+            Modifier
+                .offset {
+                    IntOffset(0, offsetY.roundToPx())
+                }
+                .graphicsLayer {
+                    this.alpha = alpha
+                }
+                .fillMaxWidth()
+                .height(25.dp)
+                .background(
+                    Brush.verticalGradient(
+                        listOf(
+                            Color.Transparent,
+                            Color(0xFF428DC2)
+                        )
+                    )
+                )
+        )
+    }
+
+
+}
+
+@Composable
+@androidx.compose.ui.tooling.preview.Preview(showBackground = true)
+private fun PreviewScanLight() {
+    ScanLight(
+        Modifier
+            .fillMaxWidth()
+    )
 }
