@@ -4,15 +4,21 @@ import android.Manifest
 import android.content.Intent
 import android.net.Uri
 import android.provider.Settings
+import android.view.ViewGroup
+import android.view.ViewGroup.LayoutParams.MATCH_PARENT
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.camera.core.CameraSelector
+import androidx.camera.core.Preview
+import androidx.camera.lifecycle.ProcessCameraProvider
+import androidx.camera.view.PreviewView
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.basicMarquee
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -34,12 +40,15 @@ import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.viewinterop.AndroidView
 import androidx.constraintlayout.compose.ConstraintLayout
+import androidx.core.content.ContextCompat
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.sundayting.wancompose.R
@@ -88,17 +97,95 @@ object ScanScreen : WanComposeDestination {
 
         ConstraintLayout(
             modifier
-                .basicMarquee()
                 .background(Color.Black)
-                .statusBarsPadding()
                 .pointerInput(Unit) {}
         ) {
+
+            if (permissionStatus == PermissionCheckHelper.PermissionStatus.Granted) {
+                ScanContent()
+            } else {
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    modifier = Modifier
+                        .constrainAs(createRef()) {
+                            centerTo(parent)
+                        }
+                        .clickable(
+                            interactionSource = remember { MutableInteractionSource() },
+                            indication = null
+                        ) {
+                            when (permissionStatus) {
+                                PermissionCheckHelper.PermissionStatus.PermanentDenied -> {
+                                    toSettingLauncher.launch(Intent().apply {
+                                        action = Settings.ACTION_APPLICATION_DETAILS_SETTINGS
+                                        data = Uri.fromParts("package", context.packageName, null)
+                                    })
+                                }
+
+                                PermissionCheckHelper.PermissionStatus.Granted -> {
+                                    requestPermissionLauncher.launch(needPermission)
+                                }
+
+                                else -> {
+
+                                }
+
+                            }
+                        }
+                ) {
+
+                    when (permissionStatus) {
+                        PermissionCheckHelper.PermissionStatus.Denied -> {
+                            Text(
+                                text = stringResource(id = R.string.scan_need_camera_permission),
+                                style = TextStyle(
+                                    fontSize = 18.sp,
+                                    color = Color.White
+                                )
+                            )
+
+                            Spacer(Modifier.height(10.dp))
+
+                            Text(
+                                text = stringResource(id = R.string.click_for_apply),
+                                style = TextStyle(
+                                    fontSize = 14.sp,
+                                    color = Color.White.copy(0.5f)
+                                )
+                            )
+                        }
+
+                        PermissionCheckHelper.PermissionStatus.PermanentDenied -> {
+                            Text(
+                                text = stringResource(id = R.string.camera_permission_permanent_denied),
+                                style = TextStyle(
+                                    fontSize = 18.sp,
+                                    color = Color.White
+                                )
+                            )
+
+                            Spacer(Modifier.height(10.dp))
+
+                            Text(
+                                text = stringResource(id = R.string.to_setting),
+                                style = TextStyle(
+                                    fontSize = 14.sp,
+                                    color = Color.White.copy(0.5f)
+                                )
+                            )
+                        }
+
+                        else -> {}
+                    }
+                }
+            }
 
             Image(
                 painterResource(id = R.drawable.ic_close),
                 contentScale = ContentScale.Fit,
                 contentDescription = null,
                 modifier = Modifier
+                    .statusBarsPadding()
                     .constrainAs(createRef()) {
                         top.linkTo(parent.top, 10.dp)
                         start.linkTo(parent.start, 10.dp)
@@ -114,91 +201,66 @@ object ScanScreen : WanComposeDestination {
                 colorFilter = ColorFilter.tint(Color.White)
             )
 
-            Column(
-                horizontalAlignment = Alignment.CenterHorizontally,
-                modifier = Modifier
-                    .constrainAs(createRef()) {
-                        centerTo(parent)
-                    }
-                    .clickable(
-                        interactionSource = remember { MutableInteractionSource() },
-                        indication = null
-                    ) {
-                        when (permissionStatus) {
-                            PermissionCheckHelper.PermissionStatus.PermanentDenied -> {
-                                toSettingLauncher.launch(Intent().apply {
-                                    action = Settings.ACTION_APPLICATION_DETAILS_SETTINGS
-                                    data = Uri.fromParts("package", context.packageName, null)
-                                })
-                            }
 
-                            PermissionCheckHelper.PermissionStatus.Granted -> {
-                                requestPermissionLauncher.launch(needPermission)
-                            }
+        }
 
-                            else -> {
+    }
 
-                            }
+    @Composable
+    private fun ScanContent(
+        modifier: Modifier = Modifier,
+    ) {
 
-                        }
-                    }
-            ) {
+        ConstraintLayout(
+            modifier.fillMaxSize()
+        ) {
 
-                when (permissionStatus) {
-                    PermissionCheckHelper.PermissionStatus.Granted -> {
-                        Text(
-                            text = "申请成功",
-                            style = TextStyle(
-                                fontSize = 18.sp,
-                                color = Color.White
-                            )
-                        )
-                    }
-
-                    PermissionCheckHelper.PermissionStatus.Denied -> {
-                        Text(
-                            text = stringResource(id = R.string.scan_need_camera_permission),
-                            style = TextStyle(
-                                fontSize = 18.sp,
-                                color = Color.White
-                            )
-                        )
-
-                        Spacer(Modifier.height(10.dp))
-
-                        Text(
-                            text = stringResource(id = R.string.click_for_apply),
-                            style = TextStyle(
-                                fontSize = 14.sp,
-                                color = Color.White.copy(0.5f)
-                            )
-                        )
-                    }
-
-                    PermissionCheckHelper.PermissionStatus.PermanentDenied -> {
-                        Text(
-                            text = stringResource(id = R.string.camera_permission_permanent_denied),
-                            style = TextStyle(
-                                fontSize = 18.sp,
-                                color = Color.White
-                            )
-                        )
-
-                        Spacer(Modifier.height(10.dp))
-
-                        Text(
-                            text = stringResource(id = R.string.to_setting),
-                            style = TextStyle(
-                                fontSize = 14.sp,
-                                color = Color.White.copy(0.5f)
-                            )
-                        )
-                    }
-
-                    else -> {}
+            val context = LocalContext.current
+            val previewView = remember(context) {
+                PreviewView(context).apply {
+                    layoutParams = ViewGroup.LayoutParams(
+                        MATCH_PARENT,
+                        MATCH_PARENT
+                    )
+                    implementationMode = PreviewView.ImplementationMode.COMPATIBLE
                 }
             }
 
+            val cameraProviderFuture =
+                remember(context) {
+                    ProcessCameraProvider.getInstance(context)
+                }
+
+            val viewLifecycleOwner = LocalLifecycleOwner.current
+
+            AndroidView(
+                modifier = Modifier.fillMaxSize(),
+                factory = { previewView },
+            )
+            LaunchedEffect(context, viewLifecycleOwner) {
+                cameraProviderFuture.addListener(
+                    {
+                        val cameraProvider: ProcessCameraProvider = cameraProviderFuture.get()
+                        val previewUseCase = Preview.Builder().build().also {
+                            it.setSurfaceProvider(previewView.surfaceProvider)
+                        }
+                        val cameraSelector = CameraSelector.DEFAULT_BACK_CAMERA
+                        try {
+                            // Unbind use cases before rebinding
+                            cameraProvider.unbindAll()
+
+                            // Bind use cases to camera
+                            cameraProvider.bindToLifecycle(
+                                viewLifecycleOwner, cameraSelector, previewUseCase
+                            )
+
+                        } catch (_: Exception) {
+                        }
+
+                    },
+                    ContextCompat.getMainExecutor(context)
+                )
+            }
         }
 
     }
