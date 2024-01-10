@@ -8,6 +8,7 @@ import android.view.ViewGroup
 import android.view.ViewGroup.LayoutParams.MATCH_PARENT
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.camera.core.Camera
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.Preview
 import androidx.camera.lifecycle.ProcessCameraProvider
@@ -237,11 +238,15 @@ object ScanScreen : WanComposeDestination {
                 modifier = Modifier.fillMaxSize(),
                 factory = { previewView },
             )
+
+            var camera by remember {
+                mutableStateOf<Camera?>(null)
+            }
             LaunchedEffect(context, viewLifecycleOwner) {
                 cameraProviderFuture.addListener(
                     {
                         val cameraProvider: ProcessCameraProvider = cameraProviderFuture.get()
-                        val previewUseCase = Preview.Builder().build().also {
+                        val preview = Preview.Builder().build().also {
                             it.setSurfaceProvider(previewView.surfaceProvider)
                         }
                         val cameraSelector = CameraSelector.DEFAULT_BACK_CAMERA
@@ -251,8 +256,11 @@ object ScanScreen : WanComposeDestination {
 
                             // Bind use cases to camera
                             cameraProvider.bindToLifecycle(
-                                viewLifecycleOwner, cameraSelector, previewUseCase
-                            )
+                                viewLifecycleOwner, cameraSelector, preview
+                            ).also {
+                                camera = it
+                                it.cameraControl.enableTorch(false)
+                            }
 
                         } catch (_: Exception) {
                         }
@@ -261,6 +269,34 @@ object ScanScreen : WanComposeDestination {
                     ContextCompat.getMainExecutor(context)
                 )
             }
+
+            var isTorchOpen by remember { mutableStateOf(false) }
+
+            Image(
+                painterResource(id = if (isTorchOpen) R.drawable.ic_torch_open else R.drawable.ic_torch_close),
+                contentScale = ContentScale.Fit,
+                contentDescription = null,
+                modifier = Modifier
+                    .statusBarsPadding()
+                    .constrainAs(createRef()) {
+                        bottom.linkTo(parent.bottom, 35.dp)
+                        start.linkTo(parent.start, 35.dp)
+                    }
+                    .clip(CircleShape)
+                    .clickable(
+                        interactionSource = remember { MutableInteractionSource() },
+                        indication = rememberRipple()
+                    ) {
+                        camera?.let {
+                            isTorchOpen = !isTorchOpen
+                            it.cameraControl.enableTorch(isTorchOpen)
+                        }
+                    }
+                    .background(Color.LightGray.copy(0.75f))
+                    .padding(5.dp)
+                    .size(35.dp),
+                colorFilter = ColorFilter.tint(Color.White)
+            )
         }
 
     }
