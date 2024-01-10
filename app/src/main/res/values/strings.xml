@@ -37,4 +37,8 @@
     <string name="article_uncollect_confirm">是否要取消收藏文章：\n「%s」</string>
     <string name="i_know">我知道了</string>
     <string name="long_click_for_more_tool">长按返回按钮有更多快捷菜单</string>
+    <string name="scan_need_camera_permission">扫二维码需要相机权限</string>
+    <string name="click_for_apply">点击申请</string>
+    <string name="camera_permission_permanent_denied">相机权限已被永久拒绝</string>
+    <string name="to_setting">去设置</string>
 </resources>

@@ -139,8 +139,8 @@ object HomeScreen : WanComposeDestination {
         return startInHome && targetInHome
     }
 
-    private fun isScanTransition(targetRoute: String?): Boolean {
-        return targetRoute == ScanScreen.route
+    private fun isScanTransition(startRoute: String?, targetRout: String?): Boolean {
+        return startRoute == ScanScreen.route || targetRout == ScanScreen.route
     }
 
     private val DEFAULT_ENTER_TRANSITION: (AnimatedContentTransitionScope<NavBackStackEntry>.() -> EnterTransition?) =
@@ -157,8 +157,12 @@ object HomeScreen : WanComposeDestination {
         {
             if (isHomeTransition(initialState.destination.route, targetState.destination.route)) {
                 ExitTransition.None
-            } else if (isScanTransition(targetState.destination.route)) {
-                fadeOut(tween(5000))
+            } else if (isScanTransition(
+                    initialState.destination.route,
+                    targetState.destination.route
+                )
+            ) {
+                fadeOut(tween(300))
             } else {
                 slideOutOfContainer(
                     towards = AnimatedContentTransitionScope.SlideDirection.Left,
@@ -170,8 +174,12 @@ object HomeScreen : WanComposeDestination {
         {
             if (isHomeTransition(initialState.destination.route, targetState.destination.route)) {
                 EnterTransition.None
-            } else if (isScanTransition(targetState.destination.route)) {
-                fadeIn(tween(5000))
+            } else if (isScanTransition(
+                    initialState.destination.route,
+                    targetState.destination.route
+                )
+            ) {
+                fadeIn(tween(300))
             } else {
                 slideIntoContainer(
                     towards = AnimatedContentTransitionScope.SlideDirection.Right,
