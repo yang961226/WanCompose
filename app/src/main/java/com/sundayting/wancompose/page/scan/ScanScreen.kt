@@ -4,14 +4,15 @@ import android.Manifest
 import android.content.Intent
 import android.net.Uri
 import android.provider.Settings
+import android.util.Log
 import android.view.ViewGroup
 import android.view.ViewGroup.LayoutParams.MATCH_PARENT
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.camera.core.Camera
 import androidx.camera.core.CameraSelector
-import androidx.camera.core.Preview
-import androidx.camera.lifecycle.ProcessCameraProvider
+import androidx.camera.mlkit.vision.MlKitAnalyzer
+import androidx.camera.view.CameraController.COORDINATE_SYSTEM_VIEW_REFERENCED
+import androidx.camera.view.LifecycleCameraController
 import androidx.camera.view.PreviewView
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.RepeatMode
@@ -22,6 +23,7 @@ import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.keyframes
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -40,6 +42,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.Text
 import androidx.compose.material.ripple.rememberRipple
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -48,10 +51,12 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.graphics.toComposeRect
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
@@ -68,10 +73,14 @@ import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.core.content.ContextCompat
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
+import com.google.mlkit.vision.barcode.BarcodeScannerOptions
+import com.google.mlkit.vision.barcode.BarcodeScanning
+import com.google.mlkit.vision.barcode.common.Barcode
 import com.sundayting.wancompose.R
 import com.sundayting.wancompose.WanComposeDestination
 import com.sundayting.wancompose.common.helper.LocalVibratorHelper
 import com.sundayting.wancompose.common.helper.PermissionCheckHelper
+import com.sundayting.wancompose.theme.WanColors
 
 object ScanScreen : WanComposeDestination {
     override val route: String
@@ -236,58 +245,93 @@ object ScanScreen : WanComposeDestination {
         ) {
 
             val context = LocalContext.current
-            val previewView = remember(context) {
-                PreviewView(context).apply {
-                    layoutParams = ViewGroup.LayoutParams(
-                        MATCH_PARENT,
-                        MATCH_PARENT
-                    )
-                    implementationMode = PreviewView.ImplementationMode.COMPATIBLE
-                }
-            }
-
-            val cameraProviderFuture =
-                remember(context) {
-                    ProcessCameraProvider.getInstance(context)
-                }
 
             val viewLifecycleOwner = LocalLifecycleOwner.current
 
-            AndroidView(
-                modifier = Modifier.fillMaxSize(),
-                factory = { previewView },
-            )
-
-            var camera by remember {
-                mutableStateOf<Camera?>(null)
+            val lifecycleCameraController = remember(context) {
+                LifecycleCameraController(context).apply {
+                    cameraSelector = CameraSelector.DEFAULT_BACK_CAMERA
+                }
             }
-            LaunchedEffect(context, viewLifecycleOwner) {
-                cameraProviderFuture.addListener(
-                    {
-                        val cameraProvider: ProcessCameraProvider = cameraProviderFuture.get()
-                        val preview = Preview.Builder().build().also {
-                            it.setSurfaceProvider(previewView.surfaceProvider)
-                        }
-                        val cameraSelector = CameraSelector.DEFAULT_BACK_CAMERA
-                        try {
-                            // Unbind use cases before rebinding
-                            cameraProvider.unbindAll()
 
-                            // Bind use cases to camera
-                            cameraProvider.bindToLifecycle(
-                                viewLifecycleOwner, cameraSelector, preview
-                            ).also {
-                                camera = it
-                                it.cameraControl.enableTorch(false)
-                            }
+            LaunchedEffect(
+                viewLifecycleOwner
+            ) {
+                lifecycleCameraController.unbind()
+                lifecycleCameraController.bindToLifecycle(viewLifecycleOwner)
+            }
 
-                        } catch (_: Exception) {
-                        }
-
-                    },
-                    ContextCompat.getMainExecutor(context)
+            val barcodeScanner = remember {
+                BarcodeScanning.getClient(
+                    BarcodeScannerOptions.Builder()
+                        .setBarcodeFormats(Barcode.FORMAT_QR_CODE)
+                        .build()
                 )
             }
+
+            DisposableEffect(Unit) {
+                onDispose {
+                    barcodeScanner.close()
+                }
+            }
+
+            var rect by remember {
+                mutableStateOf<Rect?>(null)
+            }
+
+            LaunchedEffect(lifecycleCameraController, context) {
+                val mainExecutor = ContextCompat.getMainExecutor(context)
+                lifecycleCameraController.setImageAnalysisAnalyzer(
+                    mainExecutor,
+                    MlKitAnalyzer(
+                        listOf(barcodeScanner),
+                        COORDINATE_SYSTEM_VIEW_REFERENCED,
+                        mainExecutor
+                    ) { result: MlKitAnalyzer.Result? ->
+                        if (result == null) {
+                            rect = null
+                            return@MlKitAnalyzer
+                        }
+                        val barcodeList = result.getValue(barcodeScanner) ?: return@MlKitAnalyzer
+                        if (barcodeList.isEmpty()) {
+                            rect = null
+                            return@MlKitAnalyzer
+                        }
+                        rect = barcodeList.first().boundingBox?.toComposeRect() ?: Rect.Zero
+                        barcodeList.forEach {
+
+                            Log.d("临时测试", "结果：${it.boundingBox}")
+                        }
+                    }
+                )
+            }
+
+            AndroidView(
+                modifier = Modifier.fillMaxSize(),
+                factory = {
+                    PreviewView(it).apply {
+                        layoutParams = ViewGroup.LayoutParams(
+                            MATCH_PARENT,
+                            MATCH_PARENT
+                        )
+                        implementationMode = PreviewView.ImplementationMode.COMPATIBLE
+                    }
+                },
+                update = {
+                    it.controller = lifecycleCameraController
+                }
+            )
+
+            rect?.let {
+                Canvas(Modifier.fillMaxSize()) {
+                    drawCircle(
+                        WanColors.TopColor,
+                        center = it.center,
+                        radius = 25.dp.toPx()
+                    )
+                }
+            }
+
 
             var isTorchOpen by remember { mutableStateOf(false) }
 
@@ -306,10 +350,10 @@ object ScanScreen : WanComposeDestination {
                         interactionSource = remember { MutableInteractionSource() },
                         indication = rememberRipple()
                     ) {
-                        camera?.let {
+                        lifecycleCameraController.cameraControl?.let {
                             vibratorHelper.vibrateClick()
                             isTorchOpen = !isTorchOpen
-                            it.cameraControl.enableTorch(isTorchOpen)
+                            it.enableTorch(isTorchOpen)
                         }
                     }
                     .background(Color.LightGray.copy(0.75f))

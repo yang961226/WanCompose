@@ -215,6 +215,8 @@ dependencies {
     implementation("androidx.camera:camera-view:${cameraxVersion}")
     // If you want to additionally use the CameraX Extensions library
     implementation("androidx.camera:camera-extensions:${cameraxVersion}")
+    implementation("androidx.camera:camera-mlkit-vision:${cameraxVersion}")
+    implementation("com.google.android.gms:play-services-mlkit-barcode-scanning:18.3.0")
 
 
 }
