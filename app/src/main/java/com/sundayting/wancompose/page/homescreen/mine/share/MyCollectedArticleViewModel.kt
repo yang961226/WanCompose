@@ -54,7 +54,7 @@ class MyCollectedArticleViewModel @Inject constructor(
     init {
         viewModelScope.launch {
             eventManager.eventFlow.filterIsInstance<ArticleCollectChangeEvent>().collect { event ->
-                if (event.isCollect.not()) {
+                if (event.isCollect) {
                     state.removeArticle(event.bean.id)
                 } else {
                     state.addArticleList(listOf(event.bean))
