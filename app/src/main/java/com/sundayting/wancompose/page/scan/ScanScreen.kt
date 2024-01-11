@@ -14,6 +14,7 @@ import androidx.camera.mlkit.vision.MlKitAnalyzer
 import androidx.camera.view.CameraController.COORDINATE_SYSTEM_VIEW_REFERENCED
 import androidx.camera.view.LifecycleCameraController
 import androidx.camera.view.PreviewView
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.VectorConverter
@@ -23,6 +24,8 @@ import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.keyframes
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -322,16 +325,21 @@ object ScanScreen : WanComposeDestination {
                 }
             )
 
-            rect?.let {
-                Canvas(Modifier.fillMaxSize()) {
-                    drawCircle(
-                        WanColors.TopColor,
-                        center = it.center,
-                        radius = 25.dp.toPx()
-                    )
+            AnimatedVisibility(
+                visible = rect != null,
+                enter = fadeIn(),
+                exit = fadeOut()
+            ) {
+                rect?.let {
+                    Canvas(Modifier.fillMaxSize()) {
+                        drawCircle(
+                            WanColors.TopColor,
+                            center = it.center,
+                            radius = 25.dp.toPx()
+                        )
+                    }
                 }
             }
-
 
             var isTorchOpen by remember { mutableStateOf(false) }
 
