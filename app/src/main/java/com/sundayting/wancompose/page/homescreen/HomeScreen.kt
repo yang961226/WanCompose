@@ -41,6 +41,8 @@ import com.sundayting.wancompose.page.examplewidgetscreen.pointinput.PointInput
 import com.sundayting.wancompose.page.examplewidgetscreen.pointinput.PointInput.navigateToPointInput
 import com.sundayting.wancompose.page.examplewidgetscreen.tantancard.TanTanSwipeCardScreen
 import com.sundayting.wancompose.page.examplewidgetscreen.tantancard.TanTanSwipeCardScreen.navigateToTanTanSwipeCardScreen
+import com.sundayting.wancompose.page.examplewidgetscreen.viewpager.ViewPagerHorizontalPagerNestScroll
+import com.sundayting.wancompose.page.examplewidgetscreen.viewpager.ViewPagerHorizontalPagerNestScroll.navigateToViewPagerHorizontalPagerNestScroll
 import com.sundayting.wancompose.page.homescreen.article.ui.ArticleList
 import com.sundayting.wancompose.page.homescreen.mine.MineGraph
 import com.sundayting.wancompose.page.homescreen.mine.MineScreen
@@ -229,6 +231,7 @@ object HomeScreen : WanComposeDestination {
                                 "探探滑卡" -> navController.navigateToTanTanSwipeCardScreen()
                                 "手势" -> navController.navigateToPointInput()
                                 "嵌套滑动" -> navController.navigateToNestScroll()
+                                "ViewPager横向滑动测试" -> navController.navigateToViewPagerHorizontalPagerNestScroll()
                             }
                         }
                     )
@@ -246,6 +249,10 @@ object HomeScreen : WanComposeDestination {
                     NestScroll.Screen(Modifier.fillMaxSize(), onClickBackButton = {
                         navController.popBackStack()
                     })
+                }
+
+                composable(ViewPagerHorizontalPagerNestScroll.route) {
+                    ViewPagerHorizontalPagerNestScroll.Screen(Modifier.fillMaxSize())
                 }
             }
 

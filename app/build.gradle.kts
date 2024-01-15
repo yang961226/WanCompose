@@ -218,5 +218,9 @@ dependencies {
     implementation("androidx.camera:camera-mlkit-vision:${cameraxVersion}")
     implementation("com.google.android.gms:play-services-mlkit-barcode-scanning:18.3.0")
 
+    val appcompatVersion = "1.6.1"
+    implementation("androidx.appcompat:appcompat:$appcompatVersion")
+
+    implementation("androidx.viewpager2:viewpager2:1.0.0")
 
 }
