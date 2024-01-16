@@ -30,7 +30,9 @@ import androidx.compose.ui.platform.AbstractComposeView
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.ViewCompositionStrategy
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
@@ -137,7 +139,7 @@ class RedFragment : Fragment() {
                             }
                         }
 
-                        Text("我是HorizontalPager")
+                        Text("我是HorizontalPager", style = TextStyle(fontSize = 30.sp))
                     }
 
                 }
@@ -219,7 +221,8 @@ object ViewPagerHorizontalPagerNestScroll : WanComposeDestination {
                 text = "我是ViewPager",
                 modifier = Modifier
                     .align(Alignment.BottomCenter)
-                    .padding(bottom = 25.dp)
+                    .padding(bottom = 25.dp),
+                style = TextStyle(fontSize = 30.sp)
             )
         }
 
