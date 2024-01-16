@@ -1,5 +1,7 @@
 package com.sundayting.wancompose.page.homescreen.article.repo
 
+import androidx.core.text.HtmlCompat
+import androidx.core.text.HtmlCompat.FROM_HTML_MODE_COMPACT
 import com.sundayting.wancompose.network.NResult
 import com.sundayting.wancompose.network.WanNResult
 import com.sundayting.wancompose.page.homescreen.article.ArticleBean
@@ -70,7 +72,7 @@ class MyCollectArticleResultBean(
 
 fun MyCollectArticleBean.toArticleUiBean(): ArticleList.ArticleUiBean {
     return ArticleList.ArticleUiBean(
-        title = this.title,
+        title = HtmlCompat.fromHtml(this.title, FROM_HTML_MODE_COMPACT).toString(),
         date = niceDate,
         id = originId,
         chapter = ArticleList.ArticleUiBean.Chapter(
