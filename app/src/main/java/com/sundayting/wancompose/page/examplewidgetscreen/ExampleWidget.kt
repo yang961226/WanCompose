@@ -89,8 +89,8 @@ object ExampleWidget : HomeScreen.HomeScreenPage {
             resId = R.drawable.ic_nest_scroll
         ),
         ExampleCardBean(
-            "ViewPager横向滑动测试",
-            resId = R.drawable.ic_nest_scroll
+            "ViewPager、HorizontalPager嵌套滑动问题修复",
+            resId = R.drawable.ic_horizontalpager_issues
         )
     )
 

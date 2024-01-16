@@ -231,7 +231,7 @@ object HomeScreen : WanComposeDestination {
                                 "探探滑卡" -> navController.navigateToTanTanSwipeCardScreen()
                                 "手势" -> navController.navigateToPointInput()
                                 "嵌套滑动" -> navController.navigateToNestScroll()
-                                "ViewPager横向滑动测试" -> navController.navigateToViewPagerHorizontalPagerNestScroll()
+                                "ViewPager、HorizontalPager嵌套滑动问题修复" -> navController.navigateToViewPagerHorizontalPagerNestScroll()
                             }
                         }
                     )
