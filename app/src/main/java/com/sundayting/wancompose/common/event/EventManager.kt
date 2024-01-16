@@ -77,13 +77,14 @@ fun EventManager.emitNeedLoginAgain() {
 
 fun EventManager.emitCollectArticleEvent(
     bean: ArticleList.ArticleUiBean,
+    tryCollect: Boolean,
 ) {
     if (!bean.isCollect) {
         emitToast(context.getString(R.string.article_collect_success))
     } else {
         emitToast(context.getString(R.string.article_uncollect_success))
     }
-    emitEvent(ArticleCollectChangeEvent(bean, !bean.isCollect))
+    emitEvent(ArticleCollectChangeEvent(bean, tryCollect))
 }
 
 class ToastEvent(
@@ -95,7 +96,7 @@ object NeedLoginAgainEvent : EventManager.Event
 
 class ArticleCollectChangeEvent(
     val bean: ArticleList.ArticleUiBean,
-    val isCollect: Boolean,
+    val tryCollect: Boolean,
 ) : EventManager.Event
 
 object ShowLoginPageEvent : EventManager.Event

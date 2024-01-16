@@ -29,7 +29,7 @@ class MyCollectedArticleRepository @Inject constructor(
                     if (!cachedArticleListSuccess) {
                         return@collect
                     }
-                    if (event.isCollect) {
+                    if (event.tryCollect) {
                         cachedArticleList.add(event.bean)
                     } else {
                         cachedArticleList.removeIf {

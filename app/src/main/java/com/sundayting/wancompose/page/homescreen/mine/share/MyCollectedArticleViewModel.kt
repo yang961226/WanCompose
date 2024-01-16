@@ -54,10 +54,10 @@ class MyCollectedArticleViewModel @Inject constructor(
     init {
         viewModelScope.launch {
             eventManager.eventFlow.filterIsInstance<ArticleCollectChangeEvent>().collect { event ->
-                if (event.isCollect) {
-                    state.removeArticle(event.bean.id)
-                } else {
+                if (event.tryCollect) {
                     state.addArticleList(listOf(event.bean))
+                } else {
+                    state.removeArticle(event.bean.id)
                 }
             }
         }
@@ -75,7 +75,7 @@ class MyCollectedArticleViewModel @Inject constructor(
     fun unCollectArticle(bean: ArticleList.ArticleUiBean) {
         viewModelScope.launch {
             if (articleRepo.unCollectArticle(bean.id).isSuccess()) {
-                eventManager.emitCollectArticleEvent(bean)
+                eventManager.emitCollectArticleEvent(bean, false)
             }
         }
     }

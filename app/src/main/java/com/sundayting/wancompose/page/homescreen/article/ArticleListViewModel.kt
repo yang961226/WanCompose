@@ -46,7 +46,7 @@ class ArticleListViewModel @Inject constructor(
 
                 state.changeArticle(
                     index,
-                    state.articleList[index].copy(isCollect = event.isCollect)
+                    state.articleList[index].copy(isCollect = event.tryCollect)
                 )
             }
         }
@@ -104,11 +104,11 @@ class ArticleListViewModel @Inject constructor(
         changeCollectJob = viewModelScope.launch {
             if (!bean.isCollect) {
                 if (repo.collectArticle(bean.id).isSuccess()) {
-                    eventManager.emitCollectArticleEvent(bean)
+                    eventManager.emitCollectArticleEvent(bean, true)
                 }
             } else {
                 if (repo.unCollectArticle(bean.id).isSuccess()) {
-                    eventManager.emitCollectArticleEvent(bean)
+                    eventManager.emitCollectArticleEvent(bean, false)
                 }
             }
         }

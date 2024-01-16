@@ -99,16 +99,17 @@ class WebViewViewModel @Inject constructor(
         }
         changeCollectJob = viewModelScope.launch {
             val articleUiBean = webViewUiState.articleUiBean
-            val success = if (articleUiBean.isCollect) {
-                articleRepo.unCollectArticle(articleUiBean.id).isSuccess()
-            } else {
+            val tryCollect = !articleUiBean.isCollect
+            val success = if (tryCollect) {
                 articleRepo.collectArticle(articleUiBean.id).isSuccess()
+            } else {
+                articleRepo.unCollectArticle(articleUiBean.id).isSuccess()
             }
             if (success) {
                 webViewUiState.articleUiBean = webViewUiState.articleUiBean.copy(
                     isCollect = articleUiBean.isCollect.not()
                 )
-                eventManager.emitCollectArticleEvent(articleUiBean)
+                eventManager.emitCollectArticleEvent(articleUiBean, tryCollect)
             }
         }
 
