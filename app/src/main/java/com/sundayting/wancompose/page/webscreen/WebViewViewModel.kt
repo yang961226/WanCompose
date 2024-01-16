@@ -27,6 +27,8 @@ import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlinx.serialization.json.Json
+import java.net.URLDecoder
+import java.nio.charset.StandardCharsets
 import javax.inject.Inject
 
 @HiltViewModel
@@ -45,8 +47,9 @@ class WebViewViewModel @Inject constructor(
     }
 
     val webViewUiState = Json.decodeFromString<ArticleList.ArticleUiBean>(
-        savedStateHandle.get<String>(WebViewScreen.argumentKey)
-            ?: error("没有参数！")
+        savedStateHandle.get<String>(WebViewScreen.argumentKey)?.let {
+            URLDecoder.decode(it, StandardCharsets.UTF_8.toString())
+        } ?: error("没有参数！")
     ).let {
         WebViewUiState(
             articleUiBean = it,

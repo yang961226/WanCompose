@@ -117,13 +117,11 @@ object WebViewScreen : WanComposeDestination {
     ) {
         navigate(
             "$route/${
-                Json.encodeToString(
-                    articleUiBean.copy(
-                        link = URLEncoder.encode(
-                            articleUiBean.link,
-                            StandardCharsets.UTF_8.toString()
-                        )
-                    )
+                URLEncoder.encode(
+                    Json.encodeToString(
+                        articleUiBean,
+                    ),
+                    StandardCharsets.UTF_8.toString()
                 )
             }"
         ) {
