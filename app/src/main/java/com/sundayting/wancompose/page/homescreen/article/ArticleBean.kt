@@ -1,6 +1,7 @@
 package com.sundayting.wancompose.page.homescreen.article
 
 
+import androidx.core.text.HtmlCompat
 import androidx.room.Entity
 import com.sundayting.wancompose.function.UserLoginFunction.VISITOR_ID
 import com.sundayting.wancompose.network.WanEmptyNResult
@@ -39,7 +40,7 @@ data class ArticleListBean(
 
 fun ArticleBean.toArticleUiBean(): ArticleList.ArticleUiBean {
     return ArticleList.ArticleUiBean(
-        title = title,
+        title = HtmlCompat.fromHtml(this.title, HtmlCompat.FROM_HTML_MODE_COMPACT).toString(),
         date = niceDate,
         isStick = isStick,
         isNew = fresh,
