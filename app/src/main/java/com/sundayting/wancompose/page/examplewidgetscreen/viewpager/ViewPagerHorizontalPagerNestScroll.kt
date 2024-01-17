@@ -3,11 +3,14 @@ package com.sundayting.wancompose.page.examplewidgetscreen.viewpager
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.MotionEvent
+import android.view.MotionEvent.ACTION_DOWN
+import android.view.MotionEvent.ACTION_MOVE
 import android.view.View
 import android.view.ViewGroup
 import android.view.ViewGroup.LayoutParams.MATCH_PARENT
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.gestures.rememberScrollableState
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
@@ -20,7 +23,10 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -41,7 +47,6 @@ import androidx.navigation.NavController
 import androidx.viewpager.widget.ViewPager
 import com.sundayting.wancompose.WanComposeDestination
 import kotlinx.coroutines.launch
-import kotlin.math.abs
 
 class RedFragment : Fragment() {
 
@@ -57,31 +62,50 @@ class RedFragment : Fragment() {
             private var lastX = 0f
             private var lastY = 0f
 
-            override fun dispatchTouchEvent(ev: MotionEvent): Boolean {
-                when (ev.action) {
-                    MotionEvent.ACTION_DOWN -> {
+            override fun onInterceptTouchEvent(ev: MotionEvent): Boolean {
+                when (ev.actionMasked) {
+                    ACTION_DOWN -> {
                         lastX = ev.x
                         lastY = ev.y
                     }
 
-                    MotionEvent.ACTION_MOVE -> {
+                    ACTION_MOVE -> {
                         val dx = ev.x - lastX
-                        val dy = ev.y - lastY
-                        lastX = ev.x
-                        lastY = ev.y
-
-                        val r = abs(dy) / abs(dx)
                         val needParentScroll =
                             (dx < 0 && !canScrollForward) || (dx >= 0 && !canScrollBackward)
-
-                        if (r < 0.6f && needParentScroll) {
-                            return false
+                        if (needParentScroll) {
+                            return true
                         }
                     }
-
                 }
-                return super.dispatchTouchEvent(ev)
+                return super.onInterceptTouchEvent(ev)
             }
+
+//            override fun dispatchTouchEvent(ev: MotionEvent): Boolean {
+//                when (ev.action) {
+//                    MotionEvent.ACTION_DOWN -> {
+//                        lastX = ev.x
+//                        lastY = ev.y
+//                    }
+//
+//                    MotionEvent.ACTION_MOVE -> {
+//                        val dx = ev.x - lastX
+//                        val dy = ev.y - lastY
+//                        lastX = ev.x
+//                        lastY = ev.y
+//
+//                        val r = abs(dy) / abs(dx)
+//                        val needParentScroll =
+//                            (dx < 0 && !canScrollForward) || (dx >= 0 && !canScrollBackward)
+//
+//                        if (r < 0.6f && needParentScroll) {
+//                            return false
+//                        }
+//                    }
+//
+//                }
+//                return super.dispatchTouchEvent(ev)
+//            }
 
             init {
                 setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
@@ -89,6 +113,25 @@ class RedFragment : Fragment() {
 
             @Composable
             override fun Content() {
+
+                val scrollState = rememberScrollableState {
+                    it
+                }
+                var canScrollForward2 by remember { mutableStateOf(true) }
+                var canScrollBackward2 by remember { mutableStateOf(true) }
+
+                LaunchedEffect(Unit) {
+                    launch {
+                        snapshotFlow { scrollState.canScrollForward }.collect {
+                            canScrollForward2 = it
+                        }
+                    }
+                    launch {
+                        snapshotFlow { scrollState.canScrollBackward }.collect {
+                            canScrollBackward2 = it
+                        }
+                    }
+                }
                 Box(
                     Modifier
                         .padding(10.dp)
@@ -107,6 +150,11 @@ class RedFragment : Fragment() {
                         launch {
                             snapshotFlow { pagerState.canScrollBackward }.collect {
                                 canScrollBackward = it
+                            }
+                        }
+                        launch {
+                            snapshotFlow { pagerState }.collect {
+
                             }
                         }
                     }
