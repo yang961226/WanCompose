@@ -38,10 +38,12 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import com.sundayting.wancompose.R
 import com.sundayting.wancompose.WanComposeDestination
 import com.sundayting.wancompose.common.ui.title.TitleBarProperties
 import com.sundayting.wancompose.common.ui.title.TitleBarWithBackButtonContent
 import com.sundayting.wancompose.common.ui.title.TitleBarWithContent
+import com.sundayting.wancompose.page.examplewidgetscreen.ExampleCardBean
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlin.math.max
@@ -50,6 +52,11 @@ import kotlin.math.roundToInt
 object NestScroll : WanComposeDestination {
     override val route: String
         get() = "嵌套滑动"
+
+    val exampleCardBean = ExampleCardBean(
+        "嵌套滑动",
+        resId = R.drawable.ic_nest_scroll
+    )
 
     fun NavController.navigateToNestScroll() {
         navigate(route) {

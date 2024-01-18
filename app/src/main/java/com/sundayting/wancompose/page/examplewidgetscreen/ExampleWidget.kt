@@ -34,6 +34,10 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.sundayting.wancompose.R
 import com.sundayting.wancompose.common.ui.title.TitleBarWithContent
+import com.sundayting.wancompose.page.examplewidgetscreen.nestscroll.NestScroll
+import com.sundayting.wancompose.page.examplewidgetscreen.pointinput.PointInput
+import com.sundayting.wancompose.page.examplewidgetscreen.tantancard.TanTanSwipeCardScreen
+import com.sundayting.wancompose.page.examplewidgetscreen.viewpager.ViewPagerHorizontalPagerNestScroll
 import com.sundayting.wancompose.page.homescreen.HomeScreen
 
 class ExampleCardBean(
@@ -76,22 +80,10 @@ object ExampleWidget : HomeScreen.HomeScreenPage {
         get() = "代码案例"
 
     private val exampleList = listOf(
-        ExampleCardBean(
-            name = "探探滑卡",
-            resId = R.drawable.ic_tantan_preview
-        ),
-        ExampleCardBean(
-            name = "手势",
-            resId = R.drawable.icon_point_input
-        ),
-        ExampleCardBean(
-            "嵌套滑动",
-            resId = R.drawable.ic_nest_scroll
-        ),
-        ExampleCardBean(
-            "ViewPager、HorizontalPager嵌套滑动问题修复",
-            resId = R.drawable.ic_horizontalpager_issues
-        )
+        TanTanSwipeCardScreen.exampleCardBean,
+        PointInput.exampleCardBean,
+        NestScroll.exampleCardBean,
+        ViewPagerHorizontalPagerNestScroll.exampleCardBean
     )
 
     @Composable

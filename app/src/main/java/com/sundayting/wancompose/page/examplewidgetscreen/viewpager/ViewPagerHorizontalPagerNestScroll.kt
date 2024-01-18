@@ -45,7 +45,12 @@ import androidx.fragment.app.FragmentActivity
 import androidx.fragment.app.FragmentStatePagerAdapter
 import androidx.navigation.NavController
 import androidx.viewpager.widget.ViewPager
+import com.sundayting.wancompose.R
 import com.sundayting.wancompose.WanComposeDestination
+import com.sundayting.wancompose.common.ui.title.TitleBarProperties
+import com.sundayting.wancompose.common.ui.title.TitleBarWithBackButtonContent
+import com.sundayting.wancompose.common.ui.title.TitleBarWithContent
+import com.sundayting.wancompose.page.examplewidgetscreen.ExampleCardBean
 import kotlinx.coroutines.launch
 
 class RedFragment : Fragment() {
@@ -225,6 +230,11 @@ object ViewPagerHorizontalPagerNestScroll : WanComposeDestination {
     override val route: String
         get() = "ViewPager横向滑动测试"
 
+    val exampleCardBean = ExampleCardBean(
+        "ViewPager、HorizontalPager嵌套滑动问题修复",
+        resId = R.drawable.ic_horizontalpager_issues
+    )
+
     fun NavController.navigateToViewPagerHorizontalPagerNestScroll() {
         navigate(route) {
             launchSingleTop = true
@@ -234,6 +244,7 @@ object ViewPagerHorizontalPagerNestScroll : WanComposeDestination {
     @Composable
     fun Screen(
         modifier: Modifier = Modifier,
+        onClickBackButton: () -> Unit = {},
     ) {
 
         val fragmentActivity = (LocalContext.current as FragmentActivity)
@@ -252,28 +263,43 @@ object ViewPagerHorizontalPagerNestScroll : WanComposeDestination {
             }
         }
 
-
-        Box(
-            modifier
-                .fillMaxSize()
-                .statusBarsPadding()
-        ) {
-            AndroidView(modifier = Modifier.fillMaxSize(), factory = {
-                ViewPager(it).apply {
-                    id = View.generateViewId()
-                    layoutParams = ViewGroup.LayoutParams(MATCH_PARENT, MATCH_PARENT)
-                    adapter = viewPagerAdapter
+        TitleBarWithContent(
+            modifier,
+            properties = TitleBarProperties(elevation = 0.dp),
+            titleBarContent = {
+                TitleBarWithBackButtonContent(
+                    onClickBackButton = onClickBackButton
+                ) {
+                    Text(
+                        "嵌套滑动",
+                        style = TextStyle(
+                            fontSize = 16.sp, color = Color.White
+                        ),
+                        modifier = Modifier
+                            .align(Alignment.Center)
+                    )
                 }
-            })
-            Text(
-                text = "我是ViewPager",
-                modifier = Modifier
-                    .align(Alignment.BottomCenter)
-                    .padding(bottom = 25.dp),
-                style = TextStyle(fontSize = 30.sp)
-            )
+            }
+        ) {
+            Box(
+                Modifier
+                    .fillMaxSize()
+            ) {
+                AndroidView(modifier = Modifier.fillMaxSize(), factory = {
+                    ViewPager(it).apply {
+                        id = View.generateViewId()
+                        layoutParams = ViewGroup.LayoutParams(MATCH_PARENT, MATCH_PARENT)
+                        adapter = viewPagerAdapter
+                    }
+                })
+                Text(
+                    text = "我是ViewPager",
+                    modifier = Modifier
+                        .align(Alignment.BottomCenter)
+                        .padding(bottom = 25.dp),
+                    style = TextStyle(fontSize = 30.sp)
+                )
+            }
         }
-
-
     }
 }

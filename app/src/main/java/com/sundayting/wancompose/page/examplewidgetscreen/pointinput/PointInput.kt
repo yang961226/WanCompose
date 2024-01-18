@@ -67,12 +67,14 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.unit.toSize
 import androidx.navigation.NavController
+import com.sundayting.wancompose.R
 import com.sundayting.wancompose.WanComposeDestination
 import com.sundayting.wancompose.common.event.LocalEventManager
 import com.sundayting.wancompose.common.event.emitToast
 import com.sundayting.wancompose.common.ui.title.TitleBarProperties
 import com.sundayting.wancompose.common.ui.title.TitleBarWithBackButtonContent
 import com.sundayting.wancompose.common.ui.title.TitleBarWithContent
+import com.sundayting.wancompose.page.examplewidgetscreen.ExampleCardBean
 import kotlinx.coroutines.launch
 import kotlin.math.PI
 import kotlin.math.cos
@@ -82,6 +84,11 @@ import kotlin.math.sin
 object PointInput : WanComposeDestination {
     override val route: String
         get() = "手势"
+
+    val exampleCardBean = ExampleCardBean(
+        name = "手势",
+        resId = R.drawable.icon_point_input
+    )
 
     fun NavController.navigateToPointInput() {
         navigate(route) {

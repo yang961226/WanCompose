@@ -228,10 +228,10 @@ object HomeScreen : WanComposeDestination {
                             .fillMaxSize(),
                         onClick = { bean ->
                             when (bean.name) {
-                                "探探滑卡" -> navController.navigateToTanTanSwipeCardScreen()
-                                "手势" -> navController.navigateToPointInput()
-                                "嵌套滑动" -> navController.navigateToNestScroll()
-                                "ViewPager、HorizontalPager嵌套滑动问题修复" -> navController.navigateToViewPagerHorizontalPagerNestScroll()
+                                TanTanSwipeCardScreen.exampleCardBean.name -> navController.navigateToTanTanSwipeCardScreen()
+                                PointInput.exampleCardBean.name -> navController.navigateToPointInput()
+                                NestScroll.exampleCardBean.name -> navController.navigateToNestScroll()
+                                ViewPagerHorizontalPagerNestScroll.exampleCardBean.name -> navController.navigateToViewPagerHorizontalPagerNestScroll()
                             }
                         }
                     )

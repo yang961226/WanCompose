@@ -14,12 +14,19 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import com.sundayting.wancompose.R
 import com.sundayting.wancompose.WanComposeDestination
 import com.sundayting.wancompose.common.ui.title.TitleBarWithContent
+import com.sundayting.wancompose.page.examplewidgetscreen.ExampleCardBean
 
 object TanTanSwipeCardScreen : WanComposeDestination {
     override val route: String
-        get() = "探探滑卡"
+        get() = exampleCardBean.name
+
+    val exampleCardBean = ExampleCardBean(
+        name = "探探滑卡",
+        resId = R.drawable.ic_tantan_preview
+    )
 
     fun NavController.navigateToTanTanSwipeCardScreen() {
         navigate(route) {
