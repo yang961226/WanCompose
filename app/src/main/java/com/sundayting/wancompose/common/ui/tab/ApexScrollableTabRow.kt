@@ -309,9 +309,15 @@ private fun PreviewApexScrollableTabRow() {
 
     LaunchedEffect(Unit) {
         launch {
-            snapshotFlow { quickSelect to horizontalPagerState.currentPage }.collect {
-                if (!it.first) {
-                    tabState.animateScrollToIndex(it.second)
+            snapshotFlow {
+                Triple(
+                    isDragged,
+                    quickSelect,
+                    horizontalPagerState.currentPage
+                )
+            }.collect {
+                if (!it.second) {
+                    tabState.animateScrollToIndex(it.third)
                 }
             }
         }
