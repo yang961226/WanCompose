@@ -12,6 +12,9 @@ import androidx.compose.foundation.gestures.ScrollScope
 import androidx.compose.foundation.gestures.ScrollableState
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.calculateEndPadding
+import androidx.compose.foundation.layout.calculateStartPadding
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
@@ -211,6 +214,8 @@ fun ApexScrollableTabRow(
     alignment: Alignment.Vertical = Alignment.CenterVertically,
     state: ApexScrollableTabState,
     indicator: @Composable (List<ApexTabPosition>) -> Unit,
+    horizontalSpacing: Dp = 0.dp,
+    contentPaddingValues: PaddingValues = PaddingValues(0.dp),
     tabs: @Composable () -> Unit,
 ) {
     SubcomposeLayout(
@@ -222,24 +227,46 @@ fun ApexScrollableTabRow(
         val tabPlaceables =
             subcompose(Tabs, tabs).map { it.measure(constraints.copy(minWidth = 0)) }
 
-        var totalWidth = 0
-        tabPlaceables.forEach {
-            totalWidth += it.width
+        val horizontalSpacingPx = horizontalSpacing.roundToPx()
+
+        val startContentPadding = contentPaddingValues.calculateStartPadding(layoutDirection)
+
+        val endContentPadding = contentPaddingValues.calculateEndPadding(
+            layoutDirection
+        )
+
+        var totalWidth =
+            (startContentPadding + endContentPadding).roundToPx()
+        tabPlaceables.forEachIndexed { index, placeable ->
+            if (index != 0) {
+                totalWidth += horizontalSpacingPx
+            }
+            totalWidth += placeable.width
         }
         val height = tabPlaceables.maxByOrNull { it.height }?.height ?: 0
 
         var left = 0
         layout(totalWidth, height) {
             val tabPositions = mutableListOf<ApexTabPosition>()
-            tabPlaceables.forEach {
-                it.placeRelative(
+            tabPlaceables.forEachIndexed { index, placeable ->
+                left += if (index != 0) {
+                    horizontalSpacingPx
+                } else {
+                    startContentPadding.roundToPx()
+                }
+                placeable.placeRelative(
                     left, alignment.align(
-                        size = it.height,
+                        size = placeable.height,
                         space = height
                     )
                 )
-                tabPositions.add(ApexTabPosition(left = left.toDp(), width = it.width.toDp()))
-                left += it.width
+                tabPositions.add(
+                    ApexTabPosition(
+                        left = left.toDp(),
+                        width = placeable.width.toDp()
+                    )
+                )
+                left += placeable.width
             }
 
             subcompose(Slot.Indicator) {
@@ -265,9 +292,10 @@ private fun PreviewApexScrollableTabRow() {
     val state = rememberApexScrollableTabState()
     val scope = rememberCoroutineScope()
     ApexScrollableTabRow(
-        modifier = Modifier.padding(10.dp),
         alignment = Alignment.CenterVertically,
         state = state,
+        horizontalSpacing = 15.dp,
+        contentPaddingValues = PaddingValues(start = 20.dp, end = 30.dp),
         indicator = {
             Box(
                 Modifier
@@ -284,6 +312,7 @@ private fun PreviewApexScrollableTabRow() {
                 Box(
                     Modifier
                         .clip(RoundedCornerShape(50))
+                        .background(Color.Blue.copy(0.2f))
                         .height(50.dp)
                         .clickable {
                             scope.launch {
