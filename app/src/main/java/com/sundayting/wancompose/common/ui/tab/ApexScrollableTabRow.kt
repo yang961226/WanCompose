@@ -12,18 +12,24 @@ import androidx.compose.foundation.gestures.ScrollScope
 import androidx.compose.foundation.gestures.ScrollableState
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.calculateEndPadding
 import androidx.compose.foundation.layout.calculateStartPadding
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
@@ -34,6 +40,7 @@ import androidx.compose.runtime.saveable.Saver
 import androidx.compose.runtime.saveable.listSaver
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
@@ -289,47 +296,79 @@ fun ApexScrollableTabRow(
 @Composable
 @Preview(showBackground = true)
 private fun PreviewApexScrollableTabRow() {
-    val state = rememberApexScrollableTabState()
+    val tabState = rememberApexScrollableTabState()
+    val horizontalPagerState = rememberPagerState { 10 }
     val scope = rememberCoroutineScope()
-    ApexScrollableTabRow(
-        alignment = Alignment.CenterVertically,
-        state = state,
-        horizontalSpacing = 15.dp,
-        contentPaddingValues = PaddingValues(start = 20.dp, end = 30.dp),
-        indicator = {
-            Box(
-                Modifier
-                    .tabIndicatorOffset(it[state.currentTabIndex], horizontalSpaceGetter = {
-                        10.dp
-                    })
-                    .height(5.dp)
-                    .background(Color.Red, shape = RoundedCornerShape(50))
-            )
-        },
-        tabs = {
-            (0..10).forEach {
-                val isSelect = state.currentTabIndex == it
+
+    LaunchedEffect(Unit) {
+        snapshotFlow { horizontalPagerState.currentPage }.collect {
+            tabState.animateScrollToIndex(it)
+        }
+    }
+    Column(
+        Modifier
+            .padding(top = 20.dp)
+            .fillMaxSize()
+    ) {
+        ApexScrollableTabRow(
+            alignment = Alignment.CenterVertically,
+            state = tabState,
+            horizontalSpacing = 15.dp,
+            contentPaddingValues = PaddingValues(start = 20.dp, end = 30.dp),
+            indicator = {
                 Box(
                     Modifier
-                        .clip(RoundedCornerShape(50))
-                        .background(Color.Blue.copy(0.2f))
-                        .height(50.dp)
-                        .clickable {
-                            scope.launch {
-                                state.animateScrollToIndex(it)
+                        .tabIndicatorOffset(it[tabState.currentTabIndex], horizontalSpaceGetter = {
+                            10.dp
+                        })
+                        .height(5.dp)
+                        .background(Color.Red, shape = RoundedCornerShape(50))
+                )
+            },
+            tabs = {
+                (0..9).forEach {
+                    val isSelect = tabState.currentTabIndex == it
+                    Box(
+                        Modifier
+                            .clip(RoundedCornerShape(50))
+                            .background(Color.Blue.copy(0.2f))
+                            .height(50.dp)
+                            .clickable {
+                                scope.launch {
+                                    horizontalPagerState.animateScrollToPage(it)
+                                }
                             }
-                        }
-                        .padding(horizontal = 10.dp + it.dp * 6),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text(
-                        "我是第${it}", style = TextStyle(
-                            color = if (isSelect) Color.Red.copy(0.7f) else Color.Black,
-                            fontWeight = if (isSelect) FontWeight.Bold else FontWeight.Normal
+                            .padding(horizontal = 10.dp + it.dp * 6),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            "我是第${it}", style = TextStyle(
+                                color = if (isSelect) Color.Red.copy(0.7f) else Color.Black,
+                                fontWeight = if (isSelect) FontWeight.Bold else FontWeight.Normal
+                            )
                         )
-                    )
+                    }
                 }
             }
+        )
+
+        Spacer(Modifier.height(10.dp))
+
+        HorizontalPager(
+            state = horizontalPagerState,
+            modifier = Modifier
+                .fillMaxSize()
+                .weight(1f, false)
+        ) {
+            Box(
+                Modifier
+                    .fillMaxSize()
+                    .background((if (it % 2 == 0) Color.Red else Color.Blue).copy(0.3f)),
+                contentAlignment = Alignment.Center
+            ) {
+                Text("我是第$it")
+            }
         }
-    )
+
+    }
 }
