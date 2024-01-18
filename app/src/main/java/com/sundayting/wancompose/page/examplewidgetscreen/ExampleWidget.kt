@@ -36,6 +36,7 @@ import com.sundayting.wancompose.R
 import com.sundayting.wancompose.common.ui.title.TitleBarWithContent
 import com.sundayting.wancompose.page.examplewidgetscreen.nestscroll.NestScroll
 import com.sundayting.wancompose.page.examplewidgetscreen.pointinput.PointInput
+import com.sundayting.wancompose.page.examplewidgetscreen.scrollaletabrow.TabRowScreen
 import com.sundayting.wancompose.page.examplewidgetscreen.tantancard.TanTanSwipeCardScreen
 import com.sundayting.wancompose.page.examplewidgetscreen.viewpager.ViewPagerHorizontalPagerNestScroll
 import com.sundayting.wancompose.page.homescreen.HomeScreen
@@ -83,7 +84,8 @@ object ExampleWidget : HomeScreen.HomeScreenPage {
         TanTanSwipeCardScreen.exampleCardBean,
         PointInput.exampleCardBean,
         NestScroll.exampleCardBean,
-        ViewPagerHorizontalPagerNestScroll.exampleCardBean
+        ViewPagerHorizontalPagerNestScroll.exampleCardBean,
+        TabRowScreen.exampleCardBean
     )
 
     @Composable

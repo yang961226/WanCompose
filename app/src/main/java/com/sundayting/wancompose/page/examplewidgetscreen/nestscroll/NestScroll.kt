@@ -74,7 +74,7 @@ object NestScroll : WanComposeDestination {
                     onClickBackButton = onClickBackButton
                 ) {
                     Text(
-                        "嵌套滑动",
+                        "嵌套滑动问题修复",
                         style = TextStyle(
                             fontSize = 16.sp, color = Color.White
                         ),

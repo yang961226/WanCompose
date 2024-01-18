@@ -39,6 +39,8 @@ import com.sundayting.wancompose.page.examplewidgetscreen.nestscroll.NestScroll
 import com.sundayting.wancompose.page.examplewidgetscreen.nestscroll.NestScroll.navigateToNestScroll
 import com.sundayting.wancompose.page.examplewidgetscreen.pointinput.PointInput
 import com.sundayting.wancompose.page.examplewidgetscreen.pointinput.PointInput.navigateToPointInput
+import com.sundayting.wancompose.page.examplewidgetscreen.scrollaletabrow.TabRowScreen
+import com.sundayting.wancompose.page.examplewidgetscreen.scrollaletabrow.TabRowScreen.navigateToTabRowScreen
 import com.sundayting.wancompose.page.examplewidgetscreen.tantancard.TanTanSwipeCardScreen
 import com.sundayting.wancompose.page.examplewidgetscreen.tantancard.TanTanSwipeCardScreen.navigateToTanTanSwipeCardScreen
 import com.sundayting.wancompose.page.examplewidgetscreen.viewpager.ViewPagerHorizontalPagerNestScroll
@@ -232,6 +234,7 @@ object HomeScreen : WanComposeDestination {
                                 PointInput.exampleCardBean.name -> navController.navigateToPointInput()
                                 NestScroll.exampleCardBean.name -> navController.navigateToNestScroll()
                                 ViewPagerHorizontalPagerNestScroll.exampleCardBean.name -> navController.navigateToViewPagerHorizontalPagerNestScroll()
+                                TabRowScreen.exampleCardBean.name -> navController.navigateToTabRowScreen()
                             }
                         }
                     )
@@ -252,7 +255,17 @@ object HomeScreen : WanComposeDestination {
                 }
 
                 composable(ViewPagerHorizontalPagerNestScroll.route) {
-                    ViewPagerHorizontalPagerNestScroll.Screen(Modifier.fillMaxSize())
+                    ViewPagerHorizontalPagerNestScroll.Screen(
+                        Modifier.fillMaxSize(),
+                        onClickBackButton = {
+                            navController.popBackStack()
+                        })
+                }
+
+                composable(TabRowScreen.route) {
+                    TabRowScreen.Screen(Modifier.fillMaxSize(), onClickBackButton = {
+                        navController.popBackStack()
+                    })
                 }
             }
 
