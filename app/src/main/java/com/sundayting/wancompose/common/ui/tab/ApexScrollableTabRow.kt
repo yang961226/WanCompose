@@ -38,11 +38,11 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.SubcomposeLayout
-import androidx.compose.ui.platform.debugInspectorInfo
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.coerceAtLeast
 import androidx.compose.ui.unit.dp
 import com.sundayting.wancompose.common.ui.tab.Slot.Tabs
 import kotlinx.coroutines.launch
@@ -56,14 +56,14 @@ data class ApexTabPosition(val left: Dp, val width: Dp) {
     val right = left + width
 }
 
+private val DefaultHorizontalSpaceGetter: (ApexTabPosition) -> Dp = {
+    0.dp
+}
+
 fun Modifier.tabIndicatorOffset(
     currentTabPosition: ApexTabPosition,
-): Modifier = composed(
-    inspectorInfo = debugInspectorInfo {
-        name = "tabIndicatorOffset"
-        value = currentTabPosition
-    }
-) {
+    horizontalSpaceGetter: (ApexTabPosition) -> Dp = DefaultHorizontalSpaceGetter,
+): Modifier = composed {
     val currentTabWidth by animateDpAsState(
         targetValue = currentTabPosition.width,
         animationSpec = tween(
@@ -78,10 +78,11 @@ fun Modifier.tabIndicatorOffset(
             easing = FastOutSlowInEasing
         ), label = ""
     )
+    val space = horizontalSpaceGetter(currentTabPosition)
     fillMaxWidth()
         .wrapContentSize(Alignment.BottomStart)
-        .offset(x = indicatorOffset)
-        .width(currentTabWidth)
+        .offset(x = indicatorOffset + space)
+        .width((currentTabWidth - space * 2).coerceAtLeast(0.dp))
 }
 
 @Composable
@@ -156,22 +157,20 @@ class ApexScrollableTabState private constructor(curIndex: Int, init: Float) :
         if (index == currentTabIndex || curMeasureResult == null) {
             return
         }
-        scroll {
-            curMeasureResult.tabPositions.getOrNull(index)?.let {
-                val calculatedOffset =
-                    it.calculateTabOffset(curMeasureResult.density, curMeasureResult.tabPositions)
-                if (scrollState.value != calculatedOffset) {
-                    currentTabIndexState.intValue = index
-                    animateScrollToIndex = index
-                    scrollState.animateScrollTo(
-                        calculatedOffset,
-                        animationSpec = ScrollableTabRowScrollSpec
-                    )
-
-                }
-                animateScrollToIndex = -1
+        curMeasureResult.tabPositions.getOrNull(index)?.let {
+            val calculatedOffset =
+                it.calculateTabOffset(curMeasureResult.density, curMeasureResult.tabPositions)
+            if (scrollState.value != calculatedOffset) {
                 currentTabIndexState.intValue = index
+                animateScrollToIndex = index
+                scrollState.animateScrollTo(
+                    calculatedOffset,
+                    animationSpec = ScrollableTabRowScrollSpec
+                )
+
             }
+            animateScrollToIndex = -1
+            currentTabIndexState.intValue = index
         }
     }
 
@@ -270,8 +269,9 @@ private fun PreviewApexScrollableTabRow() {
         indicator = {
             Box(
                 Modifier
-                    .tabIndicatorOffset(it[state.currentTabIndex])
-                    .fillMaxWidth()
+                    .tabIndicatorOffset(it[state.currentTabIndex], horizontalSpaceGetter = {
+                        10.dp
+                    })
                     .height(10.dp)
                     .background(Color.Red)
             )
@@ -280,14 +280,13 @@ private fun PreviewApexScrollableTabRow() {
             (0..10).forEach {
                 Box(
                     Modifier
-                        .padding(1.dp)
                         .clip(RoundedCornerShape(50))
                         .background(
                             if (state.currentTabIndex == it) Color.Blue.copy(0.4f) else Color.Blue.copy(
                                 0.2f
                             )
                         )
-                        .height(50.dp + it.dp * 5)
+                        .height(50.dp)
                         .clickable {
                             scope.launch {
                                 state.animateScrollToIndex(it)
