@@ -271,7 +271,7 @@ object ViewPagerHorizontalPagerNestScroll : WanComposeDestination {
                     onClickBackButton = onClickBackButton
                 ) {
                     Text(
-                        "嵌套滑动",
+                        "ViewPager嵌套问题修复",
                         style = TextStyle(
                             fontSize = 16.sp, color = Color.White
                         ),
