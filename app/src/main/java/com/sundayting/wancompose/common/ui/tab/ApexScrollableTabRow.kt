@@ -164,7 +164,10 @@ class ApexScrollableTabState private constructor(curIndex: Int, init: Float) :
 
     private var measureResult by mutableStateOf<ScrollableTabMeasureResult?>(null)
 
-    suspend fun animateScrollToIndex(index: Int) {
+    suspend fun animateScrollToIndex(
+        index: Int,
+        animationSpec: AnimationSpec<Float> = ScrollableTabRowScrollSpec,
+    ) {
         val curMeasureResult = measureResult
         if (index == currentTabIndex || curMeasureResult == null) {
             return
@@ -177,9 +180,8 @@ class ApexScrollableTabState private constructor(curIndex: Int, init: Float) :
                 animateScrollToIndex = index
                 scrollState.animateScrollTo(
                     calculatedOffset,
-                    animationSpec = ScrollableTabRowScrollSpec
+                    animationSpec = animationSpec
                 )
-
             }
             animateScrollToIndex = -1
             currentTabIndexState.intValue = index
@@ -335,7 +337,12 @@ private fun PreviewApexScrollableTabRow() {
                             .height(50.dp)
                             .clickable {
                                 scope.launch {
-                                    horizontalPagerState.animateScrollToPage(it)
+                                    horizontalPagerState.animateScrollToPage(
+                                        it, animationSpec = tween(
+                                            durationMillis = ApexScrollableTabState.ScrollableTabRowDuration,
+                                            easing = FastOutSlowInEasing
+                                        )
+                                    )
                                 }
                             }
                             .padding(horizontal = 10.dp + it.dp * 6),
