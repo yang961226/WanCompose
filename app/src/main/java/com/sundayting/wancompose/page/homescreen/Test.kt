@@ -3,20 +3,25 @@ package com.sundayting.wancompose.page.homescreen
 import androidx.compose.animation.core.AnimationSpec
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.MutatePriority
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.ScrollScope
+import androidx.compose.foundation.gestures.ScrollableState
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.Stable
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
@@ -31,7 +36,6 @@ import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
 private enum class Slot {
@@ -43,21 +47,76 @@ data class MyTabPosition(val left: Dp, val width: Dp) {
     val right = left + width
 }
 
-private class MyScrollableTabData(
-    private val scrollState: ScrollState,
-    private val coroutineScope: CoroutineScope,
-) {
+@Stable
+class MyScrollableTabState : ScrollableState {
 
     companion object {
-        private val ScrollableTabRowScrollSpec: AnimationSpec<Float> = tween(
+        val ScrollableTabRowScrollSpec: AnimationSpec<Float> = tween(
             durationMillis = 250,
             easing = FastOutSlowInEasing
         )
     }
 
-    private var selectedTab: Int? = null
+    data class ScrollableTabMeasureResult(
+        val tabPositions: List<MyTabPosition>,
+        val density: Density,
+    )
 
-    fun MyTabPosition.calculateTabOffset(
+    val currentTabIndex
+        get() = currentTabIndexState.intValue
+
+    val targetTabIndex by derivedStateOf {
+        if (!isScrollInProgress) {
+            currentTabIndex
+        } else if (animateScrollToIndex != -1) {
+            animateScrollToIndex
+        } else {
+            //这里还没做手动滑动的部分，暂时用currentTabIndex
+            currentTabIndex
+        }
+    }
+
+    private var animateScrollToIndex by mutableIntStateOf(-1)
+
+    private var currentTabIndexState = mutableIntStateOf(0)
+
+    internal val scrollState = ScrollState(0)
+
+    override val isScrollInProgress: Boolean = scrollState.isScrollInProgress
+
+    private var measureResult by mutableStateOf<ScrollableTabMeasureResult?>(null)
+
+    suspend fun animateScrollToIndex(index: Int) {
+        val curMeasureResult = measureResult
+        if (index == currentTabIndex || curMeasureResult == null) {
+            return
+        }
+        curMeasureResult.tabPositions.getOrNull(index)?.let {
+            val calculatedOffset =
+                it.calculateTabOffset(curMeasureResult.density, curMeasureResult.tabPositions)
+            if (scrollState.value != calculatedOffset) {
+                currentTabIndexState.intValue = index
+                animateScrollToIndex = index
+                scrollState.animateScrollTo(
+                    calculatedOffset,
+                    animationSpec = ScrollableTabRowScrollSpec
+                )
+
+            }
+            animateScrollToIndex = -1
+            currentTabIndexState.intValue = index
+        }
+    }
+
+    override fun dispatchRawDelta(delta: Float): Float = scrollState.dispatchRawDelta(delta)
+
+    fun onLaidOut(
+        measureResult: ScrollableTabMeasureResult,
+    ) {
+        this.measureResult = measureResult
+    }
+
+    private fun MyTabPosition.calculateTabOffset(
         density: Density,
         tabPositions: List<MyTabPosition>,
     ): Int = with(density) {
@@ -71,54 +130,25 @@ private class MyScrollableTabData(
         return centeredTabOffset.coerceIn(0, availableSpace)
     }
 
-    fun onLaidOut(
-        density: Density,
-        tabPositions: List<MyTabPosition>,
-        selectedTab: Int,
-    ) {
-        // Animate if the new tab is different from the old tab, or this is called for the first
-        // time (i.e selectedTab is `null`).
-        if (this.selectedTab != selectedTab) {
-            this.selectedTab = selectedTab
-            tabPositions.getOrNull(selectedTab)?.let {
-                // Scrolls to the tab with [tabPosition], trying to place it in the center of the
-                // screen or as close to the center as possible.
-                val calculatedOffset = it.calculateTabOffset(density, tabPositions)
-                if (scrollState.value != calculatedOffset) {
-                    coroutineScope.launch {
-                        scrollState.animateScrollTo(
-                            calculatedOffset,
-                            animationSpec = ScrollableTabRowScrollSpec
-                        )
-                    }
-                }
-            }
-        }
-    }
+    override suspend fun scroll(
+        scrollPriority: MutatePriority,
+        block: suspend ScrollScope.() -> Unit,
+    ) = scrollState.scroll(scrollPriority, block)
 
 }
 
 @Composable
-fun MyScrollableTabRow(
+fun MyScrollableTabRow2(
     modifier: Modifier = Modifier,
-    selectedTabIndex: Int,
+    state: MyScrollableTabState,
     indicator: @Composable () -> Unit,
     tabs: @Composable () -> Unit,
 ) {
 
-    val scrollState = rememberScrollState()
-    val coroutineScope = rememberCoroutineScope()
-    val scrollableTabData = remember(scrollState, coroutineScope) {
-        MyScrollableTabData(
-            scrollState = scrollState,
-            coroutineScope = coroutineScope
-        )
-    }
-    Text("value:${scrollState.value}  maxValue:${scrollState.maxValue}")
     SubcomposeLayout(
         modifier
             .fillMaxWidth()
-            .horizontalScroll(scrollState)
+            .horizontalScroll(state.scrollState)
             .clipToBounds()
     ) { constraints ->
         val tabPlaceables =
@@ -146,10 +176,11 @@ fun MyScrollableTabRow(
                 it.placeRelative(0, 0)
             }
 
-            scrollableTabData.onLaidOut(
-                density = this@SubcomposeLayout,
-                tabPositions = tabPositions,
-                selectedTab = selectedTabIndex
+            state.onLaidOut(
+                MyScrollableTabState.ScrollableTabMeasureResult(
+                    tabPositions = tabPositions,
+                    density = this@SubcomposeLayout
+                )
             )
         }
     }
@@ -158,12 +189,16 @@ fun MyScrollableTabRow(
 
 @Composable
 @Preview(showBackground = true)
-private fun PreviewMyScrollableTabRow() {
+private fun PreviewMyScrollableTabRow2() {
+    val state = remember {
+        MyScrollableTabState()
+    }
+    val scope = rememberCoroutineScope()
 
-    var selectedIndex by remember { mutableIntStateOf(0) }
-    MyScrollableTabRow(
+    Text("current:${state.currentTabIndex}  target:${state.targetTabIndex}")
+    MyScrollableTabRow2(
         modifier = Modifier.padding(10.dp),
-        selectedTabIndex = selectedIndex,
+        state = state,
         indicator = {
 
         },
@@ -174,12 +209,16 @@ private fun PreviewMyScrollableTabRow() {
                         .padding(1.dp)
                         .clip(RoundedCornerShape(50))
                         .background(
-                            if (selectedIndex == it) Color.Blue.copy(0.4f) else Color.Blue.copy(
+                            if (state.currentTabIndex == it) Color.Blue.copy(0.4f) else Color.Blue.copy(
                                 0.2f
                             )
                         )
                         .height(50.dp)
-                        .clickable { selectedIndex = it }
+                        .clickable {
+                            scope.launch {
+                                state.animateScrollToIndex(it)
+                            }
+                        }
                         .padding(horizontal = 10.dp), contentAlignment = Alignment.Center
                 ) {
                     Text("我是第${it}")
