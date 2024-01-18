@@ -1,7 +1,8 @@
-package com.sundayting.wancompose.page.homescreen
+package com.sundayting.wancompose.common.ui.tab
 
 import androidx.compose.animation.core.AnimationSpec
 import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.MutatePriority
 import androidx.compose.foundation.ScrollState
@@ -13,7 +14,10 @@ import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
@@ -27,15 +31,18 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.composed
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.SubcomposeLayout
+import androidx.compose.ui.platform.debugInspectorInfo
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import com.sundayting.wancompose.common.ui.tab.Slot.Tabs
 import kotlinx.coroutines.launch
 
 private enum class Slot {
@@ -43,22 +50,52 @@ private enum class Slot {
     Indicator
 }
 
-data class MyTabPosition(val left: Dp, val width: Dp) {
+data class ApexTabPosition(val left: Dp, val width: Dp) {
     val right = left + width
 }
 
+fun Modifier.tabIndicatorOffset(
+    currentTabPosition: ApexTabPosition,
+): Modifier = composed(
+    inspectorInfo = debugInspectorInfo {
+        name = "tabIndicatorOffset"
+        value = currentTabPosition
+    }
+) {
+    val currentTabWidth by animateDpAsState(
+        targetValue = currentTabPosition.width,
+        animationSpec = tween(
+            durationMillis = ApexScrollableTabState.ScrollableTabRowDuration,
+            easing = FastOutSlowInEasing
+        ), label = ""
+    )
+    val indicatorOffset by animateDpAsState(
+        targetValue = currentTabPosition.left,
+        animationSpec = tween(
+            durationMillis = ApexScrollableTabState.ScrollableTabRowDuration,
+            easing = FastOutSlowInEasing
+        ), label = ""
+    )
+    fillMaxWidth()
+        .wrapContentSize(Alignment.BottomStart)
+        .offset(x = indicatorOffset)
+        .width(currentTabWidth)
+}
+
 @Stable
-class MyScrollableTabState : ScrollableState {
+class ApexScrollableTabState : ScrollableState {
 
     companion object {
+        const val ScrollableTabRowDuration = 250
         val ScrollableTabRowScrollSpec: AnimationSpec<Float> = tween(
-            durationMillis = 250,
+            durationMillis = ScrollableTabRowDuration,
             easing = FastOutSlowInEasing
         )
     }
 
+
     data class ScrollableTabMeasureResult(
-        val tabPositions: List<MyTabPosition>,
+        val tabPositions: List<ApexTabPosition>,
         val density: Density,
     )
 
@@ -116,9 +153,9 @@ class MyScrollableTabState : ScrollableState {
         this.measureResult = measureResult
     }
 
-    private fun MyTabPosition.calculateTabOffset(
+    private fun ApexTabPosition.calculateTabOffset(
         density: Density,
-        tabPositions: List<MyTabPosition>,
+        tabPositions: List<ApexTabPosition>,
     ): Int = with(density) {
         val totalTabRowWidth = tabPositions.last().right.roundToPx()
         val visibleWidth = totalTabRowWidth - scrollState.maxValue
@@ -138,10 +175,11 @@ class MyScrollableTabState : ScrollableState {
 }
 
 @Composable
-fun MyScrollableTabRow2(
+fun ApexScrollableTabRow(
     modifier: Modifier = Modifier,
-    state: MyScrollableTabState,
-    indicator: @Composable () -> Unit,
+    alignment: Alignment.Vertical = Alignment.CenterVertically,
+    state: ApexScrollableTabState,
+    indicator: @Composable (List<ApexTabPosition>) -> Unit,
     tabs: @Composable () -> Unit,
 ) {
 
@@ -152,7 +190,7 @@ fun MyScrollableTabRow2(
             .clipToBounds()
     ) { constraints ->
         val tabPlaceables =
-            subcompose(Slot.Tabs, tabs).map { it.measure(constraints.copy(minWidth = 0)) }
+            subcompose(Tabs, tabs).map { it.measure(constraints.copy(minWidth = 0)) }
 
         var totalWidth = 0
         tabPlaceables.forEach {
@@ -160,24 +198,28 @@ fun MyScrollableTabRow2(
         }
         val height = tabPlaceables.maxByOrNull { it.height }?.height ?: 0
 
-        val indicatorPlaceables = subcompose(Slot.Indicator, indicator).map {
-            it.measure(Constraints.fixed(totalWidth, height))
-        }
-
         var left = 0
         layout(totalWidth, height) {
-            val tabPositions = mutableListOf<MyTabPosition>()
+            val tabPositions = mutableListOf<ApexTabPosition>()
             tabPlaceables.forEach {
-                it.placeRelative(left, 0)
-                tabPositions.add(MyTabPosition(left = left.toDp(), width = it.width.toDp()))
+                it.placeRelative(
+                    left, alignment.align(
+                        size = it.height,
+                        space = height
+                    )
+                )
+                tabPositions.add(ApexTabPosition(left = left.toDp(), width = it.width.toDp()))
                 left += it.width
             }
-            indicatorPlaceables.forEach {
-                it.placeRelative(0, 0)
+
+            subcompose(Slot.Indicator) {
+                indicator(tabPositions)
+            }.forEach {
+                it.measure(Constraints.fixed(totalWidth, height)).placeRelative(0, 0)
             }
 
             state.onLaidOut(
-                MyScrollableTabState.ScrollableTabMeasureResult(
+                ApexScrollableTabState.ScrollableTabMeasureResult(
                     tabPositions = tabPositions,
                     density = this@SubcomposeLayout
                 )
@@ -189,18 +231,23 @@ fun MyScrollableTabRow2(
 
 @Composable
 @Preview(showBackground = true)
-private fun PreviewMyScrollableTabRow2() {
+private fun PreviewApexScrollableTabRow() {
     val state = remember {
-        MyScrollableTabState()
+        ApexScrollableTabState()
     }
     val scope = rememberCoroutineScope()
-
-    Text("current:${state.currentTabIndex}  target:${state.targetTabIndex}")
-    MyScrollableTabRow2(
+    ApexScrollableTabRow(
         modifier = Modifier.padding(10.dp),
+        alignment = Alignment.CenterVertically,
         state = state,
         indicator = {
-
+            Box(
+                Modifier
+                    .tabIndicatorOffset(it[state.currentTabIndex])
+                    .fillMaxWidth()
+                    .height(10.dp)
+                    .background(Color.Red)
+            )
         },
         tabs = {
             (0..10).forEach {
@@ -213,13 +260,14 @@ private fun PreviewMyScrollableTabRow2() {
                                 0.2f
                             )
                         )
-                        .height(50.dp)
+                        .height(50.dp + it.dp * 5)
                         .clickable {
                             scope.launch {
                                 state.animateScrollToIndex(it)
                             }
                         }
-                        .padding(horizontal = 10.dp), contentAlignment = Alignment.Center
+                        .padding(horizontal = 10.dp + it.dp * 6),
+                    contentAlignment = Alignment.Center
                 ) {
                     Text("我是第${it}")
                 }
