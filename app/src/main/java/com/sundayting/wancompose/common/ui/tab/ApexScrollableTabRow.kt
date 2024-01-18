@@ -38,6 +38,8 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.SubcomposeLayout
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
@@ -272,20 +274,16 @@ private fun PreviewApexScrollableTabRow() {
                     .tabIndicatorOffset(it[state.currentTabIndex], horizontalSpaceGetter = {
                         10.dp
                     })
-                    .height(10.dp)
-                    .background(Color.Red)
+                    .height(5.dp)
+                    .background(Color.Red, shape = RoundedCornerShape(50))
             )
         },
         tabs = {
             (0..10).forEach {
+                val isSelect = state.currentTabIndex == it
                 Box(
                     Modifier
                         .clip(RoundedCornerShape(50))
-                        .background(
-                            if (state.currentTabIndex == it) Color.Blue.copy(0.4f) else Color.Blue.copy(
-                                0.2f
-                            )
-                        )
                         .height(50.dp)
                         .clickable {
                             scope.launch {
@@ -295,7 +293,12 @@ private fun PreviewApexScrollableTabRow() {
                         .padding(horizontal = 10.dp + it.dp * 6),
                     contentAlignment = Alignment.Center
                 ) {
-                    Text("我是第${it}")
+                    Text(
+                        "我是第${it}", style = TextStyle(
+                            color = if (isSelect) Color.Red.copy(0.7f) else Color.Black,
+                            fontWeight = if (isSelect) FontWeight.Bold else FontWeight.Normal
+                        )
+                    )
                 }
             }
         }
