@@ -99,7 +99,7 @@ object TabRowScreen : WanComposeDestination {
                     onClickBackButton = onClickBackButton
                 ) {
                     Text(
-                        "嵌套滑动",
+                        "TabRow演示",
                         style = TextStyle(
                             fontSize = 16.sp, color = Color.White
                         ),
