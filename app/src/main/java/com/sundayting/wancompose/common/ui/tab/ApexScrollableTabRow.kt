@@ -26,8 +26,10 @@ import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.Saver
+import androidx.compose.runtime.saveable.listSaver
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -82,10 +84,41 @@ fun Modifier.tabIndicatorOffset(
         .width(currentTabWidth)
 }
 
+@Composable
+fun rememberApexScrollableTabState(): ApexScrollableTabState {
+    return rememberSaveable(saver = ApexScrollableTabState.Saver) {
+        ApexScrollableTabState()
+    }
+}
+
 @Stable
-class ApexScrollableTabState : ScrollableState {
+class ApexScrollableTabState private constructor(curIndex: Int, init: Float) :
+    ScrollableState {
+
+    constructor(curIndex: Int = 0) : this(curIndex = curIndex, init = 0f)
+
+    data class ScrollableTabMeasureResult(
+        val tabPositions: List<ApexTabPosition>,
+        val density: Density,
+    )
 
     companion object {
+
+        val Saver: Saver<ApexScrollableTabState, *> = listSaver(
+            save = {
+                listOf(
+                    it.currentTabIndex,
+                    it.scrollState.value
+                )
+            },
+            restore = {
+                ApexScrollableTabState(
+                    curIndex = it[0],
+                    init = it[1].toFloat()
+                )
+            }
+        )
+
         const val ScrollableTabRowDuration = 250
         val ScrollableTabRowScrollSpec: AnimationSpec<Float> = tween(
             durationMillis = ScrollableTabRowDuration,
@@ -94,10 +127,7 @@ class ApexScrollableTabState : ScrollableState {
     }
 
 
-    data class ScrollableTabMeasureResult(
-        val tabPositions: List<ApexTabPosition>,
-        val density: Density,
-    )
+    internal val scrollState = ScrollState(init.toInt())
 
     val currentTabIndex
         get() = currentTabIndexState.intValue
@@ -115,9 +145,7 @@ class ApexScrollableTabState : ScrollableState {
 
     private var animateScrollToIndex by mutableIntStateOf(-1)
 
-    private var currentTabIndexState = mutableIntStateOf(0)
-
-    internal val scrollState = ScrollState(0)
+    private var currentTabIndexState = mutableIntStateOf(curIndex)
 
     override val isScrollInProgress: Boolean = scrollState.isScrollInProgress
 
@@ -128,20 +156,22 @@ class ApexScrollableTabState : ScrollableState {
         if (index == currentTabIndex || curMeasureResult == null) {
             return
         }
-        curMeasureResult.tabPositions.getOrNull(index)?.let {
-            val calculatedOffset =
-                it.calculateTabOffset(curMeasureResult.density, curMeasureResult.tabPositions)
-            if (scrollState.value != calculatedOffset) {
-                currentTabIndexState.intValue = index
-                animateScrollToIndex = index
-                scrollState.animateScrollTo(
-                    calculatedOffset,
-                    animationSpec = ScrollableTabRowScrollSpec
-                )
+        scroll {
+            curMeasureResult.tabPositions.getOrNull(index)?.let {
+                val calculatedOffset =
+                    it.calculateTabOffset(curMeasureResult.density, curMeasureResult.tabPositions)
+                if (scrollState.value != calculatedOffset) {
+                    currentTabIndexState.intValue = index
+                    animateScrollToIndex = index
+                    scrollState.animateScrollTo(
+                        calculatedOffset,
+                        animationSpec = ScrollableTabRowScrollSpec
+                    )
 
+                }
+                animateScrollToIndex = -1
+                currentTabIndexState.intValue = index
             }
-            animateScrollToIndex = -1
-            currentTabIndexState.intValue = index
         }
     }
 
@@ -182,7 +212,6 @@ fun ApexScrollableTabRow(
     indicator: @Composable (List<ApexTabPosition>) -> Unit,
     tabs: @Composable () -> Unit,
 ) {
-
     SubcomposeLayout(
         modifier
             .fillMaxWidth()
@@ -222,7 +251,7 @@ fun ApexScrollableTabRow(
                 ApexScrollableTabState.ScrollableTabMeasureResult(
                     tabPositions = tabPositions,
                     density = this@SubcomposeLayout
-                )
+                ),
             )
         }
     }
@@ -232,9 +261,7 @@ fun ApexScrollableTabRow(
 @Composable
 @Preview(showBackground = true)
 private fun PreviewApexScrollableTabRow() {
-    val state = remember {
-        ApexScrollableTabState()
-    }
+    val state = rememberApexScrollableTabState()
     val scope = rememberCoroutineScope()
     ApexScrollableTabRow(
         modifier = Modifier.padding(10.dp),
