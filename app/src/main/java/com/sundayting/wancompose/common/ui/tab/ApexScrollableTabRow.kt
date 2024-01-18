@@ -11,6 +11,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.ScrollScope
 import androidx.compose.foundation.gestures.ScrollableState
 import androidx.compose.foundation.horizontalScroll
+import androidx.compose.foundation.interaction.collectIsDraggedAsState
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -35,6 +36,7 @@ import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.Saver
 import androidx.compose.runtime.saveable.listSaver
@@ -302,9 +304,19 @@ private fun PreviewApexScrollableTabRow() {
     val horizontalPagerState = rememberPagerState { 10 }
     val scope = rememberCoroutineScope()
 
+    var quickSelect by remember { mutableStateOf(false) }
+    val isDragged by horizontalPagerState.interactionSource.collectIsDraggedAsState()
+
     LaunchedEffect(Unit) {
-        snapshotFlow { horizontalPagerState.currentPage }.collect {
-            tabState.animateScrollToIndex(it)
+        launch {
+            snapshotFlow { quickSelect to horizontalPagerState.currentPage }.collect {
+                if (!it.first) {
+                    tabState.animateScrollToIndex(it.second)
+                }
+            }
+        }
+        launch {
+            snapshotFlow { isDragged }.collect { quickSelect = false }
         }
     }
     Column(
@@ -337,12 +349,19 @@ private fun PreviewApexScrollableTabRow() {
                             .height(50.dp)
                             .clickable {
                                 scope.launch {
-                                    horizontalPagerState.animateScrollToPage(
-                                        it, animationSpec = tween(
-                                            durationMillis = ApexScrollableTabState.ScrollableTabRowDuration,
-                                            easing = FastOutSlowInEasing
+                                    quickSelect = true
+                                    launch {
+                                        tabState.animateScrollToIndex(it)
+                                    }
+                                    launch {
+                                        horizontalPagerState.animateScrollToPage(
+                                            it, animationSpec = tween(
+                                                durationMillis = ApexScrollableTabState.ScrollableTabRowDuration,
+                                                easing = FastOutSlowInEasing
+                                            )
                                         )
-                                    )
+                                    }
+
                                 }
                             }
                             .padding(horizontal = 10.dp + it.dp * 6),
