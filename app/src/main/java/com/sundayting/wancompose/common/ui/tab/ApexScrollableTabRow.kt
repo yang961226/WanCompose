@@ -404,3 +404,90 @@ private fun PreviewApexScrollableTabRow() {
 
     }
 }
+
+@Composable
+@Preview(showBackground = true)
+private fun PreviewApexScrollableTabRow2() {
+    val tabState = rememberApexScrollableTabState()
+    val horizontalPagerState = rememberPagerState { 10 }
+    val scope = rememberCoroutineScope()
+
+    LaunchedEffect(Unit) {
+        snapshotFlow { horizontalPagerState.currentPage }.collect {
+            scope.launch {
+                tabState.animateScrollToIndex(it)
+            }
+        }
+    }
+    Column(
+        Modifier
+            .padding(top = 20.dp)
+            .fillMaxSize()
+    ) {
+        ApexScrollableTabRow(
+            alignment = Alignment.CenterVertically,
+            state = tabState,
+            horizontalSpacing = 15.dp,
+            contentPaddingValues = PaddingValues(start = 20.dp, end = 30.dp),
+            indicator = {
+                Box(
+                    Modifier
+                        .tabIndicatorOffset(it[tabState.currentTabIndex], horizontalSpaceGetter = {
+                            10.dp
+                        })
+                        .height(5.dp)
+                        .background(Color.Red, shape = RoundedCornerShape(50))
+                )
+            },
+            tabs = {
+                (0..9).forEach {
+                    val isSelect = tabState.currentTabIndex == it
+                    Box(
+                        Modifier
+                            .clip(RoundedCornerShape(50))
+                            .background(Color.Blue.copy(0.2f))
+                            .height(50.dp)
+                            .clickable {
+                                scope.launch {
+                                    horizontalPagerState.animateScrollToPage(
+                                        it, animationSpec = tween(
+                                            durationMillis = ApexScrollableTabState.ScrollableTabRowDuration,
+                                            easing = FastOutSlowInEasing
+                                        )
+                                    )
+                                }
+                            }
+                            .padding(horizontal = 10.dp + it.dp * 6),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            "我是第${it}", style = TextStyle(
+                                color = if (isSelect) Color.Red.copy(0.7f) else Color.Black,
+                                fontWeight = if (isSelect) FontWeight.Bold else FontWeight.Normal
+                            )
+                        )
+                    }
+                }
+            }
+        )
+
+        Spacer(Modifier.height(10.dp))
+
+        HorizontalPager(
+            state = horizontalPagerState,
+            modifier = Modifier
+                .fillMaxSize()
+                .weight(1f, false)
+        ) {
+            Box(
+                Modifier
+                    .fillMaxSize()
+                    .background((if (it % 2 == 0) Color.Red else Color.Blue).copy(0.3f)),
+                contentAlignment = Alignment.Center
+            ) {
+                Text("我是第$it")
+            }
+        }
+
+    }
+}
