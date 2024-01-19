@@ -12,7 +12,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Text
 import androidx.compose.material.pullrefresh.PullRefreshIndicator
 import androidx.compose.material.pullrefresh.pullRefresh
@@ -37,6 +36,7 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.zIndex
 import androidx.navigation.NavController
 import com.sundayting.wancompose.R
 import com.sundayting.wancompose.WanComposeDestination
@@ -46,6 +46,7 @@ import com.sundayting.wancompose.common.ui.title.TitleBarWithContent
 import com.sundayting.wancompose.page.examplewidgetscreen.ExampleCardBean
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlin.math.abs
 import kotlin.math.max
 import kotlin.math.roundToInt
 
@@ -96,7 +97,7 @@ object NestScroll : WanComposeDestination {
                     }
                 })
             Box(Modifier.fillMaxSize()) {
-                NestScroll(
+                NestScroll2(
                     modifier = Modifier.pullRefresh(pullRefreshState),
                     state = remember { CollapsingToolbarScrollState() },
                     toolBar = {
@@ -140,21 +141,31 @@ class CollapsingToolbarScrollState : ScrollableState {
         private set
 
     var maxValue: Int
-        get() = _maxValue
-        internal set(newMax) {
-            _maxValue = newMax
-            if (value > newMax) {
-                value = newMax
+        get() = maxValueState
+        internal set(newValue) {
+            maxValueState = newValue
+            if (abs(newValue) < abs(value)) {
+                value = newValue
             }
         }
 
-    private var _maxValue by mutableIntStateOf(Int.MAX_VALUE)
+    var minValue: Int
+        get() = minValueState
+        internal set(newValue) {
+            minValueState = newValue
+            if (abs(value) < abs(newValue)) {
+                value = newValue
+            }
+        }
+
+    private var maxValueState by mutableIntStateOf(Int.MAX_VALUE)
+    private var minValueState by mutableIntStateOf(0)
 
     private var accumulator: Float = 0f
 
     private val scrollableState = ScrollableState {
         val absolute = (value + it + accumulator)
-        val newValue = absolute.coerceIn(-_maxValue.toFloat(), 0f)
+        val newValue = absolute.coerceIn(-maxValueState.toFloat(), -minValueState.toFloat())
         val changed = absolute != newValue
         val consumed = newValue - value
         val consumedInt = consumed.roundToInt()
@@ -210,9 +221,7 @@ private fun NestScroll(
             }
         }),
         content = {
-            Box(Modifier.verticalScroll(rememberScrollState(), reverseScrolling = true)) {
-                toolBar()
-            }
+            toolBar()
             body()
         },
         measurePolicy = { measurables, constraints ->
@@ -253,11 +262,88 @@ private fun NestScroll(
 }
 
 @Composable
-@Preview
+private fun NestScroll2(
+    modifier: Modifier = Modifier,
+    state: CollapsingToolbarScrollState,
+    toolBar: @Composable () -> Unit,
+    body: @Composable () -> Unit,
+) {
+    Layout(
+        modifier = modifier.nestedScroll(remember {
+            object : NestedScrollConnection {
+                override fun onPreScroll(available: Offset, source: NestedScrollSource): Offset {
+                    val deltaY = available.y
+                    if (deltaY < 0) {
+                        return Offset(0f, state.dispatchRawDelta(deltaY))
+                    }
+                    return Offset.Zero
+                }
+
+                override fun onPostScroll(
+                    consumed: Offset,
+                    available: Offset,
+                    source: NestedScrollSource,
+                ): Offset {
+                    val deltaY = available.y
+                    if (deltaY > 0) {
+                        return Offset(0f, state.dispatchRawDelta(deltaY))
+                    }
+                    return Offset.Zero
+                }
+            }
+        }),
+        contents = listOf(toolBar, body),
+        measurePolicy = { measurableLists, constraints ->
+
+            val toolbarMeasurables = measurableLists[0]
+            val bodyMeasurables = measurableLists[1]
+
+            val toolbarPlaceables =
+                toolbarMeasurables.map { it.measure(constraints.copy(minWidth = 0, minHeight = 0)) }
+
+            val bodyPlaceables =
+                bodyMeasurables.map { it.measure(constraints.copy(minWidth = 0, minHeight = 0)) }
+
+            val toolbarMaxHeight = toolbarPlaceables.maxOfOrNull { it.height }
+                ?: 0
+
+            val toolbarMinHeight =
+                if (toolbarPlaceables.size == 1) 0 else toolbarPlaceables.minOfOrNull { it.height }
+                    ?: 0
+
+            val bodyHeight = bodyPlaceables.maxOfOrNull { it.height } ?: 0
+
+            val layoutWidth = max(toolbarPlaceables.maxOfOrNull { it.width } ?: 0,
+                bodyPlaceables.maxOfOrNull { it.width } ?: 0
+            )
+
+            val layoutHeight = max(toolbarMaxHeight, bodyHeight)
+
+            state.maxValue = toolbarMaxHeight
+            state.minValue = toolbarMinHeight
+
+            layout(layoutWidth, layoutHeight) {
+                bodyPlaceables.forEach { placeable ->
+                    placeable.placeRelative(0, toolbarMaxHeight + state.value)
+                }
+                toolbarPlaceables.forEach { placeable ->
+                    placeable.placeRelative(0, state.value)
+                }
+            }
+        }
+    )
+
+}
+
+@Composable
+@Preview(showBackground = true)
 private fun PreviewNestScroll() {
-    NestScroll(
-        state = remember { CollapsingToolbarScrollState() },
+    val state = remember { CollapsingToolbarScrollState() }
+    Text("${state.value}", modifier = Modifier.zIndex(100f))
+    NestScroll2(
+        state = state,
         toolBar = {
+//            Box(Modifier.height(100.dp))
             Box(
                 Modifier
                     .fillMaxWidth()
