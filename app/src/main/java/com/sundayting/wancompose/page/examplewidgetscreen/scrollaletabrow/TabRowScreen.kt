@@ -7,7 +7,6 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.collectIsDraggedAsState
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
@@ -46,6 +45,7 @@ import com.sundayting.wancompose.common.ui.title.TitleBarProperties
 import com.sundayting.wancompose.common.ui.title.TitleBarWithBackButtonContent
 import com.sundayting.wancompose.common.ui.title.TitleBarWithContent
 import com.sundayting.wancompose.page.examplewidgetscreen.ExampleCardBean
+import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.launch
 
 object TabRowScreen : WanComposeDestination {
@@ -87,17 +87,17 @@ object TabRowScreen : WanComposeDestination {
     fun PagerInfoForTabRow.collectPageAsState(): MutableIntState {
         val indexState = remember { mutableIntStateOf(0) }
         val isDragged by pagerState.interactionSource.collectIsDraggedAsState()
-        LaunchedEffect(isQuickSelect, isDragged) {
-            if (!isQuickSelect) {
-                snapshotFlow {
-                    pagerState.currentPage
-                }.collect {
-                    indexState.intValue = it
+        LaunchedEffect(Unit) {
+            snapshotFlow {
+                Triple(isDragged, isQuickSelect, pagerState.currentPage)
+            }.collect {
+                if (!it.second) {
+                    indexState.intValue = it.third
                 }
             }
         }
         LaunchedEffect(Unit) {
-            snapshotFlow { isDragged }.collect {
+            snapshotFlow { isDragged }.drop(1).collect {
                 quickQuickSelectMode()
             }
         }
@@ -153,7 +153,7 @@ object TabRowScreen : WanComposeDestination {
                     alignment = Alignment.CenterVertically,
                     state = tabState,
                     horizontalSpacing = 15.dp,
-                    contentPaddingValues = PaddingValues(start = 20.dp, end = 30.dp),
+//                    horizontalContentPadding = PaddingValues(start = 20.dp, end = 60.dp),
                     indicator = {
                         Box(
                             Modifier
@@ -175,8 +175,8 @@ object TabRowScreen : WanComposeDestination {
                                     .background(Color.Blue.copy(0.2f))
                                     .height(50.dp)
                                     .clickable {
+                                        pagerInfoForTabRow.enterQuickSelectMode()
                                         scope.launch {
-                                            pagerInfoForTabRow.enterQuickSelectMode()
                                             launch {
                                                 tabState.animateScrollToIndex(it)
                                             }

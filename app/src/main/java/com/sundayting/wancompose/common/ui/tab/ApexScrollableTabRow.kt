@@ -56,6 +56,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.coerceAtLeast
 import androidx.compose.ui.unit.dp
 import com.sundayting.wancompose.common.ui.tab.Slot.Tabs
@@ -115,6 +116,8 @@ class ApexScrollableTabState private constructor(curIndex: Int, init: Float) :
     data class ScrollableTabMeasureResult(
         val tabPositions: List<ApexTabPosition>,
         val density: Density,
+        val layoutDirection: LayoutDirection,
+        val horizontalContentPadding: PaddingValues = PaddingValues(0.dp),
     )
 
     companion object {
@@ -177,7 +180,13 @@ class ApexScrollableTabState private constructor(curIndex: Int, init: Float) :
         }
         curMeasureResult.tabPositions.getOrNull(index)?.let {
             val calculatedOffset =
-                it.calculateTabOffset(curMeasureResult.density, curMeasureResult.tabPositions)
+                it.calculateTabOffset(
+                    density = curMeasureResult.density,
+                    endPadding = curMeasureResult.horizontalContentPadding.calculateEndPadding(
+                        curMeasureResult.layoutDirection
+                    ),
+                    tabPositions = curMeasureResult.tabPositions
+                )
             if (scrollState.value != calculatedOffset) {
                 currentTabIndexState.intValue = index
                 animateScrollToIndex = index
@@ -187,7 +196,6 @@ class ApexScrollableTabState private constructor(curIndex: Int, init: Float) :
                 )
             }
             animateScrollToIndex = -1
-            currentTabIndexState.intValue = index
         }
     }
 
@@ -201,9 +209,10 @@ class ApexScrollableTabState private constructor(curIndex: Int, init: Float) :
 
     private fun ApexTabPosition.calculateTabOffset(
         density: Density,
+        endPadding: Dp,
         tabPositions: List<ApexTabPosition>,
     ): Int = with(density) {
-        val totalTabRowWidth = tabPositions.last().right.roundToPx()
+        val totalTabRowWidth = tabPositions.last().right.roundToPx() + endPadding.roundToPx()
         val visibleWidth = totalTabRowWidth - scrollState.maxValue
         val scrollerCenter = visibleWidth / 2
         val tabOffset = left.roundToPx()
@@ -227,7 +236,7 @@ fun ApexScrollableTabRow(
     state: ApexScrollableTabState,
     indicator: @Composable (List<ApexTabPosition>) -> Unit,
     horizontalSpacing: Dp = 0.dp,
-    contentPaddingValues: PaddingValues = PaddingValues(0.dp),
+    horizontalContentPadding: PaddingValues = PaddingValues(0.dp),
     tabs: @Composable () -> Unit,
 ) {
     SubcomposeLayout(
@@ -241,9 +250,9 @@ fun ApexScrollableTabRow(
 
         val horizontalSpacingPx = horizontalSpacing.roundToPx()
 
-        val startContentPadding = contentPaddingValues.calculateStartPadding(layoutDirection)
+        val startContentPadding = horizontalContentPadding.calculateStartPadding(layoutDirection)
 
-        val endContentPadding = contentPaddingValues.calculateEndPadding(
+        val endContentPadding = horizontalContentPadding.calculateEndPadding(
             layoutDirection
         )
 
@@ -290,7 +299,9 @@ fun ApexScrollableTabRow(
             state.onLaidOut(
                 ApexScrollableTabState.ScrollableTabMeasureResult(
                     tabPositions = tabPositions,
-                    density = this@SubcomposeLayout
+                    density = this@SubcomposeLayout,
+                    horizontalContentPadding = horizontalContentPadding,
+                    layoutDirection = layoutDirection
                 ),
             )
         }
@@ -335,7 +346,7 @@ private fun PreviewApexScrollableTabRow() {
             alignment = Alignment.CenterVertically,
             state = tabState,
             horizontalSpacing = 15.dp,
-            contentPaddingValues = PaddingValues(start = 20.dp, end = 30.dp),
+            horizontalContentPadding = PaddingValues(start = 20.dp, end = 30.dp),
             indicator = {
                 Box(
                     Modifier
@@ -429,7 +440,7 @@ private fun PreviewApexScrollableTabRow2() {
             alignment = Alignment.CenterVertically,
             state = tabState,
             horizontalSpacing = 15.dp,
-            contentPaddingValues = PaddingValues(start = 20.dp, end = 30.dp),
+            horizontalContentPadding = PaddingValues(start = 20.dp, end = 30.dp),
             indicator = {
                 Box(
                     Modifier
