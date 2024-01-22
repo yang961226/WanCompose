@@ -82,7 +82,9 @@ object TabRowScreen : WanComposeDestination {
                     )
                 }.collect {
                     if (!it.second) {
-                        tabState.animateScrollToIndex(it.third)
+                        scope.launch {
+                            tabState.animateScrollToIndex(it.third)
+                        }
                     }
                 }
             }
