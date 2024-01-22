@@ -13,16 +13,19 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.PagerState
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.MutableIntState
+import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -60,6 +63,47 @@ object TabRowScreen : WanComposeDestination {
         }
     }
 
+    @Stable
+    class PagerInfoForTabRow(
+        val pagerState: PagerState,
+    ) {
+
+        val isQuickSelect
+            get() = isQuickSelectModeState.value
+
+        private val isQuickSelectModeState = mutableStateOf(false)
+
+        fun enterQuickSelectMode() {
+            isQuickSelectModeState.value = true
+        }
+
+        fun quickQuickSelectMode() {
+            isQuickSelectModeState.value = false
+        }
+
+    }
+
+    @Composable
+    fun PagerInfoForTabRow.collectPageAsState(): MutableIntState {
+        val indexState = remember { mutableIntStateOf(0) }
+        val isDragged by pagerState.interactionSource.collectIsDraggedAsState()
+        LaunchedEffect(isQuickSelect, isDragged) {
+            if (!isQuickSelect) {
+                snapshotFlow {
+                    pagerState.currentPage
+                }.collect {
+                    indexState.intValue = it
+                }
+            }
+        }
+        LaunchedEffect(Unit) {
+            snapshotFlow { isDragged }.collect {
+                quickQuickSelectMode()
+            }
+        }
+        return indexState
+    }
+
     @Composable
     fun Screen(
         modifier: Modifier = Modifier,
@@ -69,27 +113,16 @@ object TabRowScreen : WanComposeDestination {
         val horizontalPagerState = rememberPagerState { 10 }
         val scope = rememberCoroutineScope()
 
-        var quickSelect by remember { mutableStateOf(false) }
-        val isDragged by horizontalPagerState.interactionSource.collectIsDraggedAsState()
+        val pagerInfoForTabRow = remember {
+            PagerInfoForTabRow(horizontalPagerState)
+        }
+        val page by pagerInfoForTabRow.collectPageAsState()
 
         LaunchedEffect(Unit) {
-            launch {
-                snapshotFlow {
-                    Triple(
-                        isDragged,
-                        quickSelect,
-                        horizontalPagerState.currentPage
-                    )
-                }.collect {
-                    if (!it.second) {
-                        scope.launch {
-                            tabState.animateScrollToIndex(it.third)
-                        }
-                    }
+            snapshotFlow { page }.collect {
+                scope.launch {
+                    tabState.animateScrollToIndex(it)
                 }
-            }
-            launch {
-                snapshotFlow { isDragged }.collect { quickSelect = false }
             }
         }
 
@@ -143,7 +176,7 @@ object TabRowScreen : WanComposeDestination {
                                     .height(50.dp)
                                     .clickable {
                                         scope.launch {
-                                            quickSelect = true
+                                            pagerInfoForTabRow.enterQuickSelectMode()
                                             launch {
                                                 tabState.animateScrollToIndex(it)
                                             }

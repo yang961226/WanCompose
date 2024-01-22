@@ -147,6 +147,7 @@ class ApexScrollableTabState private constructor(curIndex: Int, init: Float) :
     val currentTabIndex
         get() = currentTabIndexState.intValue
 
+    //暂时无法使用
     val targetTabIndex by derivedStateOf {
         if (!isScrollInProgress) {
             currentTabIndex
