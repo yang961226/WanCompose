@@ -1,5 +1,6 @@
 package com.sundayting.wancompose.page.examplewidgetscreen.scrollaletabrow
 
+import android.util.Log
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
@@ -7,6 +8,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.collectIsDraggedAsState
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
@@ -34,6 +36,7 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.zIndex
 import androidx.navigation.NavController
 import com.sundayting.wancompose.R
 import com.sundayting.wancompose.WanComposeDestination
@@ -45,7 +48,6 @@ import com.sundayting.wancompose.common.ui.title.TitleBarProperties
 import com.sundayting.wancompose.common.ui.title.TitleBarWithBackButtonContent
 import com.sundayting.wancompose.common.ui.title.TitleBarWithContent
 import com.sundayting.wancompose.page.examplewidgetscreen.ExampleCardBean
-import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.launch
 
 object TabRowScreen : WanComposeDestination {
@@ -77,7 +79,7 @@ object TabRowScreen : WanComposeDestination {
             isQuickSelectModeState.value = true
         }
 
-        fun quickQuickSelectMode() {
+        fun quitQuickSelectMode() {
             isQuickSelectModeState.value = false
         }
 
@@ -91,14 +93,17 @@ object TabRowScreen : WanComposeDestination {
             snapshotFlow {
                 Triple(isDragged, isQuickSelect, pagerState.currentPage)
             }.collect {
+                Log.d("临时测试", it.toString())
                 if (!it.second) {
                     indexState.intValue = it.third
                 }
             }
         }
         LaunchedEffect(Unit) {
-            snapshotFlow { isDragged }.drop(1).collect {
-                quickQuickSelectMode()
+            snapshotFlow { isDragged }.collect {
+                if (isDragged) {
+                    quitQuickSelectMode()
+                }
             }
         }
         return indexState
@@ -144,6 +149,7 @@ object TabRowScreen : WanComposeDestination {
                 }
             }
         ) {
+            Text("$page", modifier = Modifier.zIndex(100f))
             Column(
                 Modifier
                     .padding(top = 20.dp)
@@ -153,7 +159,7 @@ object TabRowScreen : WanComposeDestination {
                     alignment = Alignment.CenterVertically,
                     state = tabState,
                     horizontalSpacing = 15.dp,
-//                    horizontalContentPadding = PaddingValues(start = 20.dp, end = 60.dp),
+                    horizontalContentPadding = PaddingValues(start = 20.dp, end = 60.dp),
                     indicator = {
                         Box(
                             Modifier

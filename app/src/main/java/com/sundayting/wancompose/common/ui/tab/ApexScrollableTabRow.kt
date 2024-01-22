@@ -187,8 +187,8 @@ class ApexScrollableTabState private constructor(curIndex: Int, init: Float) :
                     ),
                     tabPositions = curMeasureResult.tabPositions
                 )
+            currentTabIndexState.intValue = index
             if (scrollState.value != calculatedOffset) {
-                currentTabIndexState.intValue = index
                 animateScrollToIndex = index
                 scrollState.animateScrollTo(
                     calculatedOffset,
