@@ -1,6 +1,5 @@
 package com.sundayting.wancompose.page.examplewidgetscreen.scrollaletabrow
 
-import android.util.Log
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
@@ -36,7 +35,6 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.zIndex
 import androidx.navigation.NavController
 import com.sundayting.wancompose.R
 import com.sundayting.wancompose.WanComposeDestination
@@ -89,11 +87,10 @@ object TabRowScreen : WanComposeDestination {
     fun PagerInfoForTabRow.collectPageAsState(): MutableIntState {
         val indexState = remember { mutableIntStateOf(0) }
         val isDragged by pagerState.interactionSource.collectIsDraggedAsState()
-        LaunchedEffect(Unit) {
+        LaunchedEffect(this) {
             snapshotFlow {
                 Triple(isDragged, isQuickSelect, pagerState.currentPage)
             }.collect {
-                Log.d("临时测试", it.toString())
                 if (!it.second) {
                     indexState.intValue = it.third
                 }
@@ -149,11 +146,11 @@ object TabRowScreen : WanComposeDestination {
                 }
             }
         ) {
-            Text("$page", modifier = Modifier.zIndex(100f))
             Column(
                 Modifier
                     .padding(top = 20.dp)
-                    .fillMaxSize()
+                    .fillMaxSize(),
+                horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 ApexScrollableTabRow(
                     alignment = Alignment.CenterVertically,

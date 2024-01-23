@@ -108,10 +108,8 @@ fun rememberApexScrollableTabState(): ApexScrollableTabState {
 }
 
 @Stable
-class ApexScrollableTabState private constructor(curIndex: Int, init: Float) :
+class ApexScrollableTabState(curIndex: Int = 0, init: Int = 0) :
     ScrollableState {
-
-    constructor(curIndex: Int = 0) : this(curIndex = curIndex, init = 0f)
 
     data class ScrollableTabMeasureResult(
         val tabPositions: List<ApexTabPosition>,
@@ -132,7 +130,7 @@ class ApexScrollableTabState private constructor(curIndex: Int, init: Float) :
             restore = {
                 ApexScrollableTabState(
                     curIndex = it[0],
-                    init = it[1].toFloat()
+                    init = it[1]
                 )
             }
         )
@@ -241,7 +239,6 @@ fun ApexScrollableTabRow(
 ) {
     SubcomposeLayout(
         modifier
-            .fillMaxWidth()
             .horizontalScroll(state.scrollState)
             .clipToBounds()
     ) { constraints ->
