@@ -7,6 +7,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.animation.AnimatedContentTransitionScope
 import androidx.compose.animation.core.snap
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.navigationBarsPadding
@@ -57,6 +58,10 @@ import com.sundayting.wancompose.page.homescreen.mine.ui.LoginContent
 import com.sundayting.wancompose.page.scan.ScanScreen
 import com.sundayting.wancompose.page.setting.SettingScreen
 import com.sundayting.wancompose.page.webscreen.WebViewScreen
+import com.sundayting.wancompose.theme.DarkColors
+import com.sundayting.wancompose.theme.DefaultTypography
+import com.sundayting.wancompose.theme.LightColors
+import com.sundayting.wancompose.theme.WanTheme
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.launch
@@ -76,11 +81,16 @@ class MainActivity : AppCompatActivity() {
             override fun onCreate(owner: LifecycleOwner) {
                 WindowCompat.setDecorFitsSystemWindows(window, false)
                 setContent {
-                    CompositionLocalProvider(
-                        LocalEventManager provides eventManager,
-                        LocalVibratorHelper provides vibratorHelper
+                    WanTheme(
+                        colors = if (isSystemInDarkTheme()) DarkColors else LightColors,
+                        typography = DefaultTypography
                     ) {
-                        WanComposeApp()
+                        CompositionLocalProvider(
+                            LocalEventManager provides eventManager,
+                            LocalVibratorHelper provides vibratorHelper
+                        ) {
+                            WanComposeApp()
+                        }
                     }
                 }
             }

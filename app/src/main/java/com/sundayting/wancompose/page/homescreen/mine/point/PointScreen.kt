@@ -49,7 +49,7 @@ import com.sundayting.wancompose.common.ui.title.TitleBarWithBackButtonContent
 import com.sundayting.wancompose.common.ui.title.TitleBarWithContent
 import com.sundayting.wancompose.page.homescreen.mine.point.PointScreen.PointRecordContent
 import com.sundayting.wancompose.page.homescreen.mine.point.repo.PointViewModel
-import com.sundayting.wancompose.theme.WanColors
+import com.sundayting.wancompose.theme.WanTheme
 import kotlinx.coroutines.flow.map
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -129,7 +129,7 @@ object PointScreen : WanComposeDestination {
                     Modifier
                         .fillMaxWidth()
                         .height(160.dp)
-                        .background(WanColors.TopColor)
+                        .background(WanTheme.colors.primaryColor)
                 ) {
                     Text(
                         text = number.value.toInt().toString(),
@@ -146,7 +146,7 @@ object PointScreen : WanComposeDestination {
                         Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                             CircularProgressIndicator(
                                 modifier = Modifier.size(50.dp),
-                                color = WanColors.TopColor
+                                color = WanTheme.colors.primaryColor
                             )
                         }
                     } else {
@@ -177,7 +177,7 @@ object PointScreen : WanComposeDestination {
                                         contentAlignment = Alignment.Center
                                     ) {
                                         CircularProgressIndicator(
-                                            color = WanColors.TopColor
+                                            color = WanTheme.colors.primaryColor
                                         )
                                     }
                                 }
@@ -239,7 +239,7 @@ object PointScreen : WanComposeDestination {
             }
             Text(
                 text = "+${state.points}",
-                style = TextStyle(fontSize = 16.sp, color = WanColors.TopColor)
+                style = TextStyle(fontSize = 16.sp, color = WanTheme.colors.primaryColor)
             )
         }
     }

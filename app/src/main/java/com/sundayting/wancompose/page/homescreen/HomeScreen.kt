@@ -49,6 +49,7 @@ import com.sundayting.wancompose.page.homescreen.article.ui.ArticleList
 import com.sundayting.wancompose.page.homescreen.mine.MineGraph
 import com.sundayting.wancompose.page.homescreen.mine.MineScreen
 import com.sundayting.wancompose.page.scan.ScanScreen
+import com.sundayting.wancompose.theme.WanTheme
 
 object HomeScreen : WanComposeDestination {
 
@@ -98,7 +99,8 @@ object HomeScreen : WanComposeDestination {
         BottomNavigation(
             modifier = Modifier
                 .height(50.dp),
-            backgroundColor = Color.White,
+            backgroundColor = WanTheme.colors.level2BackgroundColor,
+            elevation = 16.dp
         ) {
             pageList.forEach { bottomItem ->
                 BottomNavigationItem(
@@ -120,7 +122,8 @@ object HomeScreen : WanComposeDestination {
                     label = {
                         Text(
                             modifier = Modifier,
-                            text = stringResource(id = bottomItem.titleId)
+                            text = stringResource(id = bottomItem.titleId),
+                            style = WanTheme.typography.h7
                         )
                     }
                 )

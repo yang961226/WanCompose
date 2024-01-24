@@ -40,7 +40,7 @@ import com.sundayting.wancompose.common.ui.title.TitleBarWithBackButtonContent
 import com.sundayting.wancompose.common.ui.title.TitleBarWithContent
 import com.sundayting.wancompose.page.homescreen.article.ui.ArticleList
 import com.sundayting.wancompose.page.homescreen.article.ui.ArticleListSingleBean
-import com.sundayting.wancompose.theme.WanColors
+import com.sundayting.wancompose.theme.WanTheme
 
 object MyCollectedArticle : WanComposeDestination {
     override val route: String
@@ -129,7 +129,7 @@ object MyCollectedArticle : WanComposeDestination {
                     Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                         CircularProgressIndicator(
                             modifier = Modifier.size(50.dp),
-                            color = WanColors.TopColor
+                            color = WanTheme.colors.primaryColor
                         )
                     }
                 } else {
@@ -170,7 +170,7 @@ object MyCollectedArticle : WanComposeDestination {
                                     contentAlignment = Alignment.Center
                                 ) {
                                     CircularProgressIndicator(
-                                        color = WanColors.TopColor
+                                        color = WanTheme.colors.primaryColor
                                     )
                                 }
                             }

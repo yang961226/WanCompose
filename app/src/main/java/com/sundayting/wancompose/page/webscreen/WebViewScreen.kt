@@ -92,7 +92,8 @@ import com.sundayting.wancompose.common.helper.LocalVibratorHelper
 import com.sundayting.wancompose.common.ui.title.TitleBar
 import com.sundayting.wancompose.common.ui.title.TitleBarWithContent
 import com.sundayting.wancompose.page.homescreen.article.ui.ArticleList
-import com.sundayting.wancompose.theme.WanColors
+import com.sundayting.wancompose.theme.CollectColor
+import com.sundayting.wancompose.theme.WanTheme
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import java.net.URLEncoder
@@ -339,7 +340,7 @@ object WebViewScreen : WanComposeDestination {
                             ) {
                                 viewModel.webViewUiState.needShowGuide = false
                             }
-                            .background(WanColors.TopColor)
+                            .background(WanTheme.colors.primaryColor)
                             .padding(vertical = 10.dp, horizontal = 30.dp)
                     )
 
@@ -455,7 +456,7 @@ private fun WebToolWidget(
         ) {
             CircularProgressIndicator(
                 modifier = Modifier.size(60.dp),
-                color = WanColors.TopColor,
+                color = WanTheme.colors.primaryColor,
                 progress = loadingProgress ?: 0f,
             )
         }
@@ -485,7 +486,7 @@ private fun WebToolWidget(
                         WebToolWidgetEnum.Back -> error("")
                     },
                     contentColorFilter = if (enum == WebToolWidgetEnum.Collect && isCollect) ColorFilter.tint(
-                        WanColors.CollectColor
+                        CollectColor
                     ) else ColorFilter.tint(
                         Color.Black
                     ),
@@ -516,7 +517,7 @@ private fun WebToolWidget(
                         }
                     }
                 ),
-            backgroundColor = if (isCollect) WanColors.CollectColor else Color.White,
+            backgroundColor = if (isCollect) CollectColor else Color.White,
             contentColorFilter = if (isCollect) ColorFilter.tint(Color.White) else ColorFilter.tint(
                 Color.Black
             ),
@@ -532,7 +533,7 @@ private fun WebToolWidget(
 private fun PreviewWebToolButton() {
     WebToolButton(
         resId = R.drawable.ic_close,
-        backgroundColor = WanColors.CollectColor,
+        backgroundColor = CollectColor,
         contentColorFilter = ColorFilter.tint(Color.White)
     )
 }

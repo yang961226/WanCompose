@@ -47,11 +47,9 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
@@ -70,7 +68,11 @@ import com.sundayting.wancompose.page.homescreen.HomeScreen
 import com.sundayting.wancompose.page.homescreen.article.ArticleListViewModel
 import com.sundayting.wancompose.page.scan.ScanScreen.navigateToScanScreen
 import com.sundayting.wancompose.page.webscreen.WebViewScreen.navigateToWebViewScreen
-import com.sundayting.wancompose.theme.WanColors
+import com.sundayting.wancompose.theme.AlwaysDarkModeArea
+import com.sundayting.wancompose.theme.CollectColor
+import com.sundayting.wancompose.theme.DarkColors
+import com.sundayting.wancompose.theme.LightColors
+import com.sundayting.wancompose.theme.WanTheme
 import kotlinx.coroutines.delay
 import kotlinx.serialization.Serializable
 
@@ -146,12 +148,15 @@ object ArticleList : HomeScreen.HomeScreenPage {
                         contentScale = ContentScale.Fit,
                         colorFilter = ColorFilter.tint(Color.White)
                     )
-
-                    Text(
-                        stringResource(id = R.string.bottom_tab_home), style = TextStyle(
-                            fontSize = 16.sp, color = Color.White
-                        ), modifier = Modifier.align(Alignment.Center)
-                    )
+                    AlwaysDarkModeArea {
+                        Text(
+                            stringResource(id = R.string.bottom_tab_home),
+                            style = WanTheme.typography.h6.copy(
+                                color = WanTheme.colors.level1TextColor
+                            ),
+                            modifier = Modifier.align(Alignment.Center)
+                        )
+                    }
                 }
             ) {
                 Box(
@@ -188,8 +193,8 @@ object ArticleList : HomeScreen.HomeScreenPage {
     }
 }
 
-private val newColor = Color(0xFF789bc5)
-private val stickColor = Color(0xFFeab38d)
+private val NewColor = Color(0xFF789bc5)
+private val StickColor = Color(0xFFeab38d)
 
 @Composable
 private fun ArticleListContent(
@@ -215,18 +220,22 @@ private fun ArticleListContent(
                     Modifier
                         .fillMaxWidth()
                         .aspectRatio(2f / 1f)
-                        .background(Color.LightGray.copy(0.5f))
+                        .background(WanTheme.colors.level4BackgroundColor.copy(0.3f))
                 ) {
                     Box(
                         Modifier
                             .align(Alignment.BottomCenter)
-                            .background(Color.LightGray.copy(0.7f))
+                            .background(WanTheme.colors.level4BackgroundColor)
                             .height(20.dp)
                             .fillMaxWidth()
                     )
                 }
                 repeat(20) {
-                    Column {
+                    Column(
+                        modifier = Modifier.background(
+                            WanTheme.colors.level1BackgroundColor
+                        )
+                    ) {
                         Column(
                             Modifier
                                 .fillMaxWidth()
@@ -236,7 +245,7 @@ private fun ArticleListContent(
                                 Modifier
                                     .size(40.dp, 15.dp)
                                     .background(
-                                        Color.LightGray.copy(0.5f),
+                                        WanTheme.colors.level4BackgroundColor,
                                         shape = RoundedCornerShape(5.dp)
                                     )
                             )
@@ -246,7 +255,7 @@ private fun ArticleListContent(
                                     .padding(vertical = 10.dp)
                                     .size(150.dp, 15.dp)
                                     .background(
-                                        Color.LightGray.copy(0.5f),
+                                        WanTheme.colors.level4BackgroundColor,
                                         shape = RoundedCornerShape(5.dp)
                                     )
                             )
@@ -255,20 +264,28 @@ private fun ArticleListContent(
                                 Modifier
                                     .size(80.dp, 15.dp)
                                     .background(
-                                        Color.LightGray.copy(0.5f),
+                                        WanTheme.colors.level4BackgroundColor,
                                         shape = RoundedCornerShape(5.dp)
                                     )
                             )
 
                         }
-                        Divider(Modifier.fillMaxWidth())
+                        Divider(
+                            Modifier.fillMaxWidth(),
+                            color = WanTheme.colors.level4BackgroundColor
+                        )
                     }
 
                 }
             }
         }
     ) {
-        LazyColumn(Modifier.fillMaxSize(), state = lazyListState) {
+        LazyColumn(
+            Modifier
+                .fillMaxSize()
+                .background(WanTheme.colors.level1BackgroundColor),
+            state = lazyListState
+        ) {
             item(key = "Banner") {
                 val isDragging by pagerState.interactionSource.collectIsDraggedAsState()
                 LaunchedEffect(isDragging) {
@@ -297,7 +314,9 @@ private fun ArticleListContent(
                     }
 
                     InfiniteLoopHorizontalPager(
-                        modifier = Modifier.matchParentSize(),
+                        modifier = Modifier
+                            .matchParentSize()
+                            .background(WanTheme.colors.level1BackgroundColor),
                         realPageCount = articleState.bannerList.size,
                         state = pagerState
                     ) {
@@ -332,15 +351,14 @@ private fun ArticleListContent(
                     Box(
                         Modifier
                             .align(Alignment.BottomCenter)
-                            .background(Color.Black.copy(0.2f))
+                            .background(WanTheme.colors.level4BackgroundColor)
                             .padding(horizontal = 5.dp)
                             .heightIn(min = 20.dp)
                             .fillMaxWidth()
                     ) {
                         Text(
                             text = curTitle.orEmpty(),
-                            style = TextStyle(
-                                fontSize = 14.sp,
+                            style = WanTheme.typography.h7.copy(
                                 color = Color.White
                             ),
                             maxLines = 1,
@@ -365,7 +383,7 @@ private fun ArticleListContent(
                     bean = it,
                     onCollect = onCollect
                 )
-                Divider(Modifier.fillMaxWidth())
+                Divider(Modifier.fillMaxWidth(), color = WanTheme.colors.level4BackgroundColor)
             }
             if (articleState.loadingMore) {
                 item {
@@ -376,7 +394,7 @@ private fun ArticleListContent(
                         contentAlignment = Alignment.Center
                     ) {
                         CircularProgressIndicator(
-                            color = WanColors.TopColor
+                            color = WanTheme.colors.tipColor
                         )
                     }
                 }
@@ -412,8 +430,8 @@ fun ArticleListSingleBean(
             if (bean.isNew) {
                 Text(
                     text = "新",
-                    style = TextStyle(
-                        color = newColor,
+                    style = WanTheme.typography.h7.copy(
+                        color = NewColor,
                     ),
                     modifier = Modifier.padding(end = 5.dp)
                 )
@@ -426,8 +444,8 @@ fun ArticleListSingleBean(
                         "分享者：${bean.authorOrSharedUser.sharedUser}"
                     }
                 },
-                style = TextStyle(
-                    color = Color.Black.copy(0.6f)
+                style = WanTheme.typography.h7.copy(
+                    color = WanTheme.colors.level3TextColor
                 )
             )
         }
@@ -437,8 +455,8 @@ fun ArticleListSingleBean(
                 end.linkTo(parent.end)
             },
             text = bean.date,
-            style = TextStyle(
-                color = Color.Black.copy(0.6f)
+            style = WanTheme.typography.h7.copy(
+                color = WanTheme.colors.level2TextColor
             )
         )
         Text(
@@ -448,7 +466,10 @@ fun ArticleListSingleBean(
                     start.linkTo(parent.start)
                 }
                 .padding(vertical = 10.dp),
-            text = bean.title
+            text = bean.title,
+            style = WanTheme.typography.h7.copy(
+                color = WanTheme.colors.level1TextColor
+            )
         )
         Row(Modifier.constrainAs(bottomStartContent) {
             top.linkTo(titleContent.bottom)
@@ -458,8 +479,8 @@ fun ArticleListSingleBean(
             if (bean.isStick) {
                 Text(
                     text = "置顶",
-                    style = TextStyle(
-                        color = stickColor
+                    style = WanTheme.typography.h7.copy(
+                        color = StickColor,
                     ),
                     modifier = Modifier.padding(end = 5.dp)
                 )
@@ -468,8 +489,8 @@ fun ArticleListSingleBean(
                 text = remember(bean.chapter) {
                     "分类：${bean.chapter.superChapterName} / ${bean.chapter.chapterName}"
                 },
-                style = TextStyle(
-                    color = Color.Black.copy(0.6f)
+                style = WanTheme.typography.h7.copy(
+                    color = WanTheme.colors.level3TextColor
                 )
             )
         }
@@ -489,7 +510,7 @@ fun ArticleListSingleBean(
                 modifier = Modifier
                     .padding(2.dp)
                     .size(20.dp),
-                colorFilter = if (isCollect) ColorFilter.tint(WanColors.CollectColor) else null
+                colorFilter = if (isCollect) ColorFilter.tint(CollectColor) else null
             )
         }
     }
@@ -512,32 +533,65 @@ private fun PreviewArticleListContent() {
 @Composable
 @Preview(showBackground = true)
 private fun PreviewArticleListContent2() {
-    CompositionLocalProvider(
-        LocalLoadingBoxIsLoading provides false
-    ) {
-        ArticleListContent(Modifier.fillMaxSize(), articleState = remember {
-            ArticleListViewModel.ArticleState(
-                (0L..100L).map {
-                    ArticleList.ArticleUiBean(
-                        title = "我是标题我是标题我是标题我是标题我是标题我是标题",
-                        date = "1小时之前",
-                        isNew = true,
-                        isStick = true,
-                        chapter = ArticleList.ArticleUiBean.Chapter(
-                            superChapterName = "广场Tab",
-                            chapterName = "自助"
-                        ),
-                        authorOrSharedUser = ArticleList.ArticleUiBean.AuthorOrSharedUser(
-                            author = "小茗同学",
-                        ),
-                        id = it,
-                        isCollect = (it % 2) == 0L
-                    )
-                }
-            )
-        })
+    WanTheme(colors = DarkColors) {
+        CompositionLocalProvider(
+            LocalLoadingBoxIsLoading provides false
+        ) {
+            ArticleListContent(Modifier.fillMaxSize(), articleState = remember {
+                ArticleListViewModel.ArticleState(
+                    (0L..100L).map {
+                        ArticleList.ArticleUiBean(
+                            title = "我是标题我是标题我是标题我是标题我是标题我是标题",
+                            date = "1小时之前",
+                            isNew = true,
+                            isStick = true,
+                            chapter = ArticleList.ArticleUiBean.Chapter(
+                                superChapterName = "广场Tab",
+                                chapterName = "自助"
+                            ),
+                            authorOrSharedUser = ArticleList.ArticleUiBean.AuthorOrSharedUser(
+                                author = "小茗同学",
+                            ),
+                            id = it,
+                            isCollect = (it % 2) == 0L
+                        )
+                    }
+                )
+            })
+        }
     }
+}
 
+@Composable
+@Preview(showBackground = true)
+private fun PreviewArticleListContent3() {
+    WanTheme(colors = LightColors) {
+        CompositionLocalProvider(
+            LocalLoadingBoxIsLoading provides false
+        ) {
+            ArticleListContent(Modifier.fillMaxSize(), articleState = remember {
+                ArticleListViewModel.ArticleState(
+                    (0L..100L).map {
+                        ArticleList.ArticleUiBean(
+                            title = "我是标题我是标题我是标题我是标题我是标题我是标题",
+                            date = "1小时之前",
+                            isNew = true,
+                            isStick = true,
+                            chapter = ArticleList.ArticleUiBean.Chapter(
+                                superChapterName = "广场Tab",
+                                chapterName = "自助"
+                            ),
+                            authorOrSharedUser = ArticleList.ArticleUiBean.AuthorOrSharedUser(
+                                author = "小茗同学",
+                            ),
+                            id = it,
+                            isCollect = (it % 2) == 0L
+                        )
+                    }
+                )
+            })
+        }
+    }
 }
 
 

@@ -53,7 +53,7 @@ import com.sundayting.wancompose.page.homescreen.HomeScreen
 import com.sundayting.wancompose.page.homescreen.mine.point.PointScreen.navigateToPointScreen
 import com.sundayting.wancompose.page.homescreen.mine.share.MyCollectedArticle.navigateToMyCollectedScreen
 import com.sundayting.wancompose.page.setting.SettingScreen.navigateToSettingScreen
-import com.sundayting.wancompose.theme.WanColors
+import com.sundayting.wancompose.theme.WanTheme
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.drop
 
@@ -78,7 +78,7 @@ object MineScreen : HomeScreen.HomeScreenPage {
                 Modifier
                     .fillMaxWidth()
                     .height(230.dp)
-                    .background(WanColors.TopColor)
+                    .background(WanTheme.colors.primaryColor)
                     .padding(top = 50.dp, bottom = 30.dp)
             ) {
                 val (
@@ -227,7 +227,7 @@ private fun MineScreenSingleLine(
             modifier = Modifier
                 .padding(end = 10.dp)
                 .size(20.dp),
-            colorFilter = ColorFilter.tint(WanColors.TopColor)
+            colorFilter = ColorFilter.tint(WanTheme.colors.primaryColor)
         )
         Text(
             text = title,

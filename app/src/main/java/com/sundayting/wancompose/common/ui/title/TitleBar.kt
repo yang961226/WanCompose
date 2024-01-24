@@ -25,7 +25,7 @@ import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
 import com.sundayting.wancompose.R
-import com.sundayting.wancompose.theme.WanColors
+import com.sundayting.wancompose.theme.WanTheme
 
 @Composable
 fun BoxScope.TitleBarWithBackButtonContent(
@@ -63,7 +63,7 @@ fun TitleBar(
         Box(
             Modifier
                 .fillMaxWidth()
-                .background(WanColors.TopColor)
+                .background(WanTheme.colors.primaryColor)
                 .statusBarsPadding()
                 .height(45.dp)
         ) {

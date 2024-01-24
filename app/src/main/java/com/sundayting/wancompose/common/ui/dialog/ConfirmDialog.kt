@@ -30,7 +30,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import com.sundayting.wancompose.R
-import com.sundayting.wancompose.theme.WanColors
+import com.sundayting.wancompose.theme.WanTheme
 
 @Composable
 fun ConfirmDialog(
@@ -116,7 +116,7 @@ fun ConfirmDialogContent(
                     text = stringResource(id = R.string.dialog_confirm),
                     style = TextStyle(
                         fontSize = 15.sp,
-                        color = WanColors.TopColor
+                        color = WanTheme.colors.primaryColor
                     )
                 )
             }

@@ -83,7 +83,7 @@ import com.sundayting.wancompose.R
 import com.sundayting.wancompose.WanComposeDestination
 import com.sundayting.wancompose.common.helper.LocalVibratorHelper
 import com.sundayting.wancompose.common.helper.PermissionCheckHelper
-import com.sundayting.wancompose.theme.WanColors
+import com.sundayting.wancompose.theme.WanTheme
 
 object ScanScreen : WanComposeDestination {
     override val route: String
@@ -325,6 +325,7 @@ object ScanScreen : WanComposeDestination {
                 }
             )
 
+            val circleColor = WanTheme.colors.primaryColor
             AnimatedVisibility(
                 visible = rect != null,
                 enter = fadeIn(),
@@ -333,7 +334,7 @@ object ScanScreen : WanComposeDestination {
                 rect?.let {
                     Canvas(Modifier.fillMaxSize()) {
                         drawCircle(
-                            WanColors.TopColor,
+                            circleColor,
                             center = it.center,
                             radius = 25.dp.toPx()
                         )
