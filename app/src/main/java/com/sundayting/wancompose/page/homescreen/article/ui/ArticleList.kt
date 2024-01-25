@@ -71,6 +71,7 @@ import com.sundayting.wancompose.page.webscreen.WebViewScreen.navigateToWebViewS
 import com.sundayting.wancompose.theme.CollectColor
 import com.sundayting.wancompose.theme.DarkColors
 import com.sundayting.wancompose.theme.LightColors
+import com.sundayting.wancompose.theme.TitleTextStyle
 import com.sundayting.wancompose.theme.WanTheme
 import kotlinx.coroutines.delay
 import kotlinx.serialization.Serializable
@@ -149,9 +150,7 @@ object ArticleList : HomeScreen.HomeScreenPage {
                     )
                     Text(
                         stringResource(id = R.string.bottom_tab_home),
-                        style = WanTheme.typography.h6.copy(
-                            color = Color.White
-                        ),
+                        style = TitleTextStyle,
                         modifier = Modifier.align(Alignment.Center)
                     )
                 }

@@ -1,7 +1,10 @@
 package com.sundayting.wancompose.theme
 
 
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.ReadOnlyComposable
 import androidx.compose.runtime.staticCompositionLocalOf
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.PlatformTextStyle
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -16,6 +19,13 @@ val DefaultTextStyle
         platformStyle = PlatformTextStyle(
             includeFontPadding = true
         )
+    )
+
+val TitleTextStyle
+    @Composable
+    @ReadOnlyComposable
+    get() = WanTheme.typography.h6.copy(
+        color = Color.White
     )
 
 data class WanTypography(
@@ -45,10 +55,10 @@ data class WanTypography(
     ),
     val h7: TextStyle = DefaultTextStyle.copy(
         fontWeight = FontWeight.Medium,
-        fontSize = 14.sp,
+        fontSize = 15.sp,
     ),
     val h8: TextStyle = DefaultTextStyle.copy(
         fontWeight = FontWeight.Medium,
-        fontSize = 10.sp,
+        fontSize = 12.sp,
     ),
 )

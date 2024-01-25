@@ -49,6 +49,7 @@ import com.sundayting.wancompose.common.ui.title.TitleBarWithBackButtonContent
 import com.sundayting.wancompose.common.ui.title.TitleBarWithContent
 import com.sundayting.wancompose.page.homescreen.mine.point.PointScreen.PointRecordContent
 import com.sundayting.wancompose.page.homescreen.mine.point.repo.PointViewModel
+import com.sundayting.wancompose.theme.TitleTextStyle
 import com.sundayting.wancompose.theme.WanTheme
 import kotlinx.coroutines.flow.map
 import java.text.SimpleDateFormat
@@ -102,9 +103,7 @@ object PointScreen : WanComposeDestination {
                 ) {
                     Text(
                         stringResource(id = R.string.my_points),
-                        style = TextStyle(
-                            fontSize = 16.sp, color = Color.White
-                        ),
+                        style = TitleTextStyle,
                         modifier = Modifier.align(Alignment.Center)
                     )
                 }
@@ -138,7 +137,9 @@ object PointScreen : WanComposeDestination {
                     )
                 }
                 Crossfade(
-                    modifier = Modifier.fillMaxSize(),
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .background(WanTheme.colors.level1BackgroundColor),
                     targetState = state.isLoading && listIsEmpty,
                     label = ""
                 ) { isShowLoading ->
@@ -166,7 +167,10 @@ object PointScreen : WanComposeDestination {
                                         .animateItemPlacement(),
                                     state = record
                                 )
-                                Divider(Modifier.fillMaxWidth())
+                                Divider(
+                                    Modifier.fillMaxWidth(),
+                                    color = WanTheme.colors.level4BackgroundColor
+                                )
                             }
                             if (state.isLoading && listIsEmpty.not()) {
                                 item {
@@ -225,7 +229,9 @@ object PointScreen : WanComposeDestination {
             ) {
                 Text(
                     text = state.title,
-                    style = TextStyle(fontSize = 15.sp, color = mainTitleColor)
+                    style = WanTheme.typography.h7.copy(
+                        color = WanTheme.colors.level1TextColor
+                    )
                 )
                 val dateString by remember(state) {
                     derivedStateOf {
@@ -234,12 +240,16 @@ object PointScreen : WanComposeDestination {
                 }
                 Text(
                     text = dateString,
-                    style = TextStyle(fontSize = 11.sp, color = dateColor)
+                    style = WanTheme.typography.h8.copy(
+                        color = WanTheme.colors.level3TextColor
+                    )
                 )
             }
             Text(
                 text = "+${state.points}",
-                style = TextStyle(fontSize = 16.sp, color = WanTheme.colors.primaryColor)
+                style = WanTheme.typography.h7.copy(
+                    color = WanTheme.colors.tipColor
+                )
             )
         }
     }

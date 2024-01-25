@@ -25,7 +25,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -38,6 +37,7 @@ import com.sundayting.wancompose.page.examplewidgetscreen.scrollaletabrow.TabRow
 import com.sundayting.wancompose.page.examplewidgetscreen.tantancard.TanTanSwipeCardScreen
 import com.sundayting.wancompose.page.examplewidgetscreen.viewpager.ViewPagerHorizontalPagerNestScroll
 import com.sundayting.wancompose.page.homescreen.HomeScreen
+import com.sundayting.wancompose.theme.TitleTextStyle
 import com.sundayting.wancompose.theme.WanTheme
 
 class ExampleCardBean(
@@ -105,9 +105,7 @@ object ExampleWidget : HomeScreen.HomeScreenPage {
             titleBarContent = {
                 Text(
                     stringResource(id = R.string.bottom_tab_example),
-                    style = WanTheme.typography.h6.copy(
-                        color = Color.White
-                    ),
+                    style = TitleTextStyle,
                     modifier = Modifier.align(Alignment.Center)
                 )
             }

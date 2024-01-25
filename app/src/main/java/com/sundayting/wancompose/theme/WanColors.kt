@@ -9,7 +9,7 @@ val DarkColors = darkColors()
 val CollectColor = Color(0xFFCE2D1F)
 
 fun lightColors(
-    primaryColor: Color = Color(0xFF9BB1B0),
+    primaryColor: Color = Color(0xFF446074),
     level1BackgroundColor: Color = Color(0xFFFFFFFF),
     level2BackgroundColor: Color = Color(0xFFF5F5F5),
     level3BackgroundColor: Color = Color(0xFFE8E8E8),
@@ -37,7 +37,7 @@ fun lightColors(
 }
 
 fun darkColors(
-    primaryColor: Color = Color(0xFF191919),
+    primaryColor: Color = Color(0xFF19242b),
     level1BackgroundColor: Color = Color(0xFF191919),
     level2BackgroundColor: Color = Color(0xFF252525),
     level3BackgroundColor: Color = Color(0xFF303030),
