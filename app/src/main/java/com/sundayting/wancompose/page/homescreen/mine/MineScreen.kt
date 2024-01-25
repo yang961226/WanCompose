@@ -236,7 +236,7 @@ private fun MineScreenSingleLine(
         }
         Text(
             text = title,
-            style = WanTheme.typography.h6.copy(
+            style = WanTheme.typography.h7.copy(
                 color = WanTheme.colors.level1TextColor
             ),
         )

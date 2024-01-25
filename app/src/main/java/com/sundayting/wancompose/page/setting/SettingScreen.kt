@@ -5,6 +5,7 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Column
@@ -24,21 +25,21 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.sundayting.wancompose.R
 import com.sundayting.wancompose.WanComposeDestination
 import com.sundayting.wancompose.common.ui.dialog.ConfirmDialog
+import com.sundayting.wancompose.common.ui.dialog.ConfirmDialogTextStyle
 import com.sundayting.wancompose.common.ui.loading.LoadingIndicator
 import com.sundayting.wancompose.common.ui.title.TitleBarWithContent
+import com.sundayting.wancompose.theme.TitleTextStyle
+import com.sundayting.wancompose.theme.WanTheme
 
 object SettingScreen : WanComposeDestination {
     override val route: String
@@ -55,10 +56,8 @@ object SettingScreen : WanComposeDestination {
         if (isShowLogoutDialog) {
             ConfirmDialog(content = {
                 Text(
-                    text = stringResource(id = R.string.logout_desc), style = TextStyle(
-                        fontSize = 16.sp,
-                        color = Color.Black
-                    )
+                    text = stringResource(id = R.string.logout_desc),
+                    style = ConfirmDialogTextStyle
                 )
             }, onDismiss = {
                 isShowLogoutDialog = false
@@ -83,12 +82,12 @@ object SettingScreen : WanComposeDestination {
                         ) { navController.popBackStack() }
                         .size(25.dp)
                         .align(Alignment.CenterStart),
-                    colorFilter = ColorFilter.tint(Color.White),
+                    colorFilter = ColorFilter.tint(TitleTextStyle.color),
                 )
                 Text(
-                    stringResource(id = R.string.title_setting), style = TextStyle(
-                        fontSize = 16.sp, color = Color.White
-                    ), modifier = Modifier.align(Alignment.Center)
+                    stringResource(id = R.string.title_setting),
+                    style = TitleTextStyle,
+                    modifier = Modifier.align(Alignment.Center)
                 )
             }
         ) {
@@ -97,6 +96,7 @@ object SettingScreen : WanComposeDestination {
             Column(
                 Modifier
                     .matchParentSize()
+                    .background(WanTheme.colors.level1BackgroundColor)
                     .verticalScroll(rememberScrollState())
             ) {
                 NormalSettingLine(
@@ -139,9 +139,8 @@ object SettingScreen : WanComposeDestination {
         ) {
             Text(
                 text = title,
-                style = TextStyle(
-                    fontSize = 15.sp,
-                    color = Color.Black
+                style = WanTheme.typography.h7.copy(
+                    color = WanTheme.colors.level1TextColor
                 )
             )
             Spacer(
@@ -153,7 +152,7 @@ object SettingScreen : WanComposeDestination {
                 painter = painterResource(id = R.drawable.ic_arrow_right),
                 contentDescription = null,
                 modifier = Modifier.size(15.dp),
-                colorFilter = ColorFilter.tint(Color.Gray.copy(0.8f))
+                colorFilter = ColorFilter.tint(WanTheme.colors.level1TextColor)
             )
         }
 

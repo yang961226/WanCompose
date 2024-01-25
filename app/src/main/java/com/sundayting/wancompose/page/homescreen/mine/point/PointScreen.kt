@@ -106,7 +106,9 @@ object PointScreen : WanComposeDestination {
                 ) {
                     Text(
                         stringResource(id = R.string.my_points),
-                        style = TitleTextStyle,
+                        style = TitleTextStyle.copy(
+                            color = Color.White
+                        ),
                         modifier = Modifier.align(Alignment.Center)
                     )
                 }

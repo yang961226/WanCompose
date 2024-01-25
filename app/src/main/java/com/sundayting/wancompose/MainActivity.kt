@@ -51,6 +51,7 @@ import com.sundayting.wancompose.common.event.ToastEvent
 import com.sundayting.wancompose.common.event.emitToast
 import com.sundayting.wancompose.common.helper.LocalVibratorHelper
 import com.sundayting.wancompose.common.helper.VibratorHelper
+import com.sundayting.wancompose.common.helper.VibratorHelper.Companion.SMALL_VIBRATE
 import com.sundayting.wancompose.function.UserLoginFunction.UserEntity
 import com.sundayting.wancompose.page.homescreen.HomeScreen
 import com.sundayting.wancompose.page.homescreen.mine.MineScreen
@@ -227,10 +228,13 @@ fun WanComposeApp(
             Scaffold(
                 modifier = Modifier.navigationBarsPadding(),
                 bottomBar = {
+                    val vibratorHelper = LocalVibratorHelper.current
                     if (isInMainPage) {
                         HomeScreen.WanBottomNavigation(
                             navController = navController,
                             onClickBottom = { bottomItem ->
+
+                                vibratorHelper.vibrateClick(SMALL_VIBRATE)
 
                                 fun toDestination(route: String) {
                                     navController.navigate(route) {

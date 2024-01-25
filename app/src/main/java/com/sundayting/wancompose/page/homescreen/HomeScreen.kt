@@ -124,7 +124,7 @@ object HomeScreen : WanComposeDestination {
                         Text(
                             modifier = Modifier,
                             text = stringResource(id = bottomItem.titleId),
-                            style = WanTheme.typography.h7.copy(
+                            style = WanTheme.typography.h8.copy(
                                 color = WanTheme.colors.primaryColor
                             )
                         )

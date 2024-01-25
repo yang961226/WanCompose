@@ -1,6 +1,7 @@
 package com.sundayting.wancompose.page.homescreen.mine.share
 
 import androidx.compose.animation.Crossfade
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
@@ -40,6 +41,7 @@ import com.sundayting.wancompose.common.ui.title.TitleBarWithBackButtonContent
 import com.sundayting.wancompose.common.ui.title.TitleBarWithContent
 import com.sundayting.wancompose.page.homescreen.article.ui.ArticleList
 import com.sundayting.wancompose.page.homescreen.article.ui.ArticleListSingleBean
+import com.sundayting.wancompose.theme.TitleTextStyle
 import com.sundayting.wancompose.theme.WanTheme
 
 object MyCollectedArticle : WanComposeDestination {
@@ -109,9 +111,7 @@ object MyCollectedArticle : WanComposeDestination {
                 TitleBarWithBackButtonContent(onClickBackButton = onClickBackButton) {
                     Text(
                         stringResource(id = R.string.my_collect),
-                        style = TextStyle(
-                            fontSize = 16.sp, color = Color.White
-                        ),
+                        style = TitleTextStyle,
                         modifier = Modifier.align(Alignment.Center)
                     )
                 }
@@ -124,7 +124,11 @@ object MyCollectedArticle : WanComposeDestination {
             val showLoading by remember {
                 derivedStateOf { state.articleList.isEmpty() && state.isLoadingMore }
             }
-            Crossfade(targetState = showLoading, label = "") { isShowLoading ->
+            Crossfade(
+                modifier = Modifier.background(WanTheme.colors.level1BackgroundColor),
+                targetState = showLoading,
+                label = ""
+            ) { isShowLoading ->
                 if (isShowLoading) {
                     Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                         CircularProgressIndicator(
@@ -158,7 +162,10 @@ object MyCollectedArticle : WanComposeDestination {
                                         confirmUnCollectArticle = it
                                     }
                                 )
-                                Divider(Modifier.fillMaxWidth())
+                                Divider(
+                                    Modifier.fillMaxWidth(),
+                                    color = WanTheme.colors.level4BackgroundColor
+                                )
                             }
                         }
                         if (state.isLoadingMore) {

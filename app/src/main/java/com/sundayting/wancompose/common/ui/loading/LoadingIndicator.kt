@@ -9,12 +9,14 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.sundayting.wancompose.R
+import com.sundayting.wancompose.theme.WanTheme
 
 @Composable
 fun LoadingIndicator(modifier: Modifier = Modifier) {
@@ -32,7 +34,8 @@ fun LoadingIndicator(modifier: Modifier = Modifier) {
         },
         painter = painterResource(id = R.drawable.ic_loading),
         contentDescription = null,
-        contentScale = ContentScale.Fit
+        contentScale = ContentScale.Fit,
+        colorFilter = ColorFilter.tint(WanTheme.colors.primaryColor)
     )
 
 }

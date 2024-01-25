@@ -18,11 +18,11 @@ import androidx.compose.material.Divider
 import androidx.compose.material.Text
 import androidx.compose.material.ripple.rememberRipple
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.ReadOnlyComposable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.tooling.preview.Preview
@@ -31,6 +31,13 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import com.sundayting.wancompose.R
 import com.sundayting.wancompose.theme.WanTheme
+
+val ConfirmDialogTextStyle
+    @Composable
+    @ReadOnlyComposable
+    get() = WanTheme.typography.h6.copy(
+        color = WanTheme.colors.level1TextColor
+    )
 
 @Composable
 fun ConfirmDialog(
@@ -60,7 +67,7 @@ fun ConfirmDialogContent(
     Column(
         modifier
             .clip(RoundedCornerShape(10.dp))
-            .background(Color.White)
+            .background(WanTheme.colors.level1BackgroundColor)
             .fillMaxWidth(),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
@@ -73,7 +80,7 @@ fun ConfirmDialogContent(
         ) {
             content()
         }
-        Divider()
+        Divider(color = WanTheme.colors.level4BackgroundColor)
         Row(
             Modifier
                 .fillMaxWidth()
@@ -92,16 +99,16 @@ fun ConfirmDialogContent(
             ) {
                 Text(
                     text = stringResource(id = R.string.dialog_cancel),
-                    style = TextStyle(
-                        fontSize = 15.sp,
-                        color = Color.Gray.copy(0.8f)
+                    style = WanTheme.typography.h7.copy(
+                        color = WanTheme.colors.level1TextColor.copy(0.6f)
                     )
                 )
             }
             Divider(
                 Modifier
                     .fillMaxHeight()
-                    .width(1.dp)
+                    .width(1.dp),
+                color = WanTheme.colors.level4BackgroundColor
             )
             Box(
                 Modifier
@@ -130,6 +137,6 @@ fun ConfirmDialogContent(
 @Preview
 private fun PreviewConfirmDialog() {
     ConfirmDialogContent(Modifier.fillMaxWidth(), content = {
-        Text("确定要退出登录吗")
+        Text("确定要退出登录吗", style = ConfirmDialogTextStyle)
     })
 }

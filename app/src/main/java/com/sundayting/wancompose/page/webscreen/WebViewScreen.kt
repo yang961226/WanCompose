@@ -93,6 +93,7 @@ import com.sundayting.wancompose.common.ui.title.TitleBar
 import com.sundayting.wancompose.common.ui.title.TitleBarWithContent
 import com.sundayting.wancompose.page.homescreen.article.ui.ArticleList
 import com.sundayting.wancompose.theme.CollectColor
+import com.sundayting.wancompose.theme.TitleTextStyle
 import com.sundayting.wancompose.theme.WanTheme
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
@@ -369,10 +370,7 @@ private fun BoxScope.WebTitle(title: String, navController: NavController) {
             .align(Alignment.Center)
             .padding(horizontal = 60.dp),
         text = title,
-        style = TextStyle(
-            fontSize = 20.sp,
-            color = Color.White
-        ),
+        style = TitleTextStyle,
         overflow = TextOverflow.Ellipsis
     )
     Image(
@@ -386,7 +384,7 @@ private fun BoxScope.WebTitle(title: String, navController: NavController) {
                 interactionSource = remember { MutableInteractionSource() },
                 indication = rememberRipple(radius = 25.dp, bounded = false),
             ) { navController.popBackStack() },
-        colorFilter = ColorFilter.tint(Color.White)
+        colorFilter = ColorFilter.tint(TitleTextStyle.color)
     )
 }
 

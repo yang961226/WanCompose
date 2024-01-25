@@ -179,9 +179,10 @@ object ArticleList : HomeScreen.HomeScreenPage {
                         }
                     )
                     PullRefreshIndicator(
-                        viewModel.state.refreshing,
-                        pullRefreshState,
-                        Modifier.align(Alignment.TopCenter)
+                        refreshing = viewModel.state.refreshing,
+                        state = pullRefreshState,
+                        modifier = Modifier.align(Alignment.TopCenter),
+                        contentColor = WanTheme.colors.primaryColor
                     )
                 }
             }
@@ -355,7 +356,7 @@ private fun ArticleListContent(
                         Text(
                             text = curTitle.orEmpty(),
                             style = WanTheme.typography.h7.copy(
-                                color = Color.White
+                                color = WanTheme.colors.level3TextColor
                             ),
                             maxLines = 1,
                             overflow = TextOverflow.Ellipsis,
