@@ -68,7 +68,6 @@ import com.sundayting.wancompose.page.homescreen.HomeScreen
 import com.sundayting.wancompose.page.homescreen.article.ArticleListViewModel
 import com.sundayting.wancompose.page.scan.ScanScreen.navigateToScanScreen
 import com.sundayting.wancompose.page.webscreen.WebViewScreen.navigateToWebViewScreen
-import com.sundayting.wancompose.theme.AlwaysDarkModeArea
 import com.sundayting.wancompose.theme.CollectColor
 import com.sundayting.wancompose.theme.DarkColors
 import com.sundayting.wancompose.theme.LightColors
@@ -148,15 +147,13 @@ object ArticleList : HomeScreen.HomeScreenPage {
                         contentScale = ContentScale.Fit,
                         colorFilter = ColorFilter.tint(Color.White)
                     )
-                    AlwaysDarkModeArea {
-                        Text(
-                            stringResource(id = R.string.bottom_tab_home),
-                            style = WanTheme.typography.h6.copy(
-                                color = WanTheme.colors.level1TextColor
-                            ),
-                            modifier = Modifier.align(Alignment.Center)
-                        )
-                    }
+                    Text(
+                        stringResource(id = R.string.bottom_tab_home),
+                        style = WanTheme.typography.h6.copy(
+                            color = Color.White
+                        ),
+                        modifier = Modifier.align(Alignment.Center)
+                    )
                 }
             ) {
                 Box(

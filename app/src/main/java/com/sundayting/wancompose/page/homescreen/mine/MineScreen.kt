@@ -53,6 +53,7 @@ import com.sundayting.wancompose.page.homescreen.HomeScreen
 import com.sundayting.wancompose.page.homescreen.mine.point.PointScreen.navigateToPointScreen
 import com.sundayting.wancompose.page.homescreen.mine.share.MyCollectedArticle.navigateToMyCollectedScreen
 import com.sundayting.wancompose.page.setting.SettingScreen.navigateToSettingScreen
+import com.sundayting.wancompose.theme.AlwaysLightModeArea
 import com.sundayting.wancompose.theme.WanTheme
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.drop
@@ -72,7 +73,7 @@ object MineScreen : HomeScreen.HomeScreenPage {
         Column(
             modifier
                 .verticalScroll(scrollState)
-                .background(Color.White)
+                .background(WanTheme.colors.level1BackgroundColor)
         ) {
             ConstraintLayout(
                 Modifier
@@ -164,7 +165,9 @@ object MineScreen : HomeScreen.HomeScreenPage {
                     Text(
                         modifier = Modifier.padding(end = 10.dp),
                         text = (userEntity?.coinCount ?: 0).toString(),
-                        style = TextStyle(fontSize = 14.sp, color = Color.Black.copy(0.5f))
+                        style = WanTheme.typography.h7.copy(
+                            color = WanTheme.colors.level3TextColor
+                        )
                     )
                 },
                 onClick = {
@@ -221,19 +224,20 @@ private fun MineScreenSingleLine(
             .padding(15.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        Image(
-            painter = painterResource(id = resId),
-            contentDescription = null,
-            modifier = Modifier
-                .padding(end = 10.dp)
-                .size(20.dp),
-            colorFilter = ColorFilter.tint(WanTheme.colors.primaryColor)
-        )
+        AlwaysLightModeArea {
+            Image(
+                painter = painterResource(id = resId),
+                contentDescription = null,
+                modifier = Modifier
+                    .padding(end = 10.dp)
+                    .size(20.dp),
+                colorFilter = ColorFilter.tint(WanTheme.colors.primaryColor)
+            )
+        }
         Text(
             text = title,
-            style = TextStyle(
-                fontSize = 15.sp,
-                color = Color.Black
+            style = WanTheme.typography.h6.copy(
+                color = WanTheme.colors.level1TextColor
             ),
         )
         Spacer(

@@ -29,9 +29,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import com.sundayting.wancompose.R
 import com.sundayting.wancompose.common.ui.title.TitleBarWithContent
 import com.sundayting.wancompose.page.examplewidgetscreen.nestscroll.NestScroll
@@ -40,6 +38,7 @@ import com.sundayting.wancompose.page.examplewidgetscreen.scrollaletabrow.TabRow
 import com.sundayting.wancompose.page.examplewidgetscreen.tantancard.TanTanSwipeCardScreen
 import com.sundayting.wancompose.page.examplewidgetscreen.viewpager.ViewPagerHorizontalPagerNestScroll
 import com.sundayting.wancompose.page.homescreen.HomeScreen
+import com.sundayting.wancompose.theme.WanTheme
 
 class ExampleCardBean(
     val name: String,
@@ -56,7 +55,11 @@ private fun ExampleCardItem(
     Column(
         modifier
             .clip(RoundedCornerShape(10.dp))
-            .border(1.dp, color = Color.Gray.copy(0.7f), shape = RoundedCornerShape(10.dp))
+            .border(
+                1.dp,
+                color = WanTheme.colors.level4BackgroundColor,
+                shape = RoundedCornerShape(10.dp)
+            )
             .clickable(
                 interactionSource = remember { MutableInteractionSource() },
                 indication = rememberRipple()
@@ -71,7 +74,11 @@ private fun ExampleCardItem(
             contentScale = ContentScale.FillWidth
         )
         Spacer(Modifier.height(10.dp))
-        Text(bean.name, style = TextStyle(fontSize = 20.sp, color = Color.Black))
+        Text(
+            bean.name, style = WanTheme.typography.h6.copy(
+                WanTheme.colors.level1TextColor
+            )
+        )
     }
 
 }
@@ -97,16 +104,18 @@ object ExampleWidget : HomeScreen.HomeScreenPage {
             modifier,
             titleBarContent = {
                 Text(
-                    stringResource(id = R.string.bottom_tab_example), style = TextStyle(
-                        fontSize = 16.sp, color = Color.White
-                    ), modifier = Modifier.align(Alignment.Center)
+                    stringResource(id = R.string.bottom_tab_example),
+                    style = WanTheme.typography.h6.copy(
+                        color = Color.White
+                    ),
+                    modifier = Modifier.align(Alignment.Center)
                 )
             }
         ) {
             LazyVerticalStaggeredGrid(
                 modifier = Modifier
                     .fillMaxSize()
-                    .background(Color.White)
+                    .background(WanTheme.colors.level1BackgroundColor)
                     .padding(horizontal = 20.dp),
                 columns = StaggeredGridCells.Fixed(2),
                 horizontalArrangement = Arrangement.spacedBy(10.dp),
