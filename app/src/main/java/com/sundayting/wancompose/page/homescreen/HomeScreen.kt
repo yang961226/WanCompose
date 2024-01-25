@@ -31,9 +31,9 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.navigation
-import com.sundayting.wancompose.LocalDarkMode
 import com.sundayting.wancompose.R
 import com.sundayting.wancompose.WanComposeDestination
+import com.sundayting.wancompose.common.helper.LocalDarkMode
 import com.sundayting.wancompose.page.examplewidgetscreen.ExampleWidget
 import com.sundayting.wancompose.page.examplewidgetscreen.ExampleWidgetNavGraph
 import com.sundayting.wancompose.page.examplewidgetscreen.nestscroll.NestScroll
@@ -105,9 +105,9 @@ object HomeScreen : WanComposeDestination {
         ) {
             pageList.forEach { bottomItem ->
                 BottomNavigationItem(
-                    selectedContentColor = WanTheme.colors.primaryColor,
+                    selectedContentColor = Color(0xFF446DF6),
                     unselectedContentColor = if (LocalDarkMode.current) Color.White else Color(
-                        0XFFF5F5F5
+                        0xFF424242
                     ),
                     selected = bottomItem.page.route == curRoute,
                     onClick = {

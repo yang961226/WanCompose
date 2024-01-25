@@ -8,6 +8,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.sundayting.wancompose.common.event.EventManager
 import com.sundayting.wancompose.common.event.emitToast
+import com.sundayting.wancompose.common.helper.DarkModeHelper
 import com.sundayting.wancompose.network.NetExceptionHandler
 import com.sundayting.wancompose.page.homescreen.mine.repo.MineRepository
 import com.sundayting.wancompose.page.homescreen.mine.share.repo.MyCollectedArticleRepository
@@ -24,6 +25,7 @@ class WanViewModel @Inject constructor(
     private val mineRepository: MineRepository,
     private val myCollectedArticleRepository: MyCollectedArticleRepository,
     val eventManager: EventManager,
+    private val darkModeHelper: DarkModeHelper,
 ) : ViewModel() {
 
     val curLoginUserFlow = mineRepository.curUserFlow
@@ -77,5 +79,6 @@ class WanViewModel @Inject constructor(
             }
         }
     }
+
 
 }

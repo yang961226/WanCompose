@@ -41,4 +41,6 @@
     <string name="click_for_apply">点击申请</string>
     <string name="camera_permission_permanent_denied">相机权限已被永久拒绝</string>
     <string name="to_setting">去设置</string>
+    <string name="dark_mode_follow_system">跟随系统暗夜模式</string>
+    <string name="dark_mode">暗夜模式</string>
 </resources>

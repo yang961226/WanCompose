@@ -21,6 +21,7 @@ import androidx.compose.material.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
@@ -49,6 +50,11 @@ import com.sundayting.wancompose.common.event.LocalEventManager
 import com.sundayting.wancompose.common.event.ShowLoginPageEvent
 import com.sundayting.wancompose.common.event.ToastEvent
 import com.sundayting.wancompose.common.event.emitToast
+import com.sundayting.wancompose.common.helper.DarkModeHelper
+import com.sundayting.wancompose.common.helper.LocalDarkMode
+import com.sundayting.wancompose.common.helper.LocalDarkModeFollowSystem
+import com.sundayting.wancompose.common.helper.LocalDarkModeHelper
+import com.sundayting.wancompose.common.helper.LocalSetToDarkMode
 import com.sundayting.wancompose.common.helper.LocalVibratorHelper
 import com.sundayting.wancompose.common.helper.VibratorHelper
 import com.sundayting.wancompose.common.helper.VibratorHelper.Companion.SMALL_VIBRATE
@@ -68,8 +74,6 @@ import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-val LocalDarkMode = staticCompositionLocalOf { false }
-
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
 
@@ -79,27 +83,46 @@ class MainActivity : AppCompatActivity() {
     @Inject
     lateinit var vibratorHelper: VibratorHelper
 
+    @Inject
+    lateinit var darkModeHelper: DarkModeHelper
+
     init {
         lifecycle.addObserver(object : DefaultLifecycleObserver {
             override fun onCreate(owner: LifecycleOwner) {
                 WindowCompat.setDecorFitsSystemWindows(window, false)
                 setContent {
-                    val uiController = rememberSystemUiController()
-                    LaunchedEffect(uiController) {
-                        uiController.setStatusBarColor(
-                            Color.Transparent,
-                            darkIcons = true
-                        )
-                    }
-                    val isDarkMode = isSystemInDarkTheme()
-                    WanTheme(
-                        colors = if (isDarkMode) DarkColors else LightColors,
-                        typography = DefaultTypography
+                    val setToDarkMode by darkModeHelper.darkModeSettingFlow.collectAsState(false)
+                    val darkModeFollowSystem by darkModeHelper.darkModeFollowSystemFlow.collectAsState(
+                        true
+                    )
+                    val isDarkMode =
+                        if (darkModeFollowSystem) isSystemInDarkTheme() else setToDarkMode
+
+                    CompositionLocalProvider(
+                        LocalEventManager provides eventManager,
+                        LocalVibratorHelper provides vibratorHelper,
+
+                        // TODO: 合并一下暗夜模式的属性
+                        LocalDarkMode provides isDarkMode,
+                        LocalDarkModeHelper provides darkModeHelper,
+                        LocalDarkModeFollowSystem provides darkModeFollowSystem,
+                        LocalSetToDarkMode provides setToDarkMode
                     ) {
-                        CompositionLocalProvider(
-                            LocalEventManager provides eventManager,
-                            LocalVibratorHelper provides vibratorHelper,
-                            LocalDarkMode provides isDarkMode
+
+                        val uiController = rememberSystemUiController()
+                        LaunchedEffect(uiController, isDarkMode) {
+                            uiController.setStatusBarColor(
+                                Color.Transparent,
+                                darkIcons = !isDarkMode
+                            )
+                            uiController.setNavigationBarColor(
+                                color = if (isDarkMode) Color.Black else Color.White,
+                                darkIcons = !isDarkMode,
+                            )
+                        }
+                        WanTheme(
+                            colors = if (isDarkMode) DarkColors else LightColors,
+                            typography = DefaultTypography
                         ) {
                             WanComposeApp()
                         }

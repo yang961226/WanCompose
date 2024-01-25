@@ -3,6 +3,7 @@ package com.sundayting.wancompose.page.webscreen
 import android.annotation.SuppressLint
 import android.content.Intent
 import android.net.Uri
+import android.os.Build
 import android.webkit.CookieManager
 import android.webkit.WebResourceRequest
 import android.webkit.WebSettings
@@ -38,6 +39,7 @@ import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.material.ripple.rememberRipple
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
@@ -79,6 +81,8 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import androidx.navigation.NavType
 import androidx.navigation.navArgument
+import androidx.webkit.WebSettingsCompat
+import androidx.webkit.WebViewFeature
 import com.google.accompanist.web.AccompanistWebViewClient
 import com.google.accompanist.web.LoadingState
 import com.google.accompanist.web.WebView
@@ -88,8 +92,8 @@ import com.sundayting.wancompose.R
 import com.sundayting.wancompose.WanComposeDestination
 import com.sundayting.wancompose.common.event.EventManager
 import com.sundayting.wancompose.common.event.emitToast
+import com.sundayting.wancompose.common.helper.LocalDarkMode
 import com.sundayting.wancompose.common.helper.LocalVibratorHelper
-import com.sundayting.wancompose.common.ui.title.TitleBar
 import com.sundayting.wancompose.common.ui.title.TitleBarWithContent
 import com.sundayting.wancompose.page.homescreen.article.ui.ArticleList
 import com.sundayting.wancompose.theme.CollectColor
@@ -207,6 +211,36 @@ object WebViewScreen : WanComposeDestination {
                     webViewContent,
                     webToolContent,
                 ) = createRefs()
+
+                var cachedWebView by remember { mutableStateOf<WebView?>(null) }
+                val isDarkMode = LocalDarkMode.current
+
+                cachedWebView?.let { webView ->
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                        LaunchedEffect(isDarkMode, webView) {
+                            if (WebViewFeature.isFeatureSupported(WebViewFeature.ALGORITHMIC_DARKENING)) {
+                                WebSettingsCompat.setAlgorithmicDarkeningAllowed(
+                                    webView.settings,
+                                    isDarkMode
+                                )
+                            }
+                        }
+                    } else {
+                        LaunchedEffect(isDarkMode, webView) {
+                            if (WebViewFeature.isFeatureSupported(WebViewFeature.FORCE_DARK)) {
+                                WebSettingsCompat.setForceDark(
+                                    webView.settings,
+                                    if (isDarkMode) WebSettingsCompat.FORCE_DARK_ON else WebSettingsCompat.FORCE_DARK_OFF
+                                )
+                            }
+                        }
+                    }
+
+                }
+
+
+
+
                 WebView(
                     navigator = navigator,
                     modifier = Modifier
@@ -226,6 +260,7 @@ object WebViewScreen : WanComposeDestination {
                         },
                     factory = {
                         WebView(it).also { webView ->
+                            cachedWebView = webView
                             webView.settings.apply {
                                 javaScriptEnabled = true
                                 javaScriptCanOpenWindowsAutomatically = false
@@ -561,35 +596,3 @@ private fun WebToolButton(
         )
     }
 }
-
-@Composable
-private fun WebTitle(
-    modifier: Modifier = Modifier,
-    title: String,
-    onClickClose: () -> Unit = {},
-) {
-    TitleBar(modifier) {
-        Text(
-            modifier = Modifier
-                .align(Alignment.Center)
-                .padding(horizontal = 60.dp),
-            text = title,
-            style = TextStyle(
-                fontSize = 20.sp,
-                color = Color.White
-            ),
-            overflow = TextOverflow.Ellipsis
-        )
-        Image(
-            painter = painterResource(id = R.drawable.ic_close),
-            contentDescription = null,
-            modifier = Modifier
-                .align(Alignment.CenterStart)
-                .padding(start = 20.dp)
-                .size(20.dp)
-                .clickable { onClickClose() },
-            colorFilter = ColorFilter.tint(Color.White)
-        )
-    }
-}
-

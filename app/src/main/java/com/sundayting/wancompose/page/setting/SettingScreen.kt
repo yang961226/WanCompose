@@ -8,10 +8,12 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
@@ -34,9 +36,14 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.sundayting.wancompose.R
 import com.sundayting.wancompose.WanComposeDestination
+import com.sundayting.wancompose.common.helper.LocalDarkMode
+import com.sundayting.wancompose.common.helper.LocalDarkModeFollowSystem
+import com.sundayting.wancompose.common.helper.LocalDarkModeHelper
+import com.sundayting.wancompose.common.helper.LocalSetToDarkMode
 import com.sundayting.wancompose.common.ui.dialog.ConfirmDialog
 import com.sundayting.wancompose.common.ui.dialog.ConfirmDialogTextStyle
 import com.sundayting.wancompose.common.ui.loading.LoadingIndicator
+import com.sundayting.wancompose.common.ui.switchbutton.SwitchButton
 import com.sundayting.wancompose.common.ui.title.TitleBarWithContent
 import com.sundayting.wancompose.theme.TitleTextStyle
 import com.sundayting.wancompose.theme.WanTheme
@@ -44,6 +51,23 @@ import com.sundayting.wancompose.theme.WanTheme
 object SettingScreen : WanComposeDestination {
     override val route: String
         get() = "设置页"
+
+    @Composable
+    private fun SettingSpacer() {
+        Spacer(Modifier.height(10.dp))
+    }
+
+    @Composable
+    private fun Divider() {
+        Box(
+            Modifier
+                .background(WanTheme.colors.level2BackgroundColor)
+                .padding(start = 15.dp)
+                .fillMaxWidth()
+                .height(0.5.dp)
+                .background(WanTheme.colors.level3BackgroundColor)
+        )
+    }
 
     @Composable
     fun Screen(
@@ -66,6 +90,12 @@ object SettingScreen : WanComposeDestination {
                 isShowLogoutDialog = false
             })
         }
+
+        val darkModeHelper = LocalDarkModeHelper.current
+
+        val isDarkMode = LocalDarkMode.current
+        val isDarkModeFollowSystem = LocalDarkModeFollowSystem.current
+        val isSetDarkMode = LocalSetToDarkMode.current
 
         BackHandler(enabled = viewModel.isLoading) {}
         TitleBarWithContent(
@@ -91,14 +121,40 @@ object SettingScreen : WanComposeDestination {
                 )
             }
         ) {
-
-
             Column(
-                Modifier
+                modifier = Modifier
                     .matchParentSize()
                     .background(WanTheme.colors.level1BackgroundColor)
-                    .verticalScroll(rememberScrollState())
+                    .verticalScroll(rememberScrollState()),
             ) {
+                SettingSpacer()
+
+                SwitchSettingLine(
+                    title = stringResource(id = R.string.dark_mode_follow_system),
+                    onClick = {
+                        darkModeHelper.changeDarkModeFollowSystem(
+                            originModeIsDark = isDarkMode,
+                            tryFollow = !isDarkModeFollowSystem
+                        )
+                    },
+                    isSelected = isDarkModeFollowSystem
+                )
+
+                if (!isDarkModeFollowSystem) {
+                    Divider()
+                    SwitchSettingLine(
+                        title = stringResource(id = R.string.dark_mode),
+                        onClick = {
+                            darkModeHelper.changeDarkModeSetting(
+                                !isSetDarkMode
+                            )
+                        },
+                        isSelected = isSetDarkMode
+                    )
+                }
+
+                SettingSpacer()
+
                 NormalSettingLine(
                     title = stringResource(id = R.string.logout),
                     onClick = {
@@ -154,6 +210,41 @@ object SettingScreen : WanComposeDestination {
                 contentDescription = null,
                 modifier = Modifier.size(15.dp),
                 colorFilter = ColorFilter.tint(WanTheme.colors.level1TextColor)
+            )
+        }
+
+    }
+
+    @Composable
+    private fun SwitchSettingLine(
+        modifier: Modifier = Modifier,
+        onClick: ((Boolean) -> Unit)? = null,
+        isSelected: Boolean = false,
+        title: String,
+    ) {
+
+        Row(
+            modifier
+                .background(WanTheme.colors.level2BackgroundColor)
+                .padding(15.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = title,
+                style = WanTheme.typography.h7.copy(
+                    color = WanTheme.colors.level1TextColor
+                )
+            )
+            Spacer(
+                Modifier
+                    .fillMaxWidth()
+                    .weight(1f, false)
+            )
+
+            SwitchButton(
+                modifier = Modifier.size(38.5.dp, 22.dp),
+                isSelected = isSelected,
+                onClick = { onClick?.invoke(it) }
             )
         }
 
