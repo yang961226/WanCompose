@@ -37,7 +37,7 @@ fun lightColors(
 }
 
 fun darkColors(
-    primaryColor: Color = Color(0xFF19242b),
+    primaryColor: Color = Color(0xFF446074),
     level1BackgroundColor: Color = Color(0xFF191919),
     level2BackgroundColor: Color = Color(0xFF252525),
     level3BackgroundColor: Color = Color(0xFF303030),

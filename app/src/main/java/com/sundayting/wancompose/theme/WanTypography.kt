@@ -4,7 +4,6 @@ package com.sundayting.wancompose.theme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.ReadOnlyComposable
 import androidx.compose.runtime.staticCompositionLocalOf
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.PlatformTextStyle
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -25,7 +24,7 @@ val TitleTextStyle
     @Composable
     @ReadOnlyComposable
     get() = WanTheme.typography.h6.copy(
-        color = Color.White
+        color = WanTheme.colors.level1TextColor
     )
 
 data class WanTypography(

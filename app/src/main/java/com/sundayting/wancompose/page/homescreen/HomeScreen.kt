@@ -49,7 +49,6 @@ import com.sundayting.wancompose.page.homescreen.article.ui.ArticleList
 import com.sundayting.wancompose.page.homescreen.mine.MineGraph
 import com.sundayting.wancompose.page.homescreen.mine.MineScreen
 import com.sundayting.wancompose.page.scan.ScanScreen
-import com.sundayting.wancompose.theme.AlwaysLightModeArea
 import com.sundayting.wancompose.theme.WanTheme
 
 object HomeScreen : WanComposeDestination {
@@ -103,36 +102,34 @@ object HomeScreen : WanComposeDestination {
             backgroundColor = WanTheme.colors.level2BackgroundColor,
             elevation = 16.dp
         ) {
-            AlwaysLightModeArea {
-                pageList.forEach { bottomItem ->
-                    BottomNavigationItem(
-                        selectedContentColor = Color(0xFF5380ec),
-                        unselectedContentColor = Color.Gray,
-                        selected = bottomItem.page.route == curRoute,
-                        onClick = {
-                            onClickBottom(bottomItem)
-                        },
-                        icon = {
-                            Icon(
-                                painter = painterResource(id = bottomItem.resId),
-                                contentDescription = null,
-                                modifier = Modifier
-                                    .size(25.dp)
-                                    .padding(bottom = 5.dp),
-                                tint = WanTheme.colors.primaryColor
+            pageList.forEach { bottomItem ->
+                BottomNavigationItem(
+                    selectedContentColor = Color(0xFF5380ec),
+                    unselectedContentColor = Color.Gray,
+                    selected = bottomItem.page.route == curRoute,
+                    onClick = {
+                        onClickBottom(bottomItem)
+                    },
+                    icon = {
+                        Icon(
+                            painter = painterResource(id = bottomItem.resId),
+                            contentDescription = null,
+                            modifier = Modifier
+                                .size(25.dp)
+                                .padding(bottom = 5.dp),
+                            tint = WanTheme.colors.primaryColor
+                        )
+                    },
+                    label = {
+                        Text(
+                            modifier = Modifier,
+                            text = stringResource(id = bottomItem.titleId),
+                            style = WanTheme.typography.h7.copy(
+                                color = WanTheme.colors.primaryColor
                             )
-                        },
-                        label = {
-                            Text(
-                                modifier = Modifier,
-                                text = stringResource(id = bottomItem.titleId),
-                                style = WanTheme.typography.h7.copy(
-                                    color = WanTheme.colors.primaryColor
-                                )
-                            )
-                        }
-                    )
-                }
+                        )
+                    }
+                )
             }
         }
     }

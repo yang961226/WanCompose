@@ -96,7 +96,10 @@ object PointScreen : WanComposeDestination {
     ) {
         TitleBarWithContent(
             modifier,
-            properties = TitleBarProperties(elevation = 0.dp),
+            properties = TitleBarProperties(
+                elevation = 0.dp,
+                backgroundColor = WanTheme.colors.primaryColor
+            ),
             titleBarContent = {
                 TitleBarWithBackButtonContent(
                     onClickBackButton = onClickBackButton
@@ -207,9 +210,6 @@ object PointScreen : WanComposeDestination {
         )
     }
 
-
-    private val mainTitleColor = Color.Black.copy(0.8f)
-    private val dateColor = Color.Black.copy(0.6f)
     private val dateFormatter = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", java.util.Locale.CHINA)
 
     @Composable

@@ -58,12 +58,12 @@ fun TitleBar(
 
     Surface(
         elevation = properties.elevation,
-        modifier = modifier
+        modifier = modifier,
     ) {
         Box(
             Modifier
                 .fillMaxWidth()
-                .background(WanTheme.colors.primaryColor)
+                .background(properties.backgroundColor ?: WanTheme.colors.level2BackgroundColor)
                 .statusBarsPadding()
                 .height(45.dp)
         ) {
@@ -73,7 +73,8 @@ fun TitleBar(
 }
 
 data class TitleBarProperties(
-    val elevation: Dp = 10.dp,
+    val elevation: Dp = 5.dp,
+    val backgroundColor: Color? = null,
 )
 
 private val DEFAULT_PROPERTIES = TitleBarProperties()

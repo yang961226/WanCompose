@@ -81,6 +81,13 @@ class MainActivity : AppCompatActivity() {
             override fun onCreate(owner: LifecycleOwner) {
                 WindowCompat.setDecorFitsSystemWindows(window, false)
                 setContent {
+                    val uiController = rememberSystemUiController()
+                    LaunchedEffect(uiController) {
+                        uiController.setStatusBarColor(
+                            Color.Transparent,
+                            darkIcons = true
+                        )
+                    }
                     WanTheme(
                         colors = if (isSystemInDarkTheme()) DarkColors else LightColors,
                         typography = DefaultTypography
@@ -137,9 +144,6 @@ fun WanComposeApp(
         skipHalfExpanded = true
     )
     val bottomSheetPagerState = rememberPagerState { 2 }
-    rememberSystemUiController().apply {
-        setStatusBarColor(Color.Transparent)
-    }
 
     LaunchedEffect(Unit) {
         snapshotFlow { isLogin }.collect {

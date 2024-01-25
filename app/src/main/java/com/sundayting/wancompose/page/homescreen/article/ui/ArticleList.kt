@@ -146,7 +146,7 @@ object ArticleList : HomeScreen.HomeScreenPage {
                                 navController.navigateToScanScreen()
                             },
                         contentScale = ContentScale.Fit,
-                        colorFilter = ColorFilter.tint(Color.White)
+                        colorFilter = ColorFilter.tint(WanTheme.colors.level1TextColor)
                     )
                     Text(
                         stringResource(id = R.string.bottom_tab_home),
