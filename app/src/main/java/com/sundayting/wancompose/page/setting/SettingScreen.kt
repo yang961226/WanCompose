@@ -129,6 +129,7 @@ object SettingScreen : WanComposeDestination {
 
         Row(
             modifier
+                .background(WanTheme.colors.level2BackgroundColor)
                 .clickable(
                     enabled = true,
                     interactionSource = remember { MutableInteractionSource() },

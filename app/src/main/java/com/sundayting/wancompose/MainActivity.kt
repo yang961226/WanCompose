@@ -68,6 +68,8 @@ import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
+val LocalDarkMode = staticCompositionLocalOf { false }
+
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
 
@@ -89,13 +91,15 @@ class MainActivity : AppCompatActivity() {
                             darkIcons = true
                         )
                     }
+                    val isDarkMode = isSystemInDarkTheme()
                     WanTheme(
-                        colors = if (isSystemInDarkTheme()) DarkColors else LightColors,
+                        colors = if (isDarkMode) DarkColors else LightColors,
                         typography = DefaultTypography
                     ) {
                         CompositionLocalProvider(
                             LocalEventManager provides eventManager,
-                            LocalVibratorHelper provides vibratorHelper
+                            LocalVibratorHelper provides vibratorHelper,
+                            LocalDarkMode provides isDarkMode
                         ) {
                             WanComposeApp()
                         }

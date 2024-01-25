@@ -31,6 +31,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.navigation
+import com.sundayting.wancompose.LocalDarkMode
 import com.sundayting.wancompose.R
 import com.sundayting.wancompose.WanComposeDestination
 import com.sundayting.wancompose.page.examplewidgetscreen.ExampleWidget
@@ -104,8 +105,10 @@ object HomeScreen : WanComposeDestination {
         ) {
             pageList.forEach { bottomItem ->
                 BottomNavigationItem(
-                    selectedContentColor = Color(0xFF5380ec),
-                    unselectedContentColor = Color.Gray,
+                    selectedContentColor = WanTheme.colors.primaryColor,
+                    unselectedContentColor = if (LocalDarkMode.current) Color.White else Color(
+                        0XFFF5F5F5
+                    ),
                     selected = bottomItem.page.route == curRoute,
                     onClick = {
                         onClickBottom(bottomItem)
@@ -117,16 +120,13 @@ object HomeScreen : WanComposeDestination {
                             modifier = Modifier
                                 .size(25.dp)
                                 .padding(bottom = 5.dp),
-                            tint = WanTheme.colors.primaryColor
                         )
                     },
                     label = {
                         Text(
                             modifier = Modifier,
                             text = stringResource(id = bottomItem.titleId),
-                            style = WanTheme.typography.h8.copy(
-                                color = WanTheme.colors.primaryColor
-                            )
+                            style = WanTheme.typography.h8
                         )
                     }
                 )
