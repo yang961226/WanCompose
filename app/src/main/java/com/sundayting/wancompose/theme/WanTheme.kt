@@ -3,10 +3,11 @@ package com.sundayting.wancompose.theme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.ReadOnlyComposable
+import com.sundayting.wancompose.common.helper.LocalDarkMode
 
 @Composable
 fun WanTheme(
-    colors: WanColors,
+    colors: WanColors = if (LocalDarkMode.current) DarkColors else LightColors,
     typography: WanTypography = DefaultTypography,
     content: @Composable () -> Unit,
 ) {
@@ -25,7 +26,7 @@ fun AlwaysLightModeArea(
     content: @Composable () -> Unit,
 ) {
     CompositionLocalProvider(
-        LocalWanColors provides LightColors,
+        LocalDarkMode provides false,
     ) {
         content()
     }
@@ -36,7 +37,18 @@ fun AlwaysDarkModeArea(
     content: @Composable () -> Unit,
 ) {
     CompositionLocalProvider(
-        LocalWanColors provides DarkColors,
+        LocalDarkMode provides true,
+    ) {
+        content()
+    }
+}
+
+@Composable
+fun ReverseDarkModeArea(
+    content: @Composable () -> Unit,
+) {
+    CompositionLocalProvider(
+        LocalDarkMode provides !LocalDarkMode.current,
     ) {
         content()
     }

@@ -65,9 +65,6 @@ import com.sundayting.wancompose.page.homescreen.mine.ui.LoginContent
 import com.sundayting.wancompose.page.scan.ScanScreen
 import com.sundayting.wancompose.page.setting.SettingScreen
 import com.sundayting.wancompose.page.webscreen.WebViewScreen
-import com.sundayting.wancompose.theme.DarkColors
-import com.sundayting.wancompose.theme.DefaultTypography
-import com.sundayting.wancompose.theme.LightColors
 import com.sundayting.wancompose.theme.WanTheme
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.filterIsInstance
@@ -120,10 +117,7 @@ class MainActivity : AppCompatActivity() {
                                 darkIcons = !isDarkMode,
                             )
                         }
-                        WanTheme(
-                            colors = if (isDarkMode) DarkColors else LightColors,
-                            typography = DefaultTypography
-                        ) {
+                        WanTheme {
                             WanComposeApp()
                         }
                     }
