@@ -43,7 +43,7 @@ fun BoxScope.TitleBarWithBackButtonContent(
                 interactionSource = remember { MutableInteractionSource() },
                 indication = rememberRipple(radius = 25.dp, bounded = false),
             ) { onClickBackButton() },
-        colorFilter = ColorFilter.tint(Color.White)
+        colorFilter = ColorFilter.tint(WanTheme.colors.level1TextColor)
     )
     content()
 }

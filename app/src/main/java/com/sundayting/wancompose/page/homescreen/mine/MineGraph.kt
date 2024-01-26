@@ -8,6 +8,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.navigation
 import com.sundayting.wancompose.LocalLoginUser
 import com.sundayting.wancompose.WanComposeDestination
+import com.sundayting.wancompose.page.aboutme.AboutMe
 import com.sundayting.wancompose.page.homescreen.mine.point.PointScreen
 import com.sundayting.wancompose.page.homescreen.mine.share.MyCollectedArticle
 import com.sundayting.wancompose.page.webscreen.WebViewScreen.navigateToWebViewScreen
@@ -44,6 +45,12 @@ object MineGraph : WanComposeDestination {
 
                         navController.navigateToWebViewScreen(it)
                     }
+                )
+            }
+            composable(AboutMe.route) {
+                AboutMe.Screen(
+                    Modifier.fillMaxSize(),
+                    navController = navController
                 )
             }
         }

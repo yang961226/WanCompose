@@ -49,6 +49,7 @@ import com.sundayting.wancompose.R
 import com.sundayting.wancompose.common.event.EventManager
 import com.sundayting.wancompose.common.event.emitToast
 import com.sundayting.wancompose.function.UserLoginFunction.UserEntity
+import com.sundayting.wancompose.page.aboutme.AboutMe.navigateToAboutMe
 import com.sundayting.wancompose.page.homescreen.HomeScreen
 import com.sundayting.wancompose.page.homescreen.mine.point.PointScreen.navigateToPointScreen
 import com.sundayting.wancompose.page.homescreen.mine.share.MyCollectedArticle.navigateToMyCollectedScreen
@@ -186,6 +187,13 @@ object MineScreen : HomeScreen.HomeScreenPage {
                 resId = R.drawable.ic_like,
                 onClick = {
                     navController.navigateToMyCollectedScreen()
+                }
+            )
+            MineScreenSingleLine(
+                title = stringResource(id = R.string.about_me),
+                resId = R.drawable.ic_about,
+                onClick = {
+                    navController.navigateToAboutMe()
                 }
             )
             MineScreenSingleLine(

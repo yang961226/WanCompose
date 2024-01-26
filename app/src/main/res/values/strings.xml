@@ -43,4 +43,12 @@
     <string name="to_setting">去设置</string>
     <string name="dark_mode_follow_system">跟随系统暗夜模式</string>
     <string name="dark_mode">暗夜模式</string>
+
+    <string name="about_me">关于作者</string>
+    <string name="my_name">晴天小庭</string>
+    <string name="my_slogan">这个人很懒，什么都没有留下</string>
+    <string name="title_juejin">掘金</string>
+    <string name="title_blog">个人博客</string>
+    <string name="aboue_me_next_page_tips">哟~\nApp做的不错呀\n请你喝咖啡\n\n上滑</string>
+    <string name="click_to_save_pic">点击保存相册</string>
 </resources>
