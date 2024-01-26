@@ -30,7 +30,6 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.BlurredEdgeTreatment
 import androidx.compose.ui.draw.blur
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
@@ -47,7 +46,6 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.sundayting.wancompose.R
 import com.sundayting.wancompose.WanComposeDestination
-import com.sundayting.wancompose.common.helper.LocalDarkMode
 import com.sundayting.wancompose.common.ui.title.TitleBarWithBackButtonContent
 import com.sundayting.wancompose.common.ui.title.TitleBarWithContent
 import com.sundayting.wancompose.page.aboutme.AboutMe.AboutMePage
@@ -94,18 +92,19 @@ object AboutMe : WanComposeDestination {
                     Modifier
                         .fillMaxSize()
                 ) {
-                    Image(
-                        painter = painterResource(id = R.drawable.ic_my_head),
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .background(Color.Black)
-                            .blur(
-                                radius = if (LocalDarkMode.current) 400.dp else 250.dp,
-                                edgeTreatment = BlurredEdgeTreatment.Unbounded
-                            ),
-                        contentDescription = null,
-                        contentScale = ContentScale.Crop
-                    )
+                    Box(Modifier.blur(radius = 100.dp)) {
+                        Image(
+                            painter = painterResource(id = R.drawable.ic_my_head),
+                            modifier = Modifier
+                                .fillMaxSize(),
+                            contentDescription = null,
+                            contentScale = ContentScale.Crop
+                        )
+                        Box(
+                            Modifier
+                                .matchParentSize()
+                                .background(Color.Black.copy(0.3f)))
+                    }
                     val pagerState = rememberPagerState { 2 }
                     VerticalPager(
                         state = pagerState,
@@ -325,18 +324,20 @@ object AboutMe : WanComposeDestination {
 @Preview(showBackground = true)
 fun PreviewAboutMePage() {
     CompositionLocalProvider(LocalWanColors provides darkColors()) {
-        Image(
-            painter = painterResource(id = R.drawable.ic_my_head),
-            modifier = Modifier
-                .fillMaxSize()
-                .background(Color.Black)
-                .blur(
-                    radius = 250.dp,
-                    edgeTreatment = BlurredEdgeTreatment.Unbounded
-                ),
-            contentDescription = null,
-            contentScale = ContentScale.Crop
-        )
+        Box(Modifier.blur(radius = 100.dp)) {
+            Image(
+                painter = painterResource(id = R.drawable.ic_my_head),
+                modifier = Modifier
+                    .fillMaxSize(),
+                contentDescription = null,
+                contentScale = ContentScale.Crop
+            )
+            Box(
+                Modifier
+                    .matchParentSize()
+                    .background(Color.Black.copy(0.3f)))
+        }
+
         AboutMePage(
             Modifier
                 .fillMaxSize()
