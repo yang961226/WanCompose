@@ -37,6 +37,7 @@ import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
@@ -74,6 +75,7 @@ import com.sundayting.wancompose.theme.LightColors
 import com.sundayting.wancompose.theme.TitleTextStyle
 import com.sundayting.wancompose.theme.WanTheme
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import kotlinx.serialization.Serializable
 
 object ArticleList : HomeScreen.HomeScreenPage {
@@ -284,12 +286,15 @@ private fun ArticleListContent(
             state = lazyListState
         ) {
             item(key = "Banner") {
+                val scope = rememberCoroutineScope()
                 val isDragging by pagerState.interactionSource.collectIsDraggedAsState()
                 LaunchedEffect(isDragging) {
                     if (!isDragging) {
                         while (true) {
                             delay(3000L)
-                            pagerState.animateScrollToPage(pagerState.currentPage + 1)
+                            scope.launch {
+                                pagerState.animateScrollToPage(pagerState.currentPage + 1)
+                            }.join()
                         }
                     }
                 }
@@ -304,7 +309,6 @@ private fun ArticleListContent(
                     var curTitle by remember { mutableStateOf<String?>(null) }
 
                     LaunchedEffect(Unit) {
-                        pagerState.scrollToPage(Int.MAX_VALUE / 2)
                         snapshotFlow { pagerState.currentPageInInfinitePage(articleState.bannerList.size) }.collect {
                             curTitle = articleState.bannerList.getOrNull(it)?.title
                         }

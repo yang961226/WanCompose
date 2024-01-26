@@ -144,14 +144,14 @@ fun LoginContent(
                 Text(
                     text = stringResource(id = R.string.login_title_1),
                     style = WanTheme.typography.h7.copy(
-                        color = WanTheme.colors.level1TextColor
+                        color = Color.White
                     ),
                     modifier = Modifier.padding(bottom = 5.dp)
                 )
                 Text(
                     text = stringResource(id = R.string.login_title_2),
                     style = WanTheme.typography.h8.copy(
-                        color = WanTheme.colors.level1TextColor.copy(0.7f)
+                        color = Color.White.copy(0.7f)
                     ),
                 )
             }
@@ -283,7 +283,7 @@ private fun LoginPage(
                     Text(
                         stringResource(id = R.string.please_input_account),
                         style = WanTheme.typography.h7.copy(
-                            color = WanTheme.colors.level1TextColor
+                            color = WanTheme.colors.level3TextColor
                         )
                     )
                 }
@@ -320,7 +320,7 @@ private fun LoginPage(
                     Text(
                         stringResource(id = R.string.please_input_password),
                         style = WanTheme.typography.h7.copy(
-                            color = WanTheme.colors.level1TextColor
+                            color = WanTheme.colors.level3TextColor
                         )
                     )
                 }
@@ -418,7 +418,7 @@ private fun RegisterPage(
                     Text(
                         stringResource(id = R.string.please_input_account),
                         style = WanTheme.typography.h7.copy(
-                            color = WanTheme.colors.level1TextColor
+                            color = WanTheme.colors.level3TextColor
                         )
                     )
                 }
@@ -446,7 +446,7 @@ private fun RegisterPage(
                     Text(
                         stringResource(id = R.string.please_input_password),
                         style = WanTheme.typography.h7.copy(
-                            color = WanTheme.colors.level1TextColor
+                            color = WanTheme.colors.level3TextColor
                         )
                     )
                 }
@@ -477,7 +477,7 @@ private fun RegisterPage(
                     Text(
                         stringResource(id = R.string.please_input_password_again),
                         style = WanTheme.typography.h7.copy(
-                            color = WanTheme.colors.level1TextColor
+                            color = WanTheme.colors.level3TextColor
                         )
                     )
                 }
