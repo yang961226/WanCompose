@@ -22,7 +22,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 
-private const val MAX_VALUE = 100000
+private const val MAX_VALUE = 10000
 private const val InfiniteInitialPage = MAX_VALUE / 2
 
 @Composable

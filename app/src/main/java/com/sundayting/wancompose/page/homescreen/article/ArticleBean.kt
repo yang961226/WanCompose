@@ -2,7 +2,6 @@ package com.sundayting.wancompose.page.homescreen.article
 
 
 import androidx.core.text.HtmlCompat
-import androidx.room.Entity
 import com.sundayting.wancompose.function.UserLoginFunction.VISITOR_ID
 import com.sundayting.wancompose.network.WanEmptyNResult
 import com.sundayting.wancompose.network.WanNResult
@@ -12,9 +11,9 @@ import kotlinx.serialization.Serializable
 
 
 @Serializable
-@Entity(
-    primaryKeys = ["id", "ownerId"]
-)
+//@Entity(
+//    primaryKeys = ["id", "ownerId"]
+//)
 data class ArticleBean(
     val ownerId: Long = VISITOR_ID,
     val id: Long,
@@ -28,6 +27,7 @@ data class ArticleBean(
     val link: String,
     val collect: Boolean,
     val isStick: Boolean = false,
+    val tags: List<ArticleList.ArticleUiBean.Tag>,
 )
 
 @Serializable
@@ -54,7 +54,8 @@ fun ArticleBean.toArticleUiBean(): ArticleList.ArticleUiBean {
         ),
         id = id,
         link = link,
-        isCollect = collect
+        isCollect = collect,
+        tags = tags
     )
 }
 

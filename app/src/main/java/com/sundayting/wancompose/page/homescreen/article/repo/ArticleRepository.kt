@@ -1,8 +1,6 @@
 package com.sundayting.wancompose.page.homescreen.article.repo
 
-import androidx.room.withTransaction
 import com.sundayting.wancompose.db.WanDatabase
-import com.sundayting.wancompose.page.homescreen.article.ArticleBean
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -20,19 +18,19 @@ class ArticleRepository @Inject constructor(
     suspend fun collectArticle(id: Long) = articleService.collectArticle(id)
     suspend fun unCollectArticle(id: Long) = articleService.unCollectArticle(id)
 
-    suspend fun insertArticles(articleList: List<ArticleBean>) =
-        wanDatabase.articleDao().insertArticles(articleList)
-
-    suspend fun insertArticles(articleList: List<ArticleBean>, clearFirst: Boolean = false) {
-        if (articleList.isEmpty()) {
-            return
-        }
-        wanDatabase.withTransaction {
-            if (clearFirst) {
-                wanDatabase.articleDao().deleteUsersArticle(articleList.first().ownerId)
-            }
-            wanDatabase.articleDao().insertArticles(articleList)
-        }
-    }
+//    suspend fun insertArticles(articleList: List<ArticleBean>) =
+//        wanDatabase.articleDao().insertArticles(articleList)
+//
+//    suspend fun insertArticles(articleList: List<ArticleBean>, clearFirst: Boolean = false) {
+//        if (articleList.isEmpty()) {
+//            return
+//        }
+//        wanDatabase.withTransaction {
+//            if (clearFirst) {
+//                wanDatabase.articleDao().deleteUsersArticle(articleList.first().ownerId)
+//            }
+//            wanDatabase.articleDao().insertArticles(articleList)
+//        }
+//    }
 
 }

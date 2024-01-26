@@ -3,9 +3,11 @@ package com.sundayting.wancompose.page.homescreen.article.ui
 import androidx.compose.animation.Crossfade
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsDraggedAsState
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -95,12 +97,12 @@ object ArticleList : HomeScreen.HomeScreenPage {
         val authorOrSharedUser: AuthorOrSharedUser,
         val link: String = "",
         val isCollect: Boolean = false,
-        val tabs: List<Tab> = emptyList(),
+        val tags: List<Tag> = emptyList(),
     ) {
 
         //{"name":"本站发布","url":"/article/list/0?cid=440"}
         @Serializable
-        data class Tab(
+        data class Tag(
             val name: String,
             val url: String,
         )
@@ -434,15 +436,15 @@ fun ArticleListSingleBean(
                 top.linkTo(parent.top)
                 start.linkTo(parent.start)
             },
-            verticalAlignment = Alignment.CenterVertically
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(5.dp)
         ) {
             if (bean.isNew) {
                 Text(
                     text = "新",
-                    style = WanTheme.typography.h7.copy(
+                    style = WanTheme.typography.h8.copy(
                         color = NewColor,
-                    ),
-                    modifier = Modifier.padding(end = 5.dp)
+                    )
                 )
             }
             Text(
@@ -453,10 +455,21 @@ fun ArticleListSingleBean(
                         "分享者：${bean.authorOrSharedUser.sharedUser}"
                     }
                 },
-                style = WanTheme.typography.h7.copy(
+                style = WanTheme.typography.h8.copy(
                     color = WanTheme.colors.level3TextColor
                 )
             )
+            bean.tags.forEach {
+                Text(
+                    text = it.name,
+                    modifier = Modifier
+                        .border(1.dp, color = NewColor, shape = RoundedCornerShape(5.dp))
+                        .padding(horizontal = 2.dp, vertical = 1.dp),
+                    style = WanTheme.typography.h8.copy(
+                        color = NewColor
+                    )
+                )
+            }
         }
         Text(
             modifier = Modifier.constrainAs(topEndContent) {
@@ -464,7 +477,7 @@ fun ArticleListSingleBean(
                 end.linkTo(parent.end)
             },
             text = bean.date,
-            style = WanTheme.typography.h7.copy(
+            style = WanTheme.typography.h8.copy(
                 color = WanTheme.colors.level2TextColor
             )
         )
@@ -488,7 +501,7 @@ fun ArticleListSingleBean(
             if (bean.isStick) {
                 Text(
                     text = "置顶",
-                    style = WanTheme.typography.h7.copy(
+                    style = WanTheme.typography.h8.copy(
                         color = StickColor,
                     ),
                     modifier = Modifier.padding(end = 5.dp)
@@ -498,7 +511,7 @@ fun ArticleListSingleBean(
                 text = remember(bean.chapter) {
                     "分类：${bean.chapter.superChapterName} / ${bean.chapter.chapterName}"
                 },
-                style = WanTheme.typography.h7.copy(
+                style = WanTheme.typography.h8.copy(
                     color = WanTheme.colors.level3TextColor
                 )
             )
@@ -594,7 +607,13 @@ private fun PreviewArticleListContent3() {
                                 author = "小茗同学",
                             ),
                             id = it,
-                            isCollect = (it % 2) == 0L
+                            isCollect = (it % 2) == 0L,
+                            tags = listOf(
+                                ArticleList.ArticleUiBean.Tag(
+                                    name = "哈哈哈",
+                                    url = "134"
+                                )
+                            )
                         )
                     }
                 )

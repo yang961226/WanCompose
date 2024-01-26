@@ -3,6 +3,7 @@ package com.sundayting.wancompose.theme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.ReadOnlyComposable
+import androidx.compose.runtime.remember
 import com.sundayting.wancompose.common.helper.LocalDarkMode
 
 @Composable
@@ -12,8 +13,14 @@ fun WanTheme(
     content: @Composable () -> Unit,
 ) {
 
+    val rememberedColors = remember {
+        // Explicitly creating a new object here so we don't mutate the initial [colors]
+        // provided, and overwrite the values set in it.
+        colors.copy()
+    }.apply { updateColorsFrom(colors) }
+
     CompositionLocalProvider(
-        LocalWanColors provides colors,
+        LocalWanColors provides rememberedColors,
         LocalWanTypography provides typography
     ) {
         content()
