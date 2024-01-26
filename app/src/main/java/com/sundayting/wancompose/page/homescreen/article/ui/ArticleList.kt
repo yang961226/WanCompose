@@ -95,7 +95,15 @@ object ArticleList : HomeScreen.HomeScreenPage {
         val authorOrSharedUser: AuthorOrSharedUser,
         val link: String = "",
         val isCollect: Boolean = false,
+        val tabs: List<Tab> = emptyList(),
     ) {
+
+        //{"name":"本站发布","url":"/article/list/0?cid=440"}
+        @Serializable
+        data class Tab(
+            val name: String,
+            val url: String,
+        )
 
         @Serializable
         data class Chapter(
