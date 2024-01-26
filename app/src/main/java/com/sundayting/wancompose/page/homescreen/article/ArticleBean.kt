@@ -18,6 +18,8 @@ data class ArticleBean(
     val ownerId: Long = VISITOR_ID,
     val id: Long,
     val title: String,
+    val envelopePic: String,
+    val desc: String,
     val niceDate: String,
     val fresh: Boolean,
     val shareUser: String,
@@ -40,7 +42,7 @@ data class ArticleListBean(
 
 fun ArticleBean.toArticleUiBean(): ArticleList.ArticleUiBean {
     return ArticleList.ArticleUiBean(
-        title = HtmlCompat.fromHtml(this.title, HtmlCompat.FROM_HTML_MODE_COMPACT).toString(),
+        title = HtmlCompat.fromHtml(title, HtmlCompat.FROM_HTML_MODE_COMPACT).toString(),
         date = niceDate,
         isStick = isStick,
         isNew = fresh,
@@ -55,7 +57,9 @@ fun ArticleBean.toArticleUiBean(): ArticleList.ArticleUiBean {
         id = id,
         link = link,
         isCollect = collect,
-        tags = tags
+        tags = tags,
+        desc = HtmlCompat.fromHtml(desc, HtmlCompat.FROM_HTML_MODE_COMPACT).toString(),
+        envelopePic = envelopePic
     )
 }
 

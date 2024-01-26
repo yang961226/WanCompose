@@ -72,7 +72,7 @@ class MyCollectArticleResultBean(
 
 fun MyCollectArticleBean.toArticleUiBean(): ArticleList.ArticleUiBean {
     return ArticleList.ArticleUiBean(
-        title = HtmlCompat.fromHtml(this.title, FROM_HTML_MODE_COMPACT).toString(),
+        title = HtmlCompat.fromHtml(title, FROM_HTML_MODE_COMPACT).toString(),
         date = niceDate,
         id = originId,
         chapter = ArticleList.ArticleUiBean.Chapter(
@@ -81,7 +81,10 @@ fun MyCollectArticleBean.toArticleUiBean(): ArticleList.ArticleUiBean {
         ),
         authorOrSharedUser = ArticleList.ArticleUiBean.AuthorOrSharedUser(author = author),
         link = link,
-        isCollect = true
+        isCollect = true,
+        tags = emptyList(),
+        envelopePic = envelopePic,
+        desc = HtmlCompat.fromHtml(desc, FROM_HTML_MODE_COMPACT).toString()
     )
 }
 

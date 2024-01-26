@@ -147,6 +147,7 @@ object WebViewScreen : WanComposeDestination {
                 chapter = ArticleList.ArticleUiBean.Chapter("", ""),
                 authorOrSharedUser = ArticleList.ArticleUiBean.AuthorOrSharedUser(),
                 link = bannerUiBean.linkUrl,
+                desc = ""
             )
         )
     }

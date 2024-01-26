@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -44,6 +45,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.layout.ContentScale
@@ -89,6 +91,8 @@ object ArticleList : HomeScreen.HomeScreenPage {
     @Serializable
     data class ArticleUiBean(
         val title: String,
+        val envelopePic: String? = null,
+        val desc: String,
         val date: String,
         val id: Long,
         val isStick: Boolean = false,
@@ -292,7 +296,7 @@ private fun ArticleListContent(
         LazyColumn(
             Modifier
                 .fillMaxSize()
-                .background(WanTheme.colors.level1BackgroundColor),
+                .background(WanTheme.colors.level2BackgroundColor),
             state = lazyListState
         ) {
             item(key = "Banner") {
@@ -350,6 +354,9 @@ private fun ArticleListContent(
                                     .Builder(LocalContext.current)
                                     .diskCachePolicy(CachePolicy.ENABLED)
                                     .crossfade(true)
+                                    .placeholder(R.drawable.ic_loading_pic)
+                                    .error(R.drawable.ic_loading_pic)
+                                    .fallback(R.drawable.ic_loading_pic)
                                     .data(banner.imgUrl)
                                     .build(),
                                 contentDescription = null,
@@ -426,7 +433,7 @@ fun ArticleListSingleBean(
         val (
             topStartContent,
             topEndContent,
-            titleContent,
+            titleAndDescContent,
             bottomStartContent,
             bottomEndContent,
         ) = createRefs()
@@ -481,20 +488,58 @@ fun ArticleListSingleBean(
                 color = WanTheme.colors.level2TextColor
             )
         )
-        Text(
-            modifier = Modifier
-                .constrainAs(titleContent) {
+        Row(
+            Modifier
+                .constrainAs(titleAndDescContent) {
                     top.linkTo(topStartContent.bottom)
                     start.linkTo(parent.start)
                 }
-                .padding(vertical = 10.dp),
-            text = bean.title,
-            style = WanTheme.typography.h7.copy(
-                color = WanTheme.colors.level1TextColor
-            )
-        )
+                .padding(vertical = 10.dp)
+        ) {
+
+            Row {
+                if (!bean.envelopePic.isNullOrEmpty()) {
+                    AsyncImage(
+                        model = bean.envelopePic,
+                        contentDescription = null,
+                        modifier = Modifier
+                            .padding(end = 10.dp)
+                            .size(150.dp, 100.dp)
+                            .clip(RoundedCornerShape(10.dp)),
+                        placeholder = painterResource(id = R.drawable.ic_loading_pic),
+                        error = painterResource(id = R.drawable.ic_loading_pic),
+                        fallback = painterResource(id = R.drawable.ic_loading_pic),
+                        contentScale = ContentScale.Crop
+                    )
+                }
+                Column {
+                    Text(
+                        text = bean.title,
+                        style = WanTheme.typography.h7.copy(
+                            color = WanTheme.colors.level1TextColor
+                        ),
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                    if (bean.desc.isNotEmpty()) {
+                        Spacer(Modifier.height(5.dp))
+                        Text(
+                            text = bean.desc,
+                            style = WanTheme.typography.h8.copy(
+                                color = WanTheme.colors.level3TextColor
+                            ),
+                            maxLines = 3,
+                            overflow = TextOverflow.Ellipsis
+                        )
+                    }
+                }
+            }
+
+
+        }
+
         Row(Modifier.constrainAs(bottomStartContent) {
-            top.linkTo(titleContent.bottom)
+            top.linkTo(titleAndDescContent.bottom)
             start.linkTo(parent.start)
             bottom.linkTo(parent.bottom)
         }, verticalAlignment = Alignment.CenterVertically) {
@@ -575,7 +620,8 @@ private fun PreviewArticleListContent2() {
                                 author = "小茗同学",
                             ),
                             id = it,
-                            isCollect = (it % 2) == 0L
+                            isCollect = (it % 2) == 0L,
+                            desc = "我是描述我是描述我是描述我是描述我是描述我是描述我是描述我是描述我是描述我是描述我是描述我是描述我是描述我是描述我是描述我是描述我是描述我是描述我是描述我是描述我是描述我是描述我是描述我是描述"
                         )
                     }
                 )
@@ -595,6 +641,7 @@ private fun PreviewArticleListContent3() {
                 ArticleListViewModel.ArticleState(
                     (0L..100L).map {
                         ArticleList.ArticleUiBean(
+                            envelopePic = if ((it % 2).toInt() == 0) " " else null,
                             title = "我是标题我是标题我是标题我是标题我是标题我是标题",
                             date = "1小时之前",
                             isNew = true,
@@ -608,6 +655,7 @@ private fun PreviewArticleListContent3() {
                             ),
                             id = it,
                             isCollect = (it % 2) == 0L,
+                            desc = "我是描述我是描述我是描述我是描述我是描述我是描述我是描述我是描述我是描述我是描述我是描述我是描述我是描述我是描述我是描述我是描述我是描述我是描述我是描述我是描述我是描述我是描述我是描述我是描述我是描述我是描述我是描述我是描述我是描述我是描述我是描述我是描述",
                             tags = listOf(
                                 ArticleList.ArticleUiBean.Tag(
                                     name = "哈哈哈",

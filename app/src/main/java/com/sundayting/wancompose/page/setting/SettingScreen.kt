@@ -61,11 +61,11 @@ object SettingScreen : WanComposeDestination {
     private fun Divider() {
         Box(
             Modifier
-                .background(WanTheme.colors.level2BackgroundColor)
+                .background(WanTheme.colors.level3BackgroundColor)
                 .padding(start = 15.dp)
                 .fillMaxWidth()
-                .height(0.5.dp)
-                .background(WanTheme.colors.level3BackgroundColor)
+                .height(1.dp)
+                .background(WanTheme.colors.level4BackgroundColor)
         )
     }
 
@@ -124,7 +124,7 @@ object SettingScreen : WanComposeDestination {
             Column(
                 modifier = Modifier
                     .matchParentSize()
-                    .background(WanTheme.colors.level1BackgroundColor)
+                    .background(WanTheme.colors.level2BackgroundColor)
                     .verticalScroll(rememberScrollState()),
             ) {
                 SettingSpacer()
@@ -185,7 +185,7 @@ object SettingScreen : WanComposeDestination {
 
         Row(
             modifier
-                .background(WanTheme.colors.level2BackgroundColor)
+                .background(WanTheme.colors.level3BackgroundColor)
                 .clickable(
                     enabled = true,
                     interactionSource = remember { MutableInteractionSource() },
@@ -225,7 +225,7 @@ object SettingScreen : WanComposeDestination {
 
         Row(
             modifier
-                .background(WanTheme.colors.level2BackgroundColor)
+                .background(WanTheme.colors.level3BackgroundColor)
                 .padding(15.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {

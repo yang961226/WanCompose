@@ -113,7 +113,7 @@ class MainActivity : AppCompatActivity() {
                                 darkIcons = !isDarkMode
                             )
                             uiController.setNavigationBarColor(
-                                color = if (isDarkMode) Color.Black else Color.White,
+                                color = if (isDarkMode) Color(0xFF303030) else Color(0xFFE8E8E8),
                                 darkIcons = !isDarkMode,
                             )
                         }

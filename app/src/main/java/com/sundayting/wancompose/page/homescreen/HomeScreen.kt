@@ -100,7 +100,7 @@ object HomeScreen : WanComposeDestination {
         BottomNavigation(
             modifier = Modifier
                 .height(50.dp),
-            backgroundColor = WanTheme.colors.level2BackgroundColor,
+            backgroundColor = WanTheme.colors.level3BackgroundColor,
             elevation = 16.dp
         ) {
             pageList.forEach { bottomItem ->

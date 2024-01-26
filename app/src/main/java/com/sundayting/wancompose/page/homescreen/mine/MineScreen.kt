@@ -73,7 +73,7 @@ object MineScreen : HomeScreen.HomeScreenPage {
         Column(
             modifier
                 .verticalScroll(scrollState)
-                .background(WanTheme.colors.level1BackgroundColor)
+                .background(WanTheme.colors.level2BackgroundColor)
         ) {
             ConstraintLayout(
                 Modifier

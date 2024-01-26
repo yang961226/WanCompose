@@ -113,7 +113,7 @@ object ExampleWidget : HomeScreen.HomeScreenPage {
             LazyVerticalStaggeredGrid(
                 modifier = Modifier
                     .fillMaxSize()
-                    .background(WanTheme.colors.level1BackgroundColor)
+                    .background(WanTheme.colors.level2BackgroundColor)
                     .padding(horizontal = 20.dp),
                 columns = StaggeredGridCells.Fixed(2),
                 horizontalArrangement = Arrangement.spacedBy(10.dp),
