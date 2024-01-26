@@ -1,6 +1,7 @@
 package com.sundayting.wancompose.page.aboutme
 
 import android.content.Intent
+import android.graphics.Picture
 import android.net.Uri
 import androidx.annotation.DrawableRes
 import androidx.compose.foundation.Image
@@ -25,6 +26,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Text
+import androidx.compose.material.ripple.rememberRipple
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.remember
@@ -32,9 +34,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.blur
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.drawWithCache
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.graphics.drawscope.draw
+import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
+import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -42,6 +48,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.sundayting.wancompose.R
@@ -70,6 +77,7 @@ object AboutMe : WanComposeDestination {
     fun Screen(
         modifier: Modifier = Modifier,
         navController: NavController = rememberNavController(),
+        aboutMeViewModel: AboutMeViewModel = hiltViewModel(),
     ) {
 
         WanTheme {
@@ -103,7 +111,8 @@ object AboutMe : WanComposeDestination {
                         Box(
                             Modifier
                                 .matchParentSize()
-                                .background(Color.Black.copy(0.3f)))
+                                .background(Color.Black.copy(0.3f))
+                        )
                     }
                     val pagerState = rememberPagerState { 2 }
                     VerticalPager(
@@ -116,12 +125,18 @@ object AboutMe : WanComposeDestination {
                         when (page) {
                             0 -> AboutMePage(Modifier.fillMaxSize())
 
-                            else -> SponsorPage(Modifier.fillMaxSize())
+                            else -> SponsorPage(
+                                Modifier.fillMaxSize(),
+                                onClickAlipay = {
+                                    aboutMeViewModel.saveAlipayPic(it)
+                                },
+                                onClickWeChat = {
+                                    aboutMeViewModel.saveWeChatPic(it)
+                                }
+                            )
                         }
                     }
                 }
-
-
             }
         }
 
@@ -282,7 +297,12 @@ object AboutMe : WanComposeDestination {
     @Composable
     fun SponsorPage(
         modifier: Modifier = Modifier,
+        onClickAlipay: (Picture) -> Unit = {},
+        onClickWeChat: (Picture) -> Unit = {},
     ) {
+
+        val pictureAlipay = remember { Picture() }
+        val pictureWeChat = remember { Picture() }
 
         Column(
             modifier
@@ -295,7 +315,30 @@ object AboutMe : WanComposeDestination {
                 painter = painterResource(id = R.drawable.ic_alipay_receive_money),
                 contentDescription = null,
                 modifier = Modifier
-                    .fillMaxWidth(),
+                    .fillMaxWidth()
+                    .drawWithCache {
+                        val width = this.size.width.toInt()
+                        val height = this.size.height.toInt()
+                        onDrawWithContent {
+                            val pictureCanvas =
+                                androidx.compose.ui.graphics.Canvas(
+                                    pictureAlipay.beginRecording(
+                                        width,
+                                        height
+                                    )
+                                )
+                            draw(this, this.layoutDirection, pictureCanvas, this.size) {
+                                this@onDrawWithContent.drawContent()
+                            }
+                            pictureAlipay.endRecording()
+
+                            drawIntoCanvas { canvas -> canvas.nativeCanvas.drawPicture(pictureAlipay) }
+                        }
+                    }
+                    .clickable(
+                        interactionSource = remember { MutableInteractionSource() },
+                        indication = rememberRipple()
+                    ) { onClickAlipay(pictureAlipay) },
                 contentScale = ContentScale.FillWidth
             )
 
@@ -314,7 +357,30 @@ object AboutMe : WanComposeDestination {
                 painter = painterResource(id = R.drawable.ic_wechat_receive_money),
                 contentDescription = null,
                 modifier = Modifier
-                    .fillMaxWidth(),
+                    .fillMaxWidth()
+                    .drawWithCache {
+                        val width = this.size.width.toInt()
+                        val height = this.size.height.toInt()
+                        onDrawWithContent {
+                            val pictureCanvas =
+                                androidx.compose.ui.graphics.Canvas(
+                                    pictureWeChat.beginRecording(
+                                        width,
+                                        height
+                                    )
+                                )
+                            draw(this, this.layoutDirection, pictureCanvas, this.size) {
+                                this@onDrawWithContent.drawContent()
+                            }
+                            pictureWeChat.endRecording()
+
+                            drawIntoCanvas { canvas -> canvas.nativeCanvas.drawPicture(pictureWeChat) }
+                        }
+                    }
+                    .clickable(
+                        interactionSource = remember { MutableInteractionSource() },
+                        indication = rememberRipple()
+                    ) { onClickWeChat(pictureWeChat) },
                 contentScale = ContentScale.FillWidth
             )
         }
@@ -338,7 +404,8 @@ fun PreviewAboutMePage() {
             Box(
                 Modifier
                     .matchParentSize()
-                    .background(Color.Black.copy(0.3f)))
+                    .background(Color.Black.copy(0.3f))
+            )
         }
 
         AboutMePage(
