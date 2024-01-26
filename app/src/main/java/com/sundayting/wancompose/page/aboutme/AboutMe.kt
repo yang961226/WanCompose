@@ -153,7 +153,7 @@ object AboutMe : WanComposeDestination {
                 Text(
                     text = stringResource(id = R.string.my_name),
                     style = WanTheme.typography.h5.copy(
-                        color = Color.White
+                        color = WanTheme.colors.level1TextColor
                     )
                 )
 
@@ -162,7 +162,7 @@ object AboutMe : WanComposeDestination {
                 Text(
                     text = stringResource(id = R.string.my_slogan),
                     style = WanTheme.typography.h7.copy(
-                        color = Color.White
+                        color = WanTheme.colors.level1TextColor
                     )
                 )
 
@@ -207,7 +207,7 @@ object AboutMe : WanComposeDestination {
                 Text(
                     text = stringResource(id = R.string.aboue_me_next_page_tips),
                     style = WanTheme.typography.h7.copy(
-                        color = Color.White.copy(0.8f)
+                        color = WanTheme.colors.level2TextColor
                     ),
                     textAlign = TextAlign.Center
                 )
@@ -246,7 +246,7 @@ object AboutMe : WanComposeDestination {
                 painter = painterResource(id = iconResId),
                 contentDescription = null,
                 modifier = Modifier.size(20.dp),
-                colorFilter = ColorFilter.tint(Color.White)
+                colorFilter = ColorFilter.tint(WanTheme.colors.level1TextColor)
             )
 
             Spacer(Modifier.width(10.dp))
@@ -254,7 +254,7 @@ object AboutMe : WanComposeDestination {
             Text(
                 text = title,
                 style = WanTheme.typography.h7.copy(
-                    color = Color.White
+                    color = WanTheme.colors.level1TextColor
                 )
             )
 
@@ -267,7 +267,7 @@ object AboutMe : WanComposeDestination {
             Text(
                 text = data,
                 style = WanTheme.typography.h8.copy(
-                    color = Color.White.copy(0.8f)
+                    color = WanTheme.colors.level2TextColor
                 ),
                 modifier = Modifier.clickable(
                     interactionSource = remember { MutableInteractionSource() },
@@ -299,13 +299,16 @@ object AboutMe : WanComposeDestination {
                 contentScale = ContentScale.FillWidth
             )
 
-            Text(
-                text = stringResource(id = R.string.click_to_save_pic),
-                style = WanTheme.typography.h7.copy(
-                    color = WanTheme.colors.level3TextColor
-                ),
-                modifier = Modifier.padding(vertical = 20.dp)
-            )
+            AlwaysDarkModeArea {
+                Text(
+                    text = stringResource(id = R.string.click_to_save_pic),
+                    style = WanTheme.typography.h7.copy(
+                        color = WanTheme.colors.level2TextColor
+                    ),
+                    modifier = Modifier.padding(vertical = 20.dp)
+                )
+            }
+
 
             Image(
                 painter = painterResource(id = R.drawable.ic_wechat_receive_money),

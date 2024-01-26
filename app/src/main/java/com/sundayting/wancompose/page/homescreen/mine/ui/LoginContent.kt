@@ -65,7 +65,6 @@ import androidx.compose.ui.unit.dp
 import com.sundayting.wancompose.R
 import com.sundayting.wancompose.WanViewModel
 import com.sundayting.wancompose.common.helper.LocalDarkMode
-import com.sundayting.wancompose.theme.AlwaysDarkModeArea
 import com.sundayting.wancompose.theme.ReverseDarkModeArea
 import com.sundayting.wancompose.theme.WanTheme
 import kotlinx.coroutines.launch
@@ -140,21 +139,19 @@ fun LoginContent(
                     }
                     .size(120.dp)
             )
-            AlwaysDarkModeArea {
-                Text(
-                    text = stringResource(id = R.string.login_title_1),
-                    style = WanTheme.typography.h7.copy(
-                        color = Color.White
-                    ),
-                    modifier = Modifier.padding(bottom = 5.dp)
-                )
-                Text(
-                    text = stringResource(id = R.string.login_title_2),
-                    style = WanTheme.typography.h8.copy(
-                        color = Color.White.copy(0.7f)
-                    ),
-                )
-            }
+            Text(
+                text = stringResource(id = R.string.login_title_1),
+                style = WanTheme.typography.h7.copy(
+                    color = Color.White
+                ),
+                modifier = Modifier.padding(bottom = 5.dp)
+            )
+            Text(
+                text = stringResource(id = R.string.login_title_2),
+                style = WanTheme.typography.h8.copy(
+                    color = Color.White.copy(0.7f)
+                ),
+            )
 
 
             val scope = rememberCoroutineScope()

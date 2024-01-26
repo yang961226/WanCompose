@@ -14,8 +14,6 @@ fun WanTheme(
 ) {
 
     val rememberedColors = remember {
-        // Explicitly creating a new object here so we don't mutate the initial [colors]
-        // provided, and overwrite the values set in it.
         colors.copy()
     }.apply { updateColorsFrom(colors) }
 
@@ -35,7 +33,9 @@ fun AlwaysLightModeArea(
     CompositionLocalProvider(
         LocalDarkMode provides false,
     ) {
-        content()
+        WanTheme {
+            content()
+        }
     }
 }
 
@@ -46,7 +46,9 @@ fun AlwaysDarkModeArea(
     CompositionLocalProvider(
         LocalDarkMode provides true,
     ) {
-        content()
+        WanTheme {
+            content()
+        }
     }
 }
 
@@ -57,7 +59,9 @@ fun ReverseDarkModeArea(
     CompositionLocalProvider(
         LocalDarkMode provides !LocalDarkMode.current,
     ) {
-        content()
+        WanTheme {
+            content()
+        }
     }
 }
 

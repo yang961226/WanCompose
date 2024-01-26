@@ -54,7 +54,6 @@ import com.sundayting.wancompose.page.homescreen.HomeScreen
 import com.sundayting.wancompose.page.homescreen.mine.point.PointScreen.navigateToPointScreen
 import com.sundayting.wancompose.page.homescreen.mine.share.MyCollectedArticle.navigateToMyCollectedScreen
 import com.sundayting.wancompose.page.setting.SettingScreen.navigateToSettingScreen
-import com.sundayting.wancompose.theme.AlwaysLightModeArea
 import com.sundayting.wancompose.theme.WanTheme
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.drop
@@ -232,16 +231,14 @@ private fun MineScreenSingleLine(
             .padding(15.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        AlwaysLightModeArea {
-            Image(
-                painter = painterResource(id = resId),
-                contentDescription = null,
-                modifier = Modifier
-                    .padding(end = 10.dp)
-                    .size(20.dp),
-                colorFilter = ColorFilter.tint(WanTheme.colors.primaryColor)
-            )
-        }
+        Image(
+            painter = painterResource(id = resId),
+            contentDescription = null,
+            modifier = Modifier
+                .padding(end = 10.dp)
+                .size(20.dp),
+            colorFilter = ColorFilter.tint(WanTheme.colors.primaryColor)
+        )
         Text(
             text = title,
             style = WanTheme.typography.h7.copy(
