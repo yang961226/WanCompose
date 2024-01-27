@@ -7,10 +7,7 @@ import androidx.compose.foundation.gestures.DraggableAnchors
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.anchoredDraggable
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.IntrinsicSize
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.Text
@@ -28,7 +25,11 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
+import androidx.constraintlayout.compose.ConstraintLayout
+import androidx.constraintlayout.compose.Dimension
 import com.sundayting.wancompose.R
+import com.sundayting.wancompose.page.homescreen.article.ui.ArticleList
+import com.sundayting.wancompose.page.homescreen.article.ui.ArticleListSingleBean
 import com.sundayting.wancompose.theme.AlwaysLightModeArea
 import com.sundayting.wancompose.theme.WanTheme
 import kotlin.math.roundToInt
@@ -67,15 +68,17 @@ fun ScrollToDelete(
         state.updateAnchors(anchors)
     }
 
-    Box(
-        modifier
-            .height(IntrinsicSize.Min)
-            .anchoredDraggable(state, Orientation.Horizontal),
-        contentAlignment = Alignment.TopEnd
+    ConstraintLayout(
+        modifier.anchoredDraggable(state, Orientation.Horizontal),
     ) {
         Box(
             Modifier
-                .fillMaxHeight()
+                .constrainAs(createRef()) {
+                    top.linkTo(parent.top)
+                    bottom.linkTo(parent.bottom)
+                    height = Dimension.fillToConstraints
+                    end.linkTo(parent.end)
+                }
                 .background(WanTheme.colors.primaryColor)
                 .onSizeChanged { deleteAreaWidth = it.width },
             contentAlignment = Alignment.Center
@@ -93,6 +96,13 @@ fun ScrollToDelete(
 
         Box(
             Modifier
+                .constrainAs(createRef()) {
+                    top.linkTo(parent.top)
+                    bottom.linkTo(parent.bottom)
+                    start.linkTo(parent.start)
+                    end.linkTo(parent.end)
+                    width = Dimension.fillToConstraints
+                }
                 .offset {
                     IntOffset(
                         x = state
@@ -101,6 +111,7 @@ fun ScrollToDelete(
                         y = 0
                     )
                 }
+                .background(Color.Blue)
         ) {
             content()
         }
@@ -114,16 +125,34 @@ enum class DragValue { IDLE, SHOW }
 @Composable
 @Preview(showBackground = true)
 private fun PreviewScrollToDelete() {
-    ScrollToDelete(
-        Modifier
-            .fillMaxWidth()
-            .padding(10.dp)
-    ) {
-        Box(
-            Modifier
-                .fillMaxWidth()
-                .height(50.dp)
-                .background(Color.Red)
+    ScrollToDelete(Modifier.fillMaxWidth()) {
+        ArticleListSingleBean(
+            modifier = Modifier.fillMaxWidth(),
+            bean = remember {
+                ArticleList.ArticleUiBean(
+                    envelopePic = null,
+                    title = "我是标题我",
+                    date = "1小时之前",
+                    isNew = true,
+                    isStick = true,
+                    chapter = ArticleList.ArticleUiBean.Chapter(
+                        superChapterName = "广场Tab",
+                        chapterName = "自助"
+                    ),
+                    authorOrSharedUser = ArticleList.ArticleUiBean.AuthorOrSharedUser(
+                        author = "小茗同学",
+                    ),
+                    id = 50,
+                    isCollect = true,
+                    desc = "我是描述我是",
+                    tags = listOf(
+                        ArticleList.ArticleUiBean.Tag(
+                            name = "哈哈哈",
+                            url = "134"
+                        )
+                    )
+                )
+            },
         )
     }
 }

@@ -34,6 +34,7 @@ import com.sundayting.wancompose.R
 import com.sundayting.wancompose.WanComposeDestination
 import com.sundayting.wancompose.common.ui.dialog.NormalConfirmDialog
 import com.sundayting.wancompose.common.ui.ktx.onBottomReached
+import com.sundayting.wancompose.common.ui.scrolldelete.ScrollToDelete
 import com.sundayting.wancompose.common.ui.title.TitleBarWithBackButtonContent
 import com.sundayting.wancompose.common.ui.title.TitleBarWithContent
 import com.sundayting.wancompose.page.homescreen.article.ui.ArticleList
@@ -147,25 +148,28 @@ object MyShareScreen : WanComposeDestination {
                     items(state.articleList, key = { it.id }) {
                         Column(
                             Modifier
-                                .background(WanTheme.colors.level2BackgroundColor)
                                 .fillMaxWidth()
                                 .animateItemPlacement()
+
                         ) {
-                            ArticleListSingleBean(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .clickable(
-                                        interactionSource = remember { MutableInteractionSource() },
-                                        indication = rememberRipple()
-                                    ) {
-                                        onClickArticle(it)
+                            ScrollToDelete(Modifier.fillMaxWidth()) {
+                                ArticleListSingleBean(
+                                    modifier = Modifier
+                                        .background(WanTheme.colors.level2BackgroundColor)
+                                        .clickable(
+                                            interactionSource = remember { MutableInteractionSource() },
+                                            indication = rememberRipple()
+                                        ) {
+                                            onClickArticle(it)
+                                        }
+                                        .padding(10.dp)
+                                        .fillMaxWidth(),
+                                    bean = it,
+                                    onCollect = {
+                                        onCollectOrUnCollect(it, !it.isCollect)
                                     }
-                                    .padding(10.dp),
-                                bean = it,
-                                onCollect = {
-                                    onCollectOrUnCollect(it, !it.isCollect)
-                                }
-                            )
+                                )
+                            }
                             Divider(
                                 Modifier.fillMaxWidth(),
                                 color = WanTheme.colors.level4BackgroundColor
