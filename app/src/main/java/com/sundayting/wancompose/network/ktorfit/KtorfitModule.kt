@@ -27,6 +27,7 @@ import io.ktor.client.plugins.logging.Logging
 import io.ktor.client.statement.HttpResponse
 import io.ktor.serialization.kotlinx.json.json
 import kotlinx.serialization.json.Json
+import java.util.concurrent.CancellationException
 import javax.inject.Singleton
 
 @InstallIn(SingletonComponent::class)
@@ -61,10 +62,20 @@ object KtorfitModule {
                     return object : Converter.SuspendResponseConverter<HttpResponse, Any> {
 
                         override suspend fun convert(result: KtorfitResult): Any {
+
+                            fun Throwable.needSkip(): Boolean {
+                                return when (this) {
+                                    is CancellationException -> true
+                                    else -> false
+                                }
+                            }
+
                             return try {
                                 super.convert(result)
                             } catch (ex: Throwable) {
-                                eventManager.emitToast("发生未知异常:[${ex::class.simpleName}]，请联系开发者")
+                                if (!ex.needSkip()) {
+                                    eventManager.emitToast("发生未知异常:[${ex::class.simpleName}]，请联系开发者")
+                                }
                                 NResult.Error(ex)
                             }
                         }
