@@ -24,10 +24,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import com.sundayting.wancompose.R
 import com.sundayting.wancompose.theme.WanTheme
@@ -35,7 +34,7 @@ import com.sundayting.wancompose.theme.WanTheme
 val ConfirmDialogTextStyle
     @Composable
     @ReadOnlyComposable
-    get() = WanTheme.typography.h6.copy(
+    get() = WanTheme.typography.h7.copy(
         color = WanTheme.colors.level1TextColor
     )
 
@@ -100,7 +99,7 @@ fun ConfirmDialogContent(
                 Text(
                     text = stringResource(id = R.string.dialog_cancel),
                     style = WanTheme.typography.h7.copy(
-                        color = WanTheme.colors.level1TextColor.copy(0.6f)
+                        color = WanTheme.colors.level2TextColor
                     )
                 )
             }
@@ -121,9 +120,9 @@ fun ConfirmDialogContent(
             ) {
                 Text(
                     text = stringResource(id = R.string.dialog_confirm),
-                    style = TextStyle(
-                        fontSize = 15.sp,
-                        color = WanTheme.colors.primaryColor
+                    style = WanTheme.typography.h7.copy(
+                        color = WanTheme.colors.level1TextColor,
+                        fontWeight = FontWeight.SemiBold
                     )
                 )
             }

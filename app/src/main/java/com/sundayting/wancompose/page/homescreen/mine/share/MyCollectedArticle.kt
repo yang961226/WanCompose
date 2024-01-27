@@ -25,17 +25,15 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.sundayting.wancompose.R
 import com.sundayting.wancompose.WanComposeDestination
 import com.sundayting.wancompose.common.ui.dialog.ConfirmDialog
+import com.sundayting.wancompose.common.ui.dialog.ConfirmDialogTextStyle
 import com.sundayting.wancompose.common.ui.ktx.onBottomReached
 import com.sundayting.wancompose.common.ui.title.TitleBarWithBackButtonContent
 import com.sundayting.wancompose.common.ui.title.TitleBarWithContent
@@ -99,8 +97,9 @@ object MyCollectedArticle : WanComposeDestination {
                         id = R.string.article_uncollect_confirm,
                         article.title
                     ),
-                    style = TextStyle(fontSize = 16.sp, color = Color.Black),
-                    textAlign = TextAlign.Center
+                    style = ConfirmDialogTextStyle,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.padding(horizontal = 10.dp)
                 )
             }
         }
@@ -144,6 +143,7 @@ object MyCollectedArticle : WanComposeDestination {
                         items(state.articleList, key = { it.id }) {
                             Column(
                                 Modifier
+                                    .background(WanTheme.colors.level2BackgroundColor)
                                     .fillMaxWidth()
                                     .animateItemPlacement()
                             ) {
