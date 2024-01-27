@@ -51,4 +51,5 @@
     <string name="title_blog">个人博客</string>
     <string name="aboue_me_next_page_tips">哟~\nApp做的不错呀\n请你喝咖啡\n\n上滑</string>
     <string name="click_to_save_pic">点击保存相册</string>
+    <string name="delete">删除</string>
 </resources>
