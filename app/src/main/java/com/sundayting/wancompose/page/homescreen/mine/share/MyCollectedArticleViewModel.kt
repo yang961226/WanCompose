@@ -72,8 +72,13 @@ class MyCollectedArticleViewModel @Inject constructor(
         }
     }
 
+    private var collectJob: Job? = null
+
     fun unCollectArticle(bean: ArticleList.ArticleUiBean) {
-        viewModelScope.launch {
+        if (collectJob?.isActive == true) {
+            return
+        }
+        collectJob = viewModelScope.launch {
             if (articleRepo.unCollectArticle(bean.id).isSuccess()) {
                 eventManager.emitCollectArticleEvent(bean, false)
             }

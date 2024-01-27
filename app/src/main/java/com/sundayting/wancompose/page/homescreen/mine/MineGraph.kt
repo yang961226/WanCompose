@@ -11,6 +11,7 @@ import com.sundayting.wancompose.WanComposeDestination
 import com.sundayting.wancompose.page.aboutme.AboutMe
 import com.sundayting.wancompose.page.homescreen.mine.point.PointScreen
 import com.sundayting.wancompose.page.homescreen.mine.share.MyCollectedArticle
+import com.sundayting.wancompose.page.myshare.MyShareScreen
 import com.sundayting.wancompose.page.webscreen.WebViewScreen.navigateToWebViewScreen
 
 object MineGraph : WanComposeDestination {
@@ -51,6 +52,13 @@ object MineGraph : WanComposeDestination {
                 AboutMe.Screen(
                     Modifier.fillMaxSize(),
                     navController = navController
+                )
+            }
+
+            composable(MyShareScreen.route) {
+                MyShareScreen.Screen(
+                    Modifier.fillMaxSize(),
+                    navController = navController,
                 )
             }
         }

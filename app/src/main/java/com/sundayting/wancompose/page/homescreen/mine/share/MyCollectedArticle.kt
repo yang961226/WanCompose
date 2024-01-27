@@ -26,14 +26,12 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.sundayting.wancompose.R
 import com.sundayting.wancompose.WanComposeDestination
-import com.sundayting.wancompose.common.ui.dialog.ConfirmDialog
-import com.sundayting.wancompose.common.ui.dialog.ConfirmDialogTextStyle
+import com.sundayting.wancompose.common.ui.dialog.NormalConfirmDialog
 import com.sundayting.wancompose.common.ui.ktx.onBottomReached
 import com.sundayting.wancompose.common.ui.title.TitleBarWithBackButtonContent
 import com.sundayting.wancompose.common.ui.title.TitleBarWithContent
@@ -85,23 +83,19 @@ object MyCollectedArticle : WanComposeDestination {
             mutableStateOf<ArticleList.ArticleUiBean?>(null)
         }
         confirmUnCollectArticle?.let { article ->
-            ConfirmDialog(
+            NormalConfirmDialog(
+                mainContent = stringResource(
+                    id = R.string.article_uncollect_confirm,
+                    article.title
+                ),
                 onConfirm = {
                     onUnCollected(article)
                     confirmUnCollectArticle = null
                 },
-                onDismiss = { confirmUnCollectArticle = null }
-            ) {
-                Text(
-                    text = stringResource(
-                        id = R.string.article_uncollect_confirm,
-                        article.title
-                    ),
-                    style = ConfirmDialogTextStyle,
-                    textAlign = TextAlign.Center,
-                    modifier = Modifier.padding(horizontal = 10.dp)
-                )
-            }
+                onDismiss = {
+                    confirmUnCollectArticle = null
+                }
+            )
         }
 
         TitleBarWithContent(

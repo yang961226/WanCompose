@@ -44,15 +44,36 @@ interface ArticleService {
         @Field("title") link: String,
     ): NResult<Any>
 
-    @GET("lg/private_articles/{page}/json")
+    @GET("user/lg/private_articles/{page}/json")
     suspend fun fetchSharedArticle(
         @Path("page") page: Int,
-    ): NResult<Any>
+    ): NResult<MyShareArticleResultBean>
 
 }
 
 @Serializable
-class MyCollectArticleBean(
+data class MyShareArticleResultBean(
+    override val data: MyShareArticleBean?,
+    override val errorCode: Int,
+    override val errorMsg: String,
+) : WanNResult<MyShareArticleBean>()
+
+@Serializable
+data class MyShareArticleBean(
+    val shareArticles: ShareArticles,
+) {
+
+    @Serializable
+    data class ShareArticles(
+        val curPage: Int,
+        val pageCount: Int,
+        val datas: List<ArticleBean>,
+    )
+
+}
+
+@Serializable
+data class MyCollectArticleBean(
     val author: String,
     val chapterId: Int,
     val chapterName: String,
@@ -70,7 +91,7 @@ class MyCollectArticleBean(
 )
 
 @Serializable
-class MyCollectArticleDataBean(
+data class MyCollectArticleDataBean(
     val curPage: Int,
     val pageCount: Int,
     @SerialName("datas")
@@ -78,7 +99,7 @@ class MyCollectArticleDataBean(
 )
 
 @Serializable
-class MyCollectArticleResultBean(
+data class MyCollectArticleResultBean(
     override val data: MyCollectArticleDataBean?,
     override val errorCode: Int,
     override val errorMsg: String,
@@ -104,7 +125,7 @@ fun MyCollectArticleBean.toArticleUiBean(): ArticleList.ArticleUiBean {
 
 
 @Serializable
-class TopArticleResultBean(
+data class TopArticleResultBean(
     override val data: List<ArticleBean>?,
     override val errorCode: Int,
     override val errorMsg: String,
@@ -130,7 +151,7 @@ fun HomePageBannerBean.toBannerUiBean(): ArticleList.BannerUiBean {
 
 
 @Serializable
-class HomePageBannerResultBean(
+data class HomePageBannerResultBean(
     override val data: List<HomePageBannerBean>?,
     override val errorCode: Int,
     override val errorMsg: String,

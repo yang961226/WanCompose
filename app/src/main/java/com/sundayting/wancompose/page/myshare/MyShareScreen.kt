@@ -18,7 +18,11 @@ import androidx.compose.material.Divider
 import androidx.compose.material.Text
 import androidx.compose.material.ripple.rememberRipple
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -28,10 +32,13 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.sundayting.wancompose.R
 import com.sundayting.wancompose.WanComposeDestination
+import com.sundayting.wancompose.common.ui.dialog.NormalConfirmDialog
 import com.sundayting.wancompose.common.ui.ktx.onBottomReached
 import com.sundayting.wancompose.common.ui.title.TitleBarWithBackButtonContent
 import com.sundayting.wancompose.common.ui.title.TitleBarWithContent
+import com.sundayting.wancompose.page.homescreen.article.ui.ArticleList
 import com.sundayting.wancompose.page.homescreen.article.ui.ArticleListSingleBean
+import com.sundayting.wancompose.page.webscreen.WebViewScreen.navigateToWebViewScreen
 import com.sundayting.wancompose.theme.TitleTextStyle
 import com.sundayting.wancompose.theme.WanTheme
 
@@ -39,6 +46,12 @@ object MyShareScreen : WanComposeDestination {
 
     override val route: String
         get() = "我的分享"
+
+    fun NavController.navigateToMyShareScreen() {
+        navigate(route) {
+            launchSingleTop = true
+        }
+    }
 
 
     @Composable
@@ -63,7 +76,18 @@ object MyShareScreen : WanComposeDestination {
             }
         ) {
 
-            Content(state = viewModel.state)
+            Content(
+                state = viewModel.state,
+                onLoadMore = {
+                    viewModel.loadMore()
+                },
+                onClickArticle = {
+                    navController.navigateToWebViewScreen(it)
+                },
+                onCollectOrUnCollect = { bean, tryCollect ->
+                    viewModel.collectOrUnCollect(bean, tryCollect)
+                }
+            )
 
         }
 
@@ -74,15 +98,41 @@ object MyShareScreen : WanComposeDestination {
         modifier: Modifier = Modifier,
         state: MyShareViewModel.MyShareArticleUiState,
         onLoadMore: () -> Unit = {},
+        onClickArticle: (ArticleList.ArticleUiBean) -> Unit = {},
+        onCollectOrUnCollect: (ArticleList.ArticleUiBean, tryCollect: Boolean) -> Unit = { _, _ -> },
     ) {
+
+        var confirmUnCollectArticle by remember {
+            mutableStateOf<ArticleList.ArticleUiBean?>(null)
+        }
+        confirmUnCollectArticle?.let { article ->
+            NormalConfirmDialog(
+                mainContent = stringResource(
+                    id = R.string.article_uncollect_confirm,
+                    article.title
+                ),
+                onConfirm = {
+                    onCollectOrUnCollect(article, false)
+                    confirmUnCollectArticle = null
+                },
+                onDismiss = {
+                    confirmUnCollectArticle = null
+                }
+            )
+        }
 
         val lazyListState = rememberLazyListState()
         lazyListState.onBottomReached {
             onLoadMore()
         }
+
+        val showLoading by remember {
+            derivedStateOf { state.articleList.isEmpty() && state.isLoadingMore }
+        }
+
         Crossfade(
             modifier = modifier.background(WanTheme.colors.level1BackgroundColor),
-            targetState = state.isLoading,
+            targetState = showLoading,
             label = ""
         ) { isLoading ->
             if (isLoading) {
@@ -108,12 +158,12 @@ object MyShareScreen : WanComposeDestination {
                                         interactionSource = remember { MutableInteractionSource() },
                                         indication = rememberRipple()
                                     ) {
-//                                        onClickArticle(it)
+                                        onClickArticle(it)
                                     }
                                     .padding(10.dp),
                                 bean = it,
                                 onCollect = {
-//                                    confirmUnCollectArticle = it
+                                    onCollectOrUnCollect(it, !it.isCollect)
                                 }
                             )
                             Divider(

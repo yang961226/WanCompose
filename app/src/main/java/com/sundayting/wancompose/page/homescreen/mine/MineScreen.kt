@@ -46,13 +46,12 @@ import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.sundayting.wancompose.R
-import com.sundayting.wancompose.common.event.EventManager
-import com.sundayting.wancompose.common.event.emitToast
 import com.sundayting.wancompose.function.UserLoginFunction.UserEntity
 import com.sundayting.wancompose.page.aboutme.AboutMe.navigateToAboutMe
 import com.sundayting.wancompose.page.homescreen.HomeScreen
 import com.sundayting.wancompose.page.homescreen.mine.point.PointScreen.navigateToPointScreen
 import com.sundayting.wancompose.page.homescreen.mine.share.MyCollectedArticle.navigateToMyCollectedScreen
+import com.sundayting.wancompose.page.myshare.MyShareScreen.navigateToMyShareScreen
 import com.sundayting.wancompose.page.setting.SettingScreen.navigateToSettingScreen
 import com.sundayting.wancompose.theme.WanTheme
 import kotlinx.coroutines.flow.collectLatest
@@ -178,7 +177,7 @@ object MineScreen : HomeScreen.HomeScreenPage {
                 title = stringResource(id = R.string.my_share),
                 resId = R.drawable.ic_share,
                 onClick = {
-                    EventManager.getInstance().emitToast("开发中")
+                    navController.navigateToMyShareScreen()
                 }
             )
             MineScreenSingleLine(
