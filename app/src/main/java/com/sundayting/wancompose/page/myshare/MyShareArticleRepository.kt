@@ -1,6 +1,6 @@
-package com.sundayting.wancompose.page.homescreen.mine.share.repo
+package com.sundayting.wancompose.page.myshare
 
-import com.sundayting.wancompose.common.event.ArticleCollectChangeEvent
+import com.sundayting.wancompose.common.event.ArticleSharedChangeEvent
 import com.sundayting.wancompose.common.event.EventManager
 import com.sundayting.wancompose.page.homescreen.article.repo.ArticleService
 import com.sundayting.wancompose.page.homescreen.article.ui.ArticleList
@@ -12,7 +12,7 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-class MyCollectedArticleRepository @Inject constructor(
+class MyShareArticleRepository @Inject constructor(
     private val service: ArticleService,
 ) {
 
@@ -21,26 +21,23 @@ class MyCollectedArticleRepository @Inject constructor(
     var cachedArticleListSuccess = false
     val cachedArticleList = mutableListOf<ArticleList.ArticleUiBean>()
 
+    suspend fun fetchCollectedArticle(
+        title: String,
+        link: String,
+    ) = service.shareArticle(title, link)
+
+    suspend fun fetchSharedArticle(page: Int) = service.fetchSharedArticle(page)
+
     init {
         scope.launch {
-            EventManager.getInstance().eventFlow.filterIsInstance<ArticleCollectChangeEvent>()
+            EventManager.getInstance().eventFlow.filterIsInstance<ArticleSharedChangeEvent>()
                 .collect { event ->
                     if (!cachedArticleListSuccess) {
                         return@collect
                     }
-                    if (event.tryCollect) {
-                        cachedArticleList.add(
-                            event.bean.copy(isCollect = true)
-                        )
-                    } else {
-                        cachedArticleList.removeIf {
-                            it.id == event.bean.id
-                        }
-                    }
+                    cachedArticleList.add(event.bean)
                 }
         }
     }
-
-    suspend fun fetchCollectedArticle(page: Int) = service.fetchCollectedArticle(page)
 
 }

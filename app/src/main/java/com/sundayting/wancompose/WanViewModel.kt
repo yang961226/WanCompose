@@ -8,10 +8,10 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.sundayting.wancompose.common.event.EventManager
 import com.sundayting.wancompose.common.event.emitToast
-import com.sundayting.wancompose.common.helper.DarkModeHelper
 import com.sundayting.wancompose.network.NetExceptionHandler
 import com.sundayting.wancompose.page.homescreen.mine.repo.MineRepository
 import com.sundayting.wancompose.page.homescreen.mine.share.repo.MyCollectedArticleRepository
+import com.sundayting.wancompose.page.myshare.MyShareArticleRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.SharingStarted
@@ -24,14 +24,18 @@ import javax.inject.Inject
 class WanViewModel @Inject constructor(
     private val mineRepository: MineRepository,
     private val myCollectedArticleRepository: MyCollectedArticleRepository,
+    private val myShareArticleRepository: MyShareArticleRepository,
     val eventManager: EventManager,
-    private val darkModeHelper: DarkModeHelper,
 ) : ViewModel() {
 
     val curLoginUserFlow = mineRepository.curUserFlow
         .onEach {
             myCollectedArticleRepository.cachedArticleListSuccess = false
             myCollectedArticleRepository.cachedArticleList.clear()
+
+            myShareArticleRepository.cachedArticleList.clear()
+            myShareArticleRepository.cachedArticleListSuccess = false
+
             if (it != null) {
                 eventManager.emitToast(isLong = true) { context ->
                     context.getString(R.string.welcome_back_tip, it.nick)

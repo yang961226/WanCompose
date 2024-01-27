@@ -99,4 +99,8 @@ class ArticleCollectChangeEvent(
     val tryCollect: Boolean,
 ) : EventManager.Event
 
+class ArticleSharedChangeEvent(
+    val bean: ArticleList.ArticleUiBean,
+) : EventManager.Event
+
 object ShowLoginPageEvent : EventManager.Event

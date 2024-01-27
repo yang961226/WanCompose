@@ -8,6 +8,8 @@ import com.sundayting.wancompose.page.homescreen.article.ArticleBean
 import com.sundayting.wancompose.page.homescreen.article.ArticleResultBean
 import com.sundayting.wancompose.page.homescreen.article.CollectResult
 import com.sundayting.wancompose.page.homescreen.article.ui.ArticleList
+import de.jensklingenberg.ktorfit.http.Field
+import de.jensklingenberg.ktorfit.http.FormUrlEncoded
 import de.jensklingenberg.ktorfit.http.GET
 import de.jensklingenberg.ktorfit.http.POST
 import de.jensklingenberg.ktorfit.http.Path
@@ -34,6 +36,18 @@ interface ArticleService {
 
     @GET("lg/collect/list/{page}/json")
     suspend fun fetchCollectedArticle(@Path("page") page: Int): NResult<MyCollectArticleResultBean>
+
+    @POST("lg/user_article/add/json")
+    @FormUrlEncoded
+    suspend fun shareArticle(
+        @Field("title") title: String,
+        @Field("title") link: String,
+    ): NResult<Any>
+
+    @GET("lg/private_articles/{page}/json")
+    suspend fun fetchSharedArticle(
+        @Path("page") page: Int,
+    ): NResult<Any>
 
 }
 
