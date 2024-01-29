@@ -34,7 +34,7 @@
     <string name="system_setting">系统设置</string>
     <string name="article_collect_success">文章收藏成功，稍后可以在「我的-我的收藏」中查看</string>
     <string name="article_uncollect_success">"已取消文章收藏"</string>
-    <string name="article_uncollect_confirm">是否要取消收藏文章：\n「%s」</string>
+    <string name="article_uncollect_confirm">是否要取消收藏文章：\n「 %s 」</string>
     <string name="i_know">我知道了</string>
     <string name="long_click_for_more_tool">长按返回按钮有更多快捷菜单</string>
     <string name="scan_need_camera_permission">扫二维码需要相机权限</string>
@@ -51,5 +51,7 @@
     <string name="title_blog">个人博客</string>
     <string name="aboue_me_next_page_tips">哟~\nApp做的不错呀\n请你喝咖啡\n\n上滑</string>
     <string name="click_to_save_pic">点击保存相册</string>
+    <string name="delete_tip">是否要你分享的文章：\n「 %s 」</string>
     <string name="delete">删除</string>
+    <string name="delete_success">删除成功</string>
 </resources>

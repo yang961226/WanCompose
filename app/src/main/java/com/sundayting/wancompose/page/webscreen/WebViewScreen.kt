@@ -190,7 +190,10 @@ object WebViewScreen : WanComposeDestination {
                             uri = Uri.parse("https://" + uri.host + uri.path)
                         }
                         if (uri.scheme != "https" && uri.scheme != "http") {
-                            context.startActivity(Intent(Intent.ACTION_VIEW, uri))
+                            val intent = Intent(Intent.ACTION_VIEW, uri)
+                            if (intent.resolveActivity(context.packageManager) != null) {
+                                context.startActivity(intent)
+                            }
                         } else {
                             view.loadUrl(uri.toString())
                         }

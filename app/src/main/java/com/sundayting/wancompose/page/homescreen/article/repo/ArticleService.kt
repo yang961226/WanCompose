@@ -49,7 +49,23 @@ interface ArticleService {
         @Path("page") page: Int,
     ): NResult<MyShareArticleResultBean>
 
+//    https://wanandroid.com/lg/user_article/delete/9475/json
+
+    @POST("lg/user_article/delete/{id}/json")
+    suspend fun deleteSharedArticle(
+        @Path("id") id: Long,
+    ): NResult<DeleteArticleResult>
+
 }
+
+
+@Serializable
+data class DeleteArticleResult(
+    override val data: Unit?,
+    override val errorCode: Int,
+    override val errorMsg: String,
+) : WanNResult<Unit>()
+
 
 @Serializable
 data class MyShareArticleResultBean(

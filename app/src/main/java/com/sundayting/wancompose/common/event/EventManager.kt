@@ -103,4 +103,8 @@ class ArticleSharedChangeEvent(
     val bean: ArticleList.ArticleUiBean,
 ) : EventManager.Event
 
+class ArticleSharedDeleteEvent(
+    val bean: ArticleList.ArticleUiBean,
+) : EventManager.Event
+
 object ShowLoginPageEvent : EventManager.Event

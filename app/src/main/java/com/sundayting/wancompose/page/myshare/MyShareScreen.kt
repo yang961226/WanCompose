@@ -31,7 +31,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -98,6 +97,9 @@ object MyShareScreen : WanComposeDestination {
                 },
                 onCollectOrUnCollect = { bean, tryCollect ->
                     viewModel.collectOrUnCollect(bean, tryCollect)
+                },
+                onDeleteArticle = {
+                    viewModel.deleteSharedArticle(it)
                 }
             )
 
@@ -111,6 +113,7 @@ object MyShareScreen : WanComposeDestination {
         state: MyShareViewModel.MyShareArticleUiState,
         onLoadMore: () -> Unit = {},
         onClickArticle: (ArticleList.ArticleUiBean) -> Unit = {},
+        onDeleteArticle: (ArticleList.ArticleUiBean) -> Unit = {},
         onCollectOrUnCollect: (ArticleList.ArticleUiBean, tryCollect: Boolean) -> Unit = { _, _ -> },
     ) {
 
@@ -118,9 +121,10 @@ object MyShareScreen : WanComposeDestination {
             mutableStateOf<ArticleList.ArticleUiBean?>(null)
         }
         confirmUnCollectArticle?.let { article ->
+
             NormalConfirmDialog(
                 mainContent = stringResource(
-                    id = R.string.article_uncollect_confirm,
+                    id = R.string.delete_tip,
                     article.title
                 ),
                 onConfirm = {
@@ -129,6 +133,26 @@ object MyShareScreen : WanComposeDestination {
                 },
                 onDismiss = {
                     confirmUnCollectArticle = null
+                }
+            )
+        }
+
+        var deleteArticle by remember {
+            mutableStateOf<ArticleList.ArticleUiBean?>(null)
+        }
+
+        deleteArticle?.let { article ->
+            NormalConfirmDialog(
+                mainContent = stringResource(
+                    id = R.string.article_uncollect_confirm,
+                    article.title
+                ),
+                onConfirm = {
+                    onDeleteArticle(article)
+                    deleteArticle = null
+                },
+                onDismiss = {
+                    deleteArticle = null
                 }
             )
         }
@@ -198,12 +222,11 @@ object MyShareScreen : WanComposeDestination {
                                 .fillMaxWidth()
                                 .animateItemPlacement()
                         ) {
-                            Text(
-                                text = anchoredDraggableState.targetValue.toString(),
-                                color = Color.White
-                            )
                             ScrollToDelete(
                                 Modifier.fillMaxWidth(),
+                                onClickDelete = {
+                                    deleteArticle = articleBean
+                                },
                                 state = anchoredDraggableState
                             ) {
                                 ArticleListSingleBean(
@@ -219,7 +242,11 @@ object MyShareScreen : WanComposeDestination {
                                         .fillMaxWidth(),
                                     bean = articleBean,
                                     onCollect = {
-                                        onCollectOrUnCollect(it, !it.isCollect)
+                                        if (it.isCollect) {
+                                            confirmUnCollectArticle = it
+                                        } else {
+                                            onCollectOrUnCollect(it, true)
+                                        }
                                     }
                                 )
                             }

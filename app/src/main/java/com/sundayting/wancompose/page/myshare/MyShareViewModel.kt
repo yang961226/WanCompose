@@ -7,9 +7,12 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.sundayting.wancompose.R
 import com.sundayting.wancompose.common.event.ArticleCollectChangeEvent
+import com.sundayting.wancompose.common.event.ArticleSharedDeleteEvent
 import com.sundayting.wancompose.common.event.EventManager
 import com.sundayting.wancompose.common.event.emitCollectArticleEvent
+import com.sundayting.wancompose.common.event.emitToast
 import com.sundayting.wancompose.network.NetExceptionHandler
 import com.sundayting.wancompose.network.isSuccess
 import com.sundayting.wancompose.network.requireData
@@ -40,8 +43,19 @@ class MyShareViewModel @Inject constructor(
             loadMore()
         }
         viewModelScope.launch {
-            eventManager.eventFlow.filterIsInstance<ArticleCollectChangeEvent>().collect { event ->
-                state.changeArticleCollectState(event.bean.id, event.tryCollect)
+            launch {
+                eventManager.eventFlow.filterIsInstance<ArticleCollectChangeEvent>()
+                    .collect { event ->
+                        state.changeArticleCollectState(event.bean.id, event.tryCollect)
+                    }
+            }
+
+            launch {
+                eventManager.eventFlow.filterIsInstance<ArticleSharedDeleteEvent>()
+                    .collect { event ->
+                        state.removeArticle(event.bean.id)
+                        eventManager.emitToast(R.string.delete_success)
+                    }
             }
         }
     }
@@ -60,6 +74,14 @@ class MyShareViewModel @Inject constructor(
                 }).isSuccess()
             ) {
                 eventManager.emitCollectArticleEvent(bean, tryCollect)
+            }
+        }
+    }
+
+    fun deleteSharedArticle(bean: ArticleList.ArticleUiBean) {
+        viewModelScope.launch {
+            if (repo.deleteSharedArticle(bean.id).isSuccess()) {
+                eventManager.emitEvent(ArticleSharedDeleteEvent(bean))
             }
         }
     }
@@ -99,6 +121,10 @@ class MyShareViewModel @Inject constructor(
 
         fun addArticleList(list: List<ArticleList.ArticleUiBean>) {
             _articleList.addAll(list)
+        }
+
+        fun removeArticle(id: Long) {
+            _articleList.removeIf { it.id == id }
         }
 
         fun changeArticleCollectState(id: Long, isCollect: Boolean) {
