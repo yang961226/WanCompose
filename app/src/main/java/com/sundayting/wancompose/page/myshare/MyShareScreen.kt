@@ -18,10 +18,13 @@ import androidx.compose.material.Divider
 import androidx.compose.material.Text
 import androidx.compose.material.ripple.rememberRipple
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -35,6 +38,7 @@ import com.sundayting.wancompose.WanComposeDestination
 import com.sundayting.wancompose.common.ui.dialog.NormalConfirmDialog
 import com.sundayting.wancompose.common.ui.ktx.onBottomReached
 import com.sundayting.wancompose.common.ui.scrolldelete.ScrollToDelete
+import com.sundayting.wancompose.common.ui.scrolldelete.rememberScrollToDeleteState
 import com.sundayting.wancompose.common.ui.title.TitleBarWithBackButtonContent
 import com.sundayting.wancompose.common.ui.title.TitleBarWithContent
 import com.sundayting.wancompose.page.homescreen.article.ui.ArticleList
@@ -131,6 +135,8 @@ object MyShareScreen : WanComposeDestination {
             derivedStateOf { state.articleList.isEmpty() && state.isLoadingMore }
         }
 
+        val isListScroll = lazyListState.isScrollInProgress
+
         Crossfade(
             modifier = modifier.background(WanTheme.colors.level1BackgroundColor),
             targetState = showLoading,
@@ -144,15 +150,53 @@ object MyShareScreen : WanComposeDestination {
                     )
                 }
             } else {
-                LazyColumn(Modifier.fillMaxSize()) {
-                    items(state.articleList, key = { it.id }) {
+                var isDraggableId by remember {
+                    mutableLongStateOf(0L)
+                }
+                LazyColumn(
+                    Modifier.fillMaxSize(),
+                    state = lazyListState
+                ) {
+                    items(state.articleList, key = { it.id }) { articleBean ->
+                        val anchoredDraggableState = rememberScrollToDeleteState()
+                        val scope = rememberCoroutineScope()
+                        LaunchedEffect(anchoredDraggableState) {
+//                            launch {
+//                                snapshotFlow { isListScroll }.collect {
+//                                    if (it) {
+//                                        scope.launch {
+//                                            anchoredDraggableState.animateTo(DragValue.IDLE)
+//                                        }
+//                                    }
+//                                }
+//                            }
+//                            launch {
+//                                snapshotFlow { anchoredDraggableState.currentValue }.collect {
+//                                    if (it == DragValue.SHOW) {
+//                                        isDraggableId = articleBean.id
+//                                    }
+//                                }
+//                            }
+//                            launch {
+//                                snapshotFlow { isDraggableId }.drop(1).collect {
+//                                    if (it == articleBean.id) {
+//                                        scope.launch {
+//                                            anchoredDraggableState.animateTo(DragValue.IDLE)
+//                                        }
+//                                    }
+//                                }
+//                            }
+
+                        }
                         Column(
                             Modifier
                                 .fillMaxWidth()
                                 .animateItemPlacement()
-
                         ) {
-                            ScrollToDelete(Modifier.fillMaxWidth()) {
+                            ScrollToDelete(
+                                Modifier.fillMaxWidth(),
+                                state = anchoredDraggableState
+                            ) {
                                 ArticleListSingleBean(
                                     modifier = Modifier
                                         .background(WanTheme.colors.level2BackgroundColor)
@@ -160,16 +204,17 @@ object MyShareScreen : WanComposeDestination {
                                             interactionSource = remember { MutableInteractionSource() },
                                             indication = rememberRipple()
                                         ) {
-                                            onClickArticle(it)
+                                            onClickArticle(articleBean)
                                         }
                                         .padding(10.dp)
                                         .fillMaxWidth(),
-                                    bean = it,
+                                    bean = articleBean,
                                     onCollect = {
                                         onCollectOrUnCollect(it, !it.isCollect)
                                     }
                                 )
                             }
+
                             Divider(
                                 Modifier.fillMaxWidth(),
                                 color = WanTheme.colors.level4BackgroundColor
