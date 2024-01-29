@@ -143,7 +143,7 @@ class ApexScrollableTabState(curIndex: Int = 0, init: Int = 0) :
     }
 
 
-    internal val scrollState = ScrollState(init.toInt())
+    internal val scrollState = ScrollState(init)
 
     val currentTabIndex
         get() = currentTabIndexState.intValue
@@ -176,25 +176,24 @@ class ApexScrollableTabState(curIndex: Int = 0, init: Int = 0) :
         if (index == currentTabIndex || curMeasureResult == null) {
             return
         }
-        curMeasureResult.tabPositions.getOrNull(index)?.let {
-            val calculatedOffset =
-                it.calculateTabOffset(
-                    density = curMeasureResult.density,
-                    endPadding = curMeasureResult.horizontalContentPadding.calculateEndPadding(
-                        curMeasureResult.layoutDirection
-                    ),
-                    tabPositions = curMeasureResult.tabPositions
-                )
-            currentTabIndexState.intValue = index
-            if (scrollState.value != calculatedOffset) {
-                animateScrollToIndex = index
-                scrollState.animateScrollTo(
-                    calculatedOffset,
-                    animationSpec = animationSpec
-                )
-            }
-            animateScrollToIndex = -1
+        val tabPosition = curMeasureResult.tabPositions.getOrNull(index) ?: return
+        val calculatedOffset =
+            tabPosition.calculateTabOffset(
+                density = curMeasureResult.density,
+                endPadding = curMeasureResult.horizontalContentPadding.calculateEndPadding(
+                    curMeasureResult.layoutDirection
+                ),
+                tabPositions = curMeasureResult.tabPositions
+            )
+        currentTabIndexState.intValue = index
+        if (scrollState.value != calculatedOffset) {
+            animateScrollToIndex = index
+            scrollState.animateScrollTo(
+                calculatedOffset,
+                animationSpec = animationSpec
+            )
         }
+        animateScrollToIndex = -1
     }
 
     override fun dispatchRawDelta(delta: Float): Float = scrollState.dispatchRawDelta(delta)
@@ -263,8 +262,8 @@ fun ApexScrollableTabRow(
         }
         val height = tabPlaceables.maxByOrNull { it.height }?.height ?: 0
 
-        var left = 0
         layout(totalWidth, height) {
+            var left = 0
             val tabPositions = mutableListOf<ApexTabPosition>()
             tabPlaceables.forEachIndexed { index, placeable ->
                 left += if (index != 0) {
