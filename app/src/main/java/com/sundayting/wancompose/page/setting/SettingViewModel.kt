@@ -5,7 +5,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.sundayting.wancompose.network.NetExceptionHandler
 import com.sundayting.wancompose.network.isSuccess
 import com.sundayting.wancompose.page.homescreen.mine.repo.MineRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -21,7 +20,7 @@ class SettingViewModel @Inject constructor(
         private set
 
     fun logout() {
-        viewModelScope.launch(NetExceptionHandler) {
+        viewModelScope.launch {
             isLoading = true
             val result = mineRepository.logout()
             if (result.isSuccess()) {

@@ -10,7 +10,6 @@ import androidx.lifecycle.viewModelScope
 import com.sundayting.wancompose.common.event.ArticleCollectChangeEvent
 import com.sundayting.wancompose.common.event.EventManager
 import com.sundayting.wancompose.common.event.emitCollectArticleEvent
-import com.sundayting.wancompose.network.NetExceptionHandler
 import com.sundayting.wancompose.network.isSuccess
 import com.sundayting.wancompose.network.requireData
 import com.sundayting.wancompose.page.homescreen.article.repo.ArticleRepository
@@ -90,7 +89,7 @@ class MyCollectedArticleViewModel @Inject constructor(
         if (loadJob?.isActive == true || !state.canLoadMore || repo.cachedArticleListSuccess) {
             return
         }
-        loadJob = viewModelScope.launch(NetExceptionHandler) {
+        loadJob = viewModelScope.launch {
             state.isLoadingMore = true
             val result = repo.fetchCollectedArticle(page)
             if (result.isSuccess()) {

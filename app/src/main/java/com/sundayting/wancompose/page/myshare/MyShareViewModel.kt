@@ -11,9 +11,9 @@ import com.sundayting.wancompose.R
 import com.sundayting.wancompose.common.event.ArticleCollectChangeEvent
 import com.sundayting.wancompose.common.event.ArticleSharedDeleteEvent
 import com.sundayting.wancompose.common.event.EventManager
+import com.sundayting.wancompose.common.event.ShareArticleSuccess
 import com.sundayting.wancompose.common.event.emitCollectArticleEvent
 import com.sundayting.wancompose.common.event.emitToast
-import com.sundayting.wancompose.network.NetExceptionHandler
 import com.sundayting.wancompose.network.isSuccess
 import com.sundayting.wancompose.network.requireData
 import com.sundayting.wancompose.page.homescreen.article.repo.ArticleRepository
@@ -27,7 +27,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class MyShareViewModel @Inject constructor(
-    private val repo: MyShareArticleRepository,
+    private val repo: ShareArticleRepository,
     private val articleRepo: ArticleRepository,
     private val eventManager: EventManager,
 ) : ViewModel() {
@@ -43,6 +43,11 @@ class MyShareViewModel @Inject constructor(
             loadMore()
         }
         viewModelScope.launch {
+            launch {
+                eventManager.eventFlow.filterIsInstance<ShareArticleSuccess>().collect {
+                    refresh()
+                }
+            }
             launch {
                 eventManager.eventFlow.filterIsInstance<ArticleCollectChangeEvent>()
                     .collect { event ->
@@ -79,18 +84,27 @@ class MyShareViewModel @Inject constructor(
     }
 
     fun deleteSharedArticle(bean: ArticleList.ArticleUiBean) {
+        state.isDeleting = true
         viewModelScope.launch {
             if (repo.deleteSharedArticle(bean.id).isSuccess()) {
                 eventManager.emitEvent(ArticleSharedDeleteEvent(bean))
             }
-        }
+        }.invokeOnCompletion { state.isDeleting = false }
+    }
+
+    private fun refresh() {
+        loadJob?.cancel()
+        state.canLoadMore = true
+        state.clearArticle()
+        page = 1
+        loadMore()
     }
 
     fun loadMore() {
         if (loadJob?.isActive == true || !state.canLoadMore || repo.cachedArticleListSuccess) {
             return
         }
-        loadJob = viewModelScope.launch(NetExceptionHandler) {
+        loadJob = viewModelScope.launch {
             state.isLoadingMore = true
             val result = repo.fetchSharedArticle(page)
             if (result.isSuccess()) {
@@ -111,6 +125,8 @@ class MyShareViewModel @Inject constructor(
     @Stable
     class MyShareArticleUiState(list: List<ArticleList.ArticleUiBean> = listOf()) {
 
+        var isDeleting by mutableStateOf(false)
+
         var isLoadingMore by mutableStateOf(false)
         var canLoadMore by mutableStateOf(true)
 
@@ -121,6 +137,10 @@ class MyShareViewModel @Inject constructor(
 
         fun addArticleList(list: List<ArticleList.ArticleUiBean>) {
             _articleList.addAll(list)
+        }
+
+        fun clearArticle() {
+            _articleList.clear()
         }
 
         fun removeArticle(id: Long) {

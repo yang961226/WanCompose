@@ -1,6 +1,9 @@
 package com.sundayting.wancompose.page.myshare
 
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.Crossfade
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -43,6 +46,7 @@ import com.sundayting.wancompose.R
 import com.sundayting.wancompose.WanComposeDestination
 import com.sundayting.wancompose.common.ui.dialog.NormalConfirmDialog
 import com.sundayting.wancompose.common.ui.ktx.onBottomReached
+import com.sundayting.wancompose.common.ui.loading.LoadingIndicator
 import com.sundayting.wancompose.common.ui.scrolldelete.DragValue
 import com.sundayting.wancompose.common.ui.scrolldelete.ScrollToDelete
 import com.sundayting.wancompose.common.ui.scrolldelete.rememberScrollToDeleteState
@@ -201,94 +205,106 @@ object MyShareScreen : WanComposeDestination {
                 }
             } else {
                 var isDraggableId by rememberSaveable { mutableLongStateOf(0L) }
-                LazyColumn(
-                    Modifier.fillMaxSize(),
-                    state = lazyListState
-                ) {
-                    items(state.articleList, key = { it.id }) { articleBean ->
-                        val anchoredDraggableState = rememberScrollToDeleteState()
-                        val scope = rememberCoroutineScope()
-                        LaunchedEffect(anchoredDraggableState) {
-                            launch {
-                                snapshotFlow { isListScroll }.collect {
-                                    if (it) {
-                                        scope.launch {
-                                            anchoredDraggableState.animateTo(DragValue.IDLE)
+                Box(Modifier.fillMaxSize()) {
+                    LazyColumn(
+                        Modifier.fillMaxSize(),
+                        state = lazyListState
+                    ) {
+                        items(state.articleList, key = { it.id }) { articleBean ->
+                            val anchoredDraggableState = rememberScrollToDeleteState()
+                            val scope = rememberCoroutineScope()
+                            LaunchedEffect(anchoredDraggableState) {
+                                launch {
+                                    snapshotFlow { isListScroll }.collect {
+                                        if (it) {
+                                            scope.launch {
+                                                anchoredDraggableState.animateTo(DragValue.IDLE)
+                                            }
                                         }
                                     }
                                 }
-                            }
-                            launch {
-                                snapshotFlow { anchoredDraggableState.targetValue }.collect {
-                                    if (it == DragValue.SHOW) {
-                                        isDraggableId = articleBean.id
-                                    }
-                                }
-                            }
-                            launch {
-                                snapshotFlow { isDraggableId }.drop(1).collect {
-                                    if (it != articleBean.id) {
-                                        scope.launch {
-                                            anchoredDraggableState.animateTo(DragValue.IDLE)
+                                launch {
+                                    snapshotFlow { anchoredDraggableState.targetValue }.collect {
+                                        if (it == DragValue.SHOW) {
+                                            isDraggableId = articleBean.id
                                         }
                                     }
                                 }
-                            }
+                                launch {
+                                    snapshotFlow { isDraggableId }.drop(1).collect {
+                                        if (it != articleBean.id) {
+                                            scope.launch {
+                                                anchoredDraggableState.animateTo(DragValue.IDLE)
+                                            }
+                                        }
+                                    }
+                                }
 
-                        }
-                        Column(
-                            Modifier
-                                .fillMaxWidth()
-                                .animateItemPlacement()
-                        ) {
-                            ScrollToDelete(
-                                Modifier.fillMaxWidth(),
-                                onClickDelete = {
-                                    deleteArticle = articleBean
-                                },
-                                state = anchoredDraggableState
-                            ) {
-                                ArticleListSingleBean(
-                                    modifier = Modifier
-                                        .background(WanTheme.colors.level2BackgroundColor)
-                                        .clickable(
-                                            interactionSource = remember { MutableInteractionSource() },
-                                            indication = rememberRipple()
-                                        ) {
-                                            onClickArticle(articleBean)
-                                        }
-                                        .padding(10.dp)
-                                        .fillMaxWidth(),
-                                    bean = articleBean,
-                                    onCollect = {
-                                        if (it.isCollect) {
-                                            confirmUnCollectArticle = it
-                                        } else {
-                                            onCollectOrUnCollect(it, true)
-                                        }
-                                    }
-                                )
                             }
-
-                            Divider(
-                                Modifier.fillMaxWidth(),
-                                color = WanTheme.colors.level4BackgroundColor
-                            )
-                        }
-                    }
-                    if (state.isLoadingMore) {
-                        item {
-                            Box(
+                            Column(
                                 Modifier
                                     .fillMaxWidth()
-                                    .padding(vertical = 10.dp),
-                                contentAlignment = Alignment.Center
+                                    .animateItemPlacement()
                             ) {
-                                CircularProgressIndicator(
-                                    color = WanTheme.colors.primaryColor
+                                ScrollToDelete(
+                                    Modifier.fillMaxWidth(),
+                                    onClickDelete = {
+                                        deleteArticle = articleBean
+                                    },
+                                    state = anchoredDraggableState
+                                ) {
+                                    ArticleListSingleBean(
+                                        modifier = Modifier
+                                            .background(WanTheme.colors.level2BackgroundColor)
+                                            .clickable(
+                                                interactionSource = remember { MutableInteractionSource() },
+                                                indication = rememberRipple()
+                                            ) {
+                                                onClickArticle(articleBean)
+                                            }
+                                            .padding(10.dp)
+                                            .fillMaxWidth(),
+                                        bean = articleBean,
+                                        onCollect = {
+                                            if (it.isCollect) {
+                                                confirmUnCollectArticle = it
+                                            } else {
+                                                onCollectOrUnCollect(it, true)
+                                            }
+                                        }
+                                    )
+                                }
+
+                                Divider(
+                                    Modifier.fillMaxWidth(),
+                                    color = WanTheme.colors.level4BackgroundColor
                                 )
                             }
                         }
+                        if (state.isLoadingMore) {
+                            item {
+                                Box(
+                                    Modifier
+                                        .fillMaxWidth()
+                                        .padding(vertical = 10.dp),
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    CircularProgressIndicator(
+                                        color = WanTheme.colors.primaryColor
+                                    )
+                                }
+                            }
+                        }
+                    }
+                    AnimatedVisibility(
+                        modifier = Modifier.align(Alignment.Center),
+                        visible = state.isDeleting,
+                        enter = fadeIn(),
+                        exit = fadeOut()
+                    ) {
+                        LoadingIndicator(
+                            Modifier.size(30.dp)
+                        )
                     }
                 }
             }

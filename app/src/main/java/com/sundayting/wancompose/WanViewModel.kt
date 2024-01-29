@@ -8,10 +8,9 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.sundayting.wancompose.common.event.EventManager
 import com.sundayting.wancompose.common.event.emitToast
-import com.sundayting.wancompose.network.NetExceptionHandler
 import com.sundayting.wancompose.page.homescreen.mine.repo.MineRepository
 import com.sundayting.wancompose.page.homescreen.mine.share.repo.MyCollectedArticleRepository
-import com.sundayting.wancompose.page.myshare.MyShareArticleRepository
+import com.sundayting.wancompose.page.myshare.ShareArticleRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.SharingStarted
@@ -24,7 +23,7 @@ import javax.inject.Inject
 class WanViewModel @Inject constructor(
     private val mineRepository: MineRepository,
     private val myCollectedArticleRepository: MyCollectedArticleRepository,
-    private val myShareArticleRepository: MyShareArticleRepository,
+    private val shareArticleRepository: ShareArticleRepository,
     val eventManager: EventManager,
 ) : ViewModel() {
 
@@ -33,8 +32,8 @@ class WanViewModel @Inject constructor(
             myCollectedArticleRepository.cachedArticleListSuccess = false
             myCollectedArticleRepository.cachedArticleList.clear()
 
-            myShareArticleRepository.cachedArticleList.clear()
-            myShareArticleRepository.cachedArticleListSuccess = false
+            shareArticleRepository.cachedArticleList.clear()
+            shareArticleRepository.cachedArticleListSuccess = false
 
             if (it != null) {
                 eventManager.emitToast(isLong = true) { context ->
@@ -62,7 +61,7 @@ class WanViewModel @Inject constructor(
 
     fun login(username: String, password: String) {
         loginOrRegisterJog?.cancel()
-        loginOrRegisterJog = viewModelScope.launch(NetExceptionHandler) {
+        loginOrRegisterJog = viewModelScope.launch {
             loginOrRegisterState.isLoading = true
             mineRepository.loginAndAutoInsertData(username, password)
         }.apply {
@@ -74,7 +73,7 @@ class WanViewModel @Inject constructor(
 
     fun register(username: String, password: String, passwordAgain: String) {
         loginOrRegisterJog?.cancel()
-        loginOrRegisterJog = viewModelScope.launch(NetExceptionHandler) {
+        loginOrRegisterJog = viewModelScope.launch {
             loginOrRegisterState.isLoading = true
             mineRepository.register(username, password, passwordAgain)
         }.apply {

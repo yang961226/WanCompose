@@ -46,7 +46,7 @@
 
     <string name="about_me">关于作者</string>
     <string name="my_name">晴天小庭</string>
-    <string name="my_slogan">这个人很懒，什么都没有留下</string>
+    <string name="my_slogan">我想拥抱全人类，因为我的双臂像地球一样伟大</string>
     <string name="title_juejin">掘金</string>
     <string name="title_blog">个人博客</string>
     <string name="aboue_me_next_page_tips">哟~\nApp做的不错呀\n请你喝咖啡\n\n上滑</string>
@@ -64,4 +64,5 @@
     <string name="share_tips">
         1.只要是任何好文都可以分享，并不一定要是原创！投递的文章会进入广场tab\n2.CSDN、掘金、简书等官方博客站点会直接通过不需要审核\n3.其他个人站点会进入审核阶段，不要投递任何无效链接，否则可能会对你的账号产生一定影响\n4.如果你发现错误，可以提交日志，让我们一起使网站变得更好\n5.由于本站为个人开发与维护，会尽力保证24小时内审核，当然有可能哪天太累会延期，请保持佛系
     </string>
+    <string name="wrong_http">错误的文章地址，请检查！</string>
 </resources>

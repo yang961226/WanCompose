@@ -15,7 +15,7 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-class MyShareArticleRepository @Inject constructor(
+class ShareArticleRepository @Inject constructor(
     private val service: ArticleService,
     private val eventManager: EventManager,
 ) {

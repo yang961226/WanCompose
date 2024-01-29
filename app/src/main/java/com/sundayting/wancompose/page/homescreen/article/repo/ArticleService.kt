@@ -41,8 +41,8 @@ interface ArticleService {
     @FormUrlEncoded
     suspend fun shareArticle(
         @Field("title") title: String,
-        @Field("title") link: String,
-    ): NResult<Any>
+        @Field("link") link: String,
+    ): NResult<ShareArticleResult>
 
     @GET("user/lg/private_articles/{page}/json")
     suspend fun fetchSharedArticle(
@@ -58,6 +58,12 @@ interface ArticleService {
 
 }
 
+@Serializable
+data class ShareArticleResult(
+    override val data: Unit?,
+    override val errorCode: Int,
+    override val errorMsg: String,
+) : WanNResult<Unit>()
 
 @Serializable
 data class DeleteArticleResult(

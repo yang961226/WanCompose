@@ -108,3 +108,5 @@ class ArticleSharedDeleteEvent(
 ) : EventManager.Event
 
 object ShowLoginPageEvent : EventManager.Event
+
+object ShareArticleSuccess : EventManager.Event

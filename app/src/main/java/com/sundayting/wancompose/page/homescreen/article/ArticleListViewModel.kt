@@ -12,7 +12,6 @@ import com.sundayting.wancompose.common.event.EventManager
 import com.sundayting.wancompose.common.event.ShowLoginPageEvent
 import com.sundayting.wancompose.common.event.emitCollectArticleEvent
 import com.sundayting.wancompose.function.UserLoginFunction.VISITOR_ID
-import com.sundayting.wancompose.network.NetExceptionHandler
 import com.sundayting.wancompose.network.isSuccess
 import com.sundayting.wancompose.network.requireData
 import com.sundayting.wancompose.page.homescreen.article.repo.ArticleRepository
@@ -135,7 +134,7 @@ class ArticleListViewModel @Inject constructor(
         } else {
             state.loadingMore = true
         }
-        loadJob = viewModelScope.launch(NetExceptionHandler) {
+        loadJob = viewModelScope.launch {
             joinAll(
                 launch {
                     if (isRefresh) {

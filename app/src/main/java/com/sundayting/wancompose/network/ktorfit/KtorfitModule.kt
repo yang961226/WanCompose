@@ -58,6 +58,7 @@ object KtorfitModule {
                 typeData: TypeData,
                 ktorfit: Ktorfit,
             ): Converter.SuspendResponseConverter<HttpResponse, *>? {
+
                 if (typeData.typeInfo.type == NResult::class) {
                     return object : Converter.SuspendResponseConverter<HttpResponse, Any> {
 
@@ -72,11 +73,13 @@ object KtorfitModule {
 
                             return try {
                                 super.convert(result)
-                            } catch (ex: Throwable) {
-                                if (!ex.needSkip()) {
-                                    eventManager.emitToast("发生未知异常:[${ex::class.simpleName}]，请联系开发者")
+                            } catch (throwable: Throwable) {
+                                if (throwable is WanError) {
+                                    EventManager.getInstance().emitToast(throwable.errorMsg)
+                                } else if (!throwable.needSkip()) {
+                                    EventManager.getInstance().emitToast("网络异常，请检查网络")
                                 }
-                                NResult.Error(ex)
+                                NResult.Error(throwable)
                             }
                         }
 
