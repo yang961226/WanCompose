@@ -52,4 +52,17 @@ class VibratorHelper @Inject constructor(
         }
     }
 
+    fun headVibrate() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            vibrator.vibrate(
+                VibrationEffect.createWaveform(
+                    longArrayOf(0, 30, 100, 15, 100, 7),
+                    -1
+                )
+            )
+        } else {
+            vibrator.vibrate(10)
+        }
+    }
+
 }

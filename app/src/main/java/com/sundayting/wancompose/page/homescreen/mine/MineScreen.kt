@@ -46,6 +46,7 @@ import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.sundayting.wancompose.R
+import com.sundayting.wancompose.common.helper.LocalVibratorHelper
 import com.sundayting.wancompose.function.UserLoginFunction.UserEntity
 import com.sundayting.wancompose.page.aboutme.AboutMe.navigateToAboutMe
 import com.sundayting.wancompose.page.homescreen.HomeScreen
@@ -99,6 +100,8 @@ object MineScreen : HomeScreen.HomeScreenPage {
                     }
                 }
 
+                val vibratorHelper = LocalVibratorHelper.current
+
                 Image(
                     modifier = Modifier
                         .size(100.dp)
@@ -115,6 +118,7 @@ object MineScreen : HomeScreen.HomeScreenPage {
                             indication = null
                         ) {
                             sizeTag = sizeTag.not()
+                            vibratorHelper.headVibrate()
                         },
                     painter = painterResource(id = R.drawable.ic_login_icon),
                     contentDescription = null
