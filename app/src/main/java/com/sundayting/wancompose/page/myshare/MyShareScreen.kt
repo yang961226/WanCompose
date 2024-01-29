@@ -3,6 +3,7 @@ package com.sundayting.wancompose.page.myshare
 import androidx.compose.animation.Crossfade
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.animateTo
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -25,9 +26,12 @@ import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -37,6 +41,7 @@ import com.sundayting.wancompose.R
 import com.sundayting.wancompose.WanComposeDestination
 import com.sundayting.wancompose.common.ui.dialog.NormalConfirmDialog
 import com.sundayting.wancompose.common.ui.ktx.onBottomReached
+import com.sundayting.wancompose.common.ui.scrolldelete.DragValue
 import com.sundayting.wancompose.common.ui.scrolldelete.ScrollToDelete
 import com.sundayting.wancompose.common.ui.scrolldelete.rememberScrollToDeleteState
 import com.sundayting.wancompose.common.ui.title.TitleBarWithBackButtonContent
@@ -46,6 +51,8 @@ import com.sundayting.wancompose.page.homescreen.article.ui.ArticleListSingleBea
 import com.sundayting.wancompose.page.webscreen.WebViewScreen.navigateToWebViewScreen
 import com.sundayting.wancompose.theme.TitleTextStyle
 import com.sundayting.wancompose.theme.WanTheme
+import kotlinx.coroutines.flow.drop
+import kotlinx.coroutines.launch
 
 object MyShareScreen : WanComposeDestination {
 
@@ -150,9 +157,7 @@ object MyShareScreen : WanComposeDestination {
                     )
                 }
             } else {
-                var isDraggableId by remember {
-                    mutableLongStateOf(0L)
-                }
+                var isDraggableId by rememberSaveable { mutableLongStateOf(0L) }
                 LazyColumn(
                     Modifier.fillMaxSize(),
                     state = lazyListState
@@ -161,31 +166,31 @@ object MyShareScreen : WanComposeDestination {
                         val anchoredDraggableState = rememberScrollToDeleteState()
                         val scope = rememberCoroutineScope()
                         LaunchedEffect(anchoredDraggableState) {
-//                            launch {
-//                                snapshotFlow { isListScroll }.collect {
-//                                    if (it) {
-//                                        scope.launch {
-//                                            anchoredDraggableState.animateTo(DragValue.IDLE)
-//                                        }
-//                                    }
-//                                }
-//                            }
-//                            launch {
-//                                snapshotFlow { anchoredDraggableState.currentValue }.collect {
-//                                    if (it == DragValue.SHOW) {
-//                                        isDraggableId = articleBean.id
-//                                    }
-//                                }
-//                            }
-//                            launch {
-//                                snapshotFlow { isDraggableId }.drop(1).collect {
-//                                    if (it == articleBean.id) {
-//                                        scope.launch {
-//                                            anchoredDraggableState.animateTo(DragValue.IDLE)
-//                                        }
-//                                    }
-//                                }
-//                            }
+                            launch {
+                                snapshotFlow { isListScroll }.collect {
+                                    if (it) {
+                                        scope.launch {
+                                            anchoredDraggableState.animateTo(DragValue.IDLE)
+                                        }
+                                    }
+                                }
+                            }
+                            launch {
+                                snapshotFlow { anchoredDraggableState.targetValue }.collect {
+                                    if (it == DragValue.SHOW) {
+                                        isDraggableId = articleBean.id
+                                    }
+                                }
+                            }
+                            launch {
+                                snapshotFlow { isDraggableId }.drop(1).collect {
+                                    if (it != articleBean.id) {
+                                        scope.launch {
+                                            anchoredDraggableState.animateTo(DragValue.IDLE)
+                                        }
+                                    }
+                                }
+                            }
 
                         }
                         Column(
@@ -193,6 +198,10 @@ object MyShareScreen : WanComposeDestination {
                                 .fillMaxWidth()
                                 .animateItemPlacement()
                         ) {
+                            Text(
+                                text = anchoredDraggableState.targetValue.toString(),
+                                color = Color.White
+                            )
                             ScrollToDelete(
                                 Modifier.fillMaxWidth(),
                                 state = anchoredDraggableState
