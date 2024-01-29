@@ -54,4 +54,14 @@
     <string name="delete_tip">是否要你分享的文章：\n「 %s 」</string>
     <string name="delete">删除</string>
     <string name="delete_success">删除成功</string>
+    <string name="buy_he_coffee">请他喝咖啡</string>
+    <string name="share_article">分享文章</string>
+    <string name="share_title_hint">100字以内</string>
+    <string name="share_link_hint">如：https://https://juejin.cn/post/xxxxxx</string>
+    <string name="article_title">文章标题</string>
+    <string name="article_link">文章链接</string>
+    <string name="share">分享</string>
+    <string name="share_tips">
+        1.只要是任何好文都可以分享，并不一定要是原创！投递的文章会进入广场tab\n2.CSDN、掘金、简书等官方博客站点会直接通过不需要审核\n3.其他个人站点会进入审核阶段，不要投递任何无效链接，否则可能会对你的账号产生一定影响\n4.如果你发现错误，可以提交日志，让我们一起使网站变得更好\n5.由于本站为个人开发与维护，会尽力保证24小时内审核，当然有可能哪天太累会延期，请保持佛系
+    </string>
 </resources>

@@ -206,8 +206,8 @@ object ArticleList : HomeScreen.HomeScreenPage {
     }
 }
 
-private val NewColor = Color(0xFF789bc5)
-private val StickColor = Color(0xFFeab38d)
+val NewColor = Color(0xFF789bc5)
+val StickColor = Color(0xFFeab38d)
 
 @Composable
 private fun ArticleListContent(

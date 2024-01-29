@@ -86,8 +86,8 @@ import com.sundayting.wancompose.common.helper.PermissionCheckHelper
 import com.sundayting.wancompose.theme.WanTheme
 
 object ScanScreen : WanComposeDestination {
-    override val route: String
-        get() = "扫描页面"
+
+    override val route: String = "扫描页面"
 
 
     @Composable

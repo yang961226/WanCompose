@@ -49,8 +49,8 @@ import com.sundayting.wancompose.theme.TitleTextStyle
 import com.sundayting.wancompose.theme.WanTheme
 
 object SettingScreen : WanComposeDestination {
-    override val route: String
-        get() = "设置页"
+
+    override val route: String = "设置页"
 
     @Composable
     private fun SettingSpacer() {

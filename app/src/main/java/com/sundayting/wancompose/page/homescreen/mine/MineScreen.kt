@@ -24,6 +24,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Text
 import androidx.compose.material.ripple.rememberRipple
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -36,6 +37,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
@@ -47,9 +49,11 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.sundayting.wancompose.R
 import com.sundayting.wancompose.common.helper.LocalVibratorHelper
+import com.sundayting.wancompose.common.helper.VibratorHelper
 import com.sundayting.wancompose.function.UserLoginFunction.UserEntity
 import com.sundayting.wancompose.page.aboutme.AboutMe.navigateToAboutMe
 import com.sundayting.wancompose.page.homescreen.HomeScreen
+import com.sundayting.wancompose.page.homescreen.article.ui.StickColor
 import com.sundayting.wancompose.page.homescreen.mine.point.PointScreen.navigateToPointScreen
 import com.sundayting.wancompose.page.homescreen.mine.share.MyCollectedArticle.navigateToMyCollectedScreen
 import com.sundayting.wancompose.page.myshare.MyShareScreen.navigateToMyShareScreen
@@ -194,6 +198,15 @@ object MineScreen : HomeScreen.HomeScreenPage {
             MineScreenSingleLine(
                 title = stringResource(id = R.string.about_me),
                 resId = R.drawable.ic_about,
+                endContent = {
+                    Text(
+                        modifier = Modifier.padding(end = 10.dp),
+                        text = stringResource(id = R.string.buy_he_coffee),
+                        style = WanTheme.typography.h8.copy(
+                            color = StickColor
+                        )
+                    )
+                },
                 onClick = {
                     navController.navigateToAboutMe()
                 }
@@ -269,16 +282,24 @@ private fun MineScreenSingleLine(
 @Composable
 @Preview
 private fun PreviewMineScreen() {
-    MineScreen.Screen(
-        modifier = Modifier.fillMaxSize(),
-        remember {
-            UserEntity(
-                id = 1104,
-                nick = "我是名字",
-                coinCount = 0,
-                level = 0,
-                rank = 1000
-            )
+    val context = LocalContext.current
+    CompositionLocalProvider(
+        LocalVibratorHelper provides remember {
+            VibratorHelper(context)
         }
-    )
+    ) {
+        MineScreen.Screen(
+            modifier = Modifier.fillMaxSize(),
+            remember {
+                UserEntity(
+                    id = 1104,
+                    nick = "我是名字",
+                    coinCount = 0,
+                    level = 0,
+                    rank = 1000
+                )
+            }
+        )
+    }
+
 }

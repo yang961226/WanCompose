@@ -1,6 +1,7 @@
 package com.sundayting.wancompose.page.myshare
 
 import androidx.compose.animation.Crossfade
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.animateTo
@@ -31,6 +32,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -47,6 +50,7 @@ import com.sundayting.wancompose.common.ui.title.TitleBarWithBackButtonContent
 import com.sundayting.wancompose.common.ui.title.TitleBarWithContent
 import com.sundayting.wancompose.page.homescreen.article.ui.ArticleList
 import com.sundayting.wancompose.page.homescreen.article.ui.ArticleListSingleBean
+import com.sundayting.wancompose.page.share.ShareScreen.navigateToShareScreen
 import com.sundayting.wancompose.page.webscreen.WebViewScreen.navigateToWebViewScreen
 import com.sundayting.wancompose.theme.TitleTextStyle
 import com.sundayting.wancompose.theme.WanTheme
@@ -55,8 +59,7 @@ import kotlinx.coroutines.launch
 
 object MyShareScreen : WanComposeDestination {
 
-    override val route: String
-        get() = "我的分享"
+    override val route: String = "我的分享"
 
     fun NavController.navigateToMyShareScreen() {
         navigate(route) {
@@ -82,6 +85,22 @@ object MyShareScreen : WanComposeDestination {
                         stringResource(id = R.string.my_share),
                         style = TitleTextStyle,
                         modifier = Modifier.align(Alignment.Center)
+                    )
+
+                    Image(
+                        painterResource(id = R.drawable.ic_add),
+                        contentDescription = null,
+                        colorFilter = ColorFilter.tint(WanTheme.colors.level1TextColor),
+                        modifier = Modifier
+                            .align(Alignment.CenterEnd)
+                            .padding(end = 25.dp)
+                            .size(25.dp)
+                            .clickable(
+                                interactionSource = remember { MutableInteractionSource() },
+                                indication = null
+                            ) {
+                                navController.navigateToShareScreen()
+                            }
                     )
                 }
             }
