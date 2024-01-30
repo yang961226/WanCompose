@@ -50,6 +50,7 @@ import com.sundayting.wancompose.page.homescreen.article.ui.ArticleList
 import com.sundayting.wancompose.page.homescreen.mine.MineGraph
 import com.sundayting.wancompose.page.homescreen.mine.MineScreen
 import com.sundayting.wancompose.page.scan.ScanScreen
+import com.sundayting.wancompose.page.search.SearchScreen
 import com.sundayting.wancompose.theme.WanTheme
 
 object HomeScreen : WanComposeDestination {
@@ -272,6 +273,13 @@ object HomeScreen : WanComposeDestination {
                     TabRowScreen.Screen(Modifier.fillMaxSize(), onClickBackButton = {
                         navController.popBackStack()
                     })
+                }
+
+                composable(SearchScreen.route) {
+                    SearchScreen.Screen(
+                        modifier = Modifier.fillMaxSize(),
+                        navController = navController
+                    )
                 }
             }
 

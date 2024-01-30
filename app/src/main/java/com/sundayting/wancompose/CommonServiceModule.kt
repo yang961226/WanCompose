@@ -3,6 +3,7 @@ package com.sundayting.wancompose
 import com.sundayting.wancompose.page.homescreen.article.repo.ArticleService
 import com.sundayting.wancompose.page.homescreen.mine.point.repo.PointService
 import com.sundayting.wancompose.page.homescreen.mine.repo.UserService
+import com.sundayting.wancompose.page.search.SearchService
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -31,6 +32,13 @@ object CommonModule {
     fun providePointService(
         ktorfit: Ktorfit,
     ): PointService {
+        return ktorfit.create()
+    }
+
+    @Provides
+    fun provideSearchService(
+        ktorfit: Ktorfit,
+    ): SearchService {
         return ktorfit.create()
     }
 

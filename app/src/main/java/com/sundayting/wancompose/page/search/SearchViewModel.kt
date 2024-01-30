@@ -1,0 +1,158 @@
+package com.sundayting.wancompose.page.search
+
+import androidx.annotation.IntDef
+import androidx.compose.runtime.Stable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import androidx.room.Entity
+import com.sundayting.wancompose.network.isSuccess
+import com.sundayting.wancompose.network.requireData
+import com.sundayting.wancompose.page.homescreen.mine.repo.MineRepository
+import com.sundayting.wancompose.page.search.SearchViewModel.SearchItemType.Companion.TYPE_HISTORY
+import com.sundayting.wancompose.page.search.SearchViewModel.SearchItemType.Companion.TYPE_HOT
+import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
+import javax.inject.Inject
+
+
+@HiltViewModel
+class SearchViewModel @Inject constructor(
+    private val repo: SearchRepository,
+    private val mineRepository: MineRepository,
+) : ViewModel() {
+
+    val uiState = SearchUiState()
+
+    init {
+        viewModelScope.launch(SupervisorJob()) {
+            launch {
+                mineRepository.curUidFlow.flatMapLatest {
+                    repo.getUserSearchHistoryListFlow(it)
+                }.collect {
+                    uiState.historySearchList.clear()
+                    uiState.historySearchList.addAll(it.map { item -> item.text })
+                }
+            }
+            launch {
+                mineRepository.curUidFlow.flatMapLatest {
+                    repo.getSearchHotListFlow()
+                }.collect {
+                    uiState.hotSearchList.clear()
+                    uiState.hotSearchList.addAll(it.map { item -> item.text })
+                }
+            }
+            launch {
+                val result = repo.fetchHotSearch()
+                if (result.isSuccess()) {
+                    addSearchItem(
+                        result.body.requireData().map { it.name },
+                        TYPE_HOT
+                    )
+                }
+            }
+        }
+    }
+
+    private val mutex = Mutex()
+
+    fun onSearchInputChanged(input: String) {
+        uiState.searchInputString = input
+    }
+
+    fun onSearch(input: String? = null) {
+        if (input != null) {
+            uiState.searchInputString = input
+        }
+        if (uiState.searchInputString.isEmpty()) {
+            return
+        }
+        addSearchItem(uiState.searchInputString, TYPE_HISTORY)
+    }
+
+    fun clearHistory() {
+        viewModelScope.launch {
+            mutex.withLock {
+                repo.clearUserHistory(mineRepository.curUidFlow.value)
+            }
+        }
+    }
+
+    private fun addSearchItem(list: List<String>, @SearchItemType itemType: Int) {
+        viewModelScope.launch {
+            mutex.withLock {
+                repo.insertSearchItem(
+                    list.map {
+                        SearchItem(
+                            text = it,
+                            userId = mineRepository.curUidFlow.value,
+                            itemType = itemType
+                        )
+                    }
+                )
+            }
+        }
+    }
+
+    private fun addSearchItem(text: String, @SearchItemType itemType: Int) {
+        viewModelScope.launch {
+            mutex.withLock {
+                repo.insertSearchItem(
+                    listOf(
+                        SearchItem(
+                            text = text,
+                            userId = mineRepository.curUidFlow.value,
+                            itemType = itemType
+                        )
+                    )
+                )
+            }
+        }
+    }
+
+    @Entity(
+        primaryKeys = ["itemType", "text"]
+    )
+    data class SearchItem(
+        val text: String,
+        val userId: Long = 0L,
+
+        @SearchItemType
+        val itemType: Int,
+    )
+
+
+    @IntDef(TYPE_HISTORY, TYPE_HOT)
+    annotation class SearchItemType {
+        companion object {
+            const val TYPE_HISTORY = 1
+            const val TYPE_HOT = 2
+        }
+    }
+
+
+    @Stable
+    class SearchUiState {
+
+        var searchInputString by mutableStateOf("")
+
+        enum class SearchPageType {
+            TipsPage,
+            ResultPage
+        }
+
+        var searchPageType by mutableStateOf(SearchPageType.TipsPage)
+
+        val hotSearchList = mutableStateListOf<String>()
+        val historySearchList = mutableStateListOf<String>()
+
+    }
+
+}

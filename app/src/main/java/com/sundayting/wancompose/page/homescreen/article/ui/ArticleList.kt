@@ -72,6 +72,7 @@ import com.sundayting.wancompose.common.ui.title.TitleBarWithContent
 import com.sundayting.wancompose.page.homescreen.HomeScreen
 import com.sundayting.wancompose.page.homescreen.article.ArticleListViewModel
 import com.sundayting.wancompose.page.scan.ScanScreen.navigateToScanScreen
+import com.sundayting.wancompose.page.search.SearchScreen.navigateToSearchScreen
 import com.sundayting.wancompose.page.webscreen.WebViewScreen.navigateToWebViewScreen
 import com.sundayting.wancompose.theme.CollectColor
 import com.sundayting.wancompose.theme.DarkColors
@@ -168,6 +169,19 @@ object ArticleList : HomeScreen.HomeScreenPage {
                         stringResource(id = R.string.bottom_tab_home),
                         style = TitleTextStyle,
                         modifier = Modifier.align(Alignment.Center)
+                    )
+                    Image(
+                        painterResource(id = R.drawable.ic_search),
+                        contentDescription = null,
+                        modifier = Modifier
+                            .padding(end = 20.dp)
+                            .size(25.dp)
+                            .clickable(
+                                interactionSource = remember { MutableInteractionSource() },
+                                indication = null
+                            ) { navController.navigateToSearchScreen() }
+                            .align(Alignment.CenterEnd),
+                        colorFilter = ColorFilter.tint(WanTheme.colors.level1TextColor)
                     )
                 }
             ) {

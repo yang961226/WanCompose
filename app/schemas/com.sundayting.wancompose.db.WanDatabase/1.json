@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "cf8e3a0ed719220c5e09098119ceb849",
+    "identityHash": "4a282db3fc774d4ccf7ac11b4fde204b",
     "entities": [
       {
         "tableName": "UserEntity",
@@ -47,12 +47,45 @@
         },
         "indices": [],
         "foreignKeys": []
+      },
+      {
+        "tableName": "SearchItem",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`text` TEXT NOT NULL, `userId` INTEGER NOT NULL, `itemType` INTEGER NOT NULL, PRIMARY KEY(`itemType`, `text`))",
+        "fields": [
+          {
+            "fieldPath": "text",
+            "columnName": "text",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "userId",
+            "columnName": "userId",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "itemType",
+            "columnName": "itemType",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "itemType",
+            "text"
+          ]
+        },
+        "indices": [],
+        "foreignKeys": []
       }
     ],
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'cf8e3a0ed719220c5e09098119ceb849')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '4a282db3fc774d4ccf7ac11b4fde204b')"
     ]
   }
 }
