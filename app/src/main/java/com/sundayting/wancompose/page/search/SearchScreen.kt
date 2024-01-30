@@ -1,5 +1,6 @@
 package com.sundayting.wancompose.page.search
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.animation.Crossfade
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -16,7 +17,12 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.CircularProgressIndicator
+import androidx.compose.material.Divider
 import androidx.compose.material.Text
 import androidx.compose.material.ripple.rememberRipple
 import androidx.compose.runtime.Composable
@@ -27,6 +33,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -36,10 +43,14 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.sundayting.wancompose.R
 import com.sundayting.wancompose.WanComposeDestination
+import com.sundayting.wancompose.common.ui.ktx.onBottomReached
 import com.sundayting.wancompose.common.ui.textfield.WanTextField
 import com.sundayting.wancompose.common.ui.title.TitleBarWithBackButtonContent
 import com.sundayting.wancompose.common.ui.title.TitleBarWithContent
+import com.sundayting.wancompose.page.homescreen.article.ui.ArticleListSingleBean
 import com.sundayting.wancompose.page.search.SearchScreen.Content
+import com.sundayting.wancompose.page.search.SearchViewModel.SearchUiState.SearchPageType.ResultPage
+import com.sundayting.wancompose.page.search.SearchViewModel.SearchUiState.SearchPageType.TipsPage
 import com.sundayting.wancompose.theme.WanTheme
 
 object SearchScreen : WanComposeDestination {
@@ -73,6 +84,9 @@ object SearchScreen : WanComposeDestination {
             },
             onClickClear = {
                 viewModel.clearHistory()
+            },
+            onLoadMore = {
+                viewModel.loadMore()
             }
         )
     }
@@ -81,12 +95,18 @@ object SearchScreen : WanComposeDestination {
     fun Content(
         modifier: Modifier = Modifier,
         state: SearchViewModel.SearchUiState,
-        onInputChanged: (String) -> Unit = {},
+        onInputChanged: (TextFieldValue) -> Unit = {},
         onClickSearchItem: (String) -> Unit = {},
         onClickSearch: () -> Unit = {},
         onClickBack: () -> Unit = {},
         onClickClear: () -> Unit = {},
+        onLoadMore: () -> Unit = {},
     ) {
+
+        BackHandler(enabled = state.searchPageType == ResultPage) {
+            state.searchPageType = TipsPage
+        }
+
         TitleBarWithContent(
             modifier = modifier,
             titleBarContent = {
@@ -141,21 +161,28 @@ object SearchScreen : WanComposeDestination {
             Crossfade(
                 targetState = state.searchPageType, modifier = Modifier
                     .fillMaxSize()
-                    .background(WanTheme.colors.level1BackgroundColor)
-                    .padding(20.dp), label = ""
+                    .background(WanTheme.colors.level1BackgroundColor), label = ""
             ) { type ->
                 when (type) {
-                    SearchViewModel.SearchUiState.SearchPageType.TipsPage -> {
+                    TipsPage -> {
                         TipsContent(
-                            Modifier.fillMaxSize(),
+                            Modifier
+                                .fillMaxSize()
+                                .padding(20.dp),
                             state = state,
                             onClickSearchItem = onClickSearchItem,
                             onClickClear = onClickClear
                         )
                     }
 
-                    SearchViewModel.SearchUiState.SearchPageType.ResultPage -> {
-
+                    ResultPage -> {
+                        ResultContent(
+                            Modifier.fillMaxSize(),
+                            state = state,
+                            onLoadMore = {
+                                onLoadMore()
+                            }
+                        )
                     }
                 }
             }
@@ -225,6 +252,55 @@ object SearchScreen : WanComposeDestination {
                 }
             }
 
+        }
+    }
+
+    @Composable
+    private fun ResultContent(
+        modifier: Modifier = Modifier,
+        state: SearchViewModel.SearchUiState,
+        onLoadMore: () -> Unit,
+    ) {
+        val lazyListState = rememberLazyListState()
+        lazyListState.onBottomReached {
+            onLoadMore()
+        }
+        LazyColumn(
+            modifier
+                .fillMaxSize(),
+            state = lazyListState
+        ) {
+            items(state.articleList, key = { it.id }) {
+                ArticleListSingleBean(
+                    modifier = Modifier
+                        .animateItemPlacement()
+                        .fillMaxWidth()
+                        .clickable(
+                            interactionSource = remember { MutableInteractionSource() },
+                            indication = rememberRipple()
+                        ) {
+//                            onClickArticle(it)
+                        }
+                        .padding(10.dp),
+                    bean = it,
+//                    onCollect = onCollect
+                )
+                Divider(Modifier.fillMaxWidth(), color = WanTheme.colors.level4BackgroundColor)
+            }
+            if (state.isLoadingMore) {
+                item(key = "加载框") {
+                    Box(
+                        Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 10.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        CircularProgressIndicator(
+                            color = WanTheme.colors.tipColor
+                        )
+                    }
+                }
+            }
         }
     }
 

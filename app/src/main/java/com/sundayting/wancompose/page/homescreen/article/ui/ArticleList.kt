@@ -418,7 +418,7 @@ private fun ArticleListContent(
                 Divider(Modifier.fillMaxWidth(), color = WanTheme.colors.level4BackgroundColor)
             }
             if (articleState.loadingMore) {
-                item {
+                item(key = "加载框") {
                     Box(
                         Modifier
                             .fillMaxWidth()

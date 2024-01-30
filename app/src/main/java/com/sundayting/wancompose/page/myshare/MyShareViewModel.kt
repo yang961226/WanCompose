@@ -111,6 +111,7 @@ class MyShareViewModel @Inject constructor(
                 repo.cachedArticleListSuccess = true
                 val data = result.body.requireData()
                 state.canLoadMore = data.shareArticles.curPage < data.shareArticles.pageCount
+                page = data.shareArticles.curPage + 1
                 val list = data.shareArticles.datas.map { it.toArticleUiBean() }
                 state.addArticleList(list)
                 repo.cachedArticleList.addAll(list)

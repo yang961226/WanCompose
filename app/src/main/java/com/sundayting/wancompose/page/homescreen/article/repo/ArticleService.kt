@@ -7,6 +7,7 @@ import com.sundayting.wancompose.network.WanNResult
 import com.sundayting.wancompose.page.homescreen.article.ArticleBean
 import com.sundayting.wancompose.page.homescreen.article.ArticleResultBean
 import com.sundayting.wancompose.page.homescreen.article.CollectResult
+import com.sundayting.wancompose.page.homescreen.article.repo.SearchArticleResult.SearchArticles
 import com.sundayting.wancompose.page.homescreen.article.ui.ArticleList
 import de.jensklingenberg.ktorfit.http.Field
 import de.jensklingenberg.ktorfit.http.FormUrlEncoded
@@ -55,6 +56,29 @@ interface ArticleService {
     suspend fun deleteSharedArticle(
         @Path("id") id: Long,
     ): NResult<DeleteArticleResult>
+
+    @POST("article/query/{page}/json")
+    @FormUrlEncoded
+    suspend fun searchArticle(
+        @Path("page") page: Int,
+        @Field("k") keyWord: String,
+    ): NResult<SearchArticleResult>
+
+}
+
+@Serializable
+data class SearchArticleResult(
+    override val data: SearchArticles?,
+    override val errorCode: Int,
+    override val errorMsg: String,
+) : WanNResult<SearchArticles>() {
+
+    @Serializable
+    data class SearchArticles(
+        val curPage: Int,
+        val pageCount: Int,
+        val datas: List<ArticleBean>,
+    )
 
 }
 

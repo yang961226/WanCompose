@@ -18,6 +18,9 @@ class ArticleRepository @Inject constructor(
     suspend fun collectArticle(id: Long) = articleService.collectArticle(id)
     suspend fun unCollectArticle(id: Long) = articleService.unCollectArticle(id)
 
+    suspend fun searchArticle(page: Int, keyWord: String) =
+        articleService.searchArticle(page, keyWord)
+
 //    suspend fun insertArticles(articleList: List<ArticleBean>) =
 //        wanDatabase.articleDao().insertArticles(articleList)
 //

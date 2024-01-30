@@ -6,15 +6,22 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.text.TextRange
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.room.Entity
 import com.sundayting.wancompose.network.isSuccess
 import com.sundayting.wancompose.network.requireData
+import com.sundayting.wancompose.page.homescreen.article.repo.ArticleRepository
+import com.sundayting.wancompose.page.homescreen.article.toArticleUiBean
+import com.sundayting.wancompose.page.homescreen.article.ui.ArticleList
 import com.sundayting.wancompose.page.homescreen.mine.repo.MineRepository
 import com.sundayting.wancompose.page.search.SearchViewModel.SearchItemType.Companion.TYPE_HISTORY
 import com.sundayting.wancompose.page.search.SearchViewModel.SearchItemType.Companion.TYPE_HOT
+import com.sundayting.wancompose.page.search.SearchViewModel.SearchUiState.SearchPageType.ResultPage
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.launch
@@ -27,9 +34,13 @@ import javax.inject.Inject
 class SearchViewModel @Inject constructor(
     private val repo: SearchRepository,
     private val mineRepository: MineRepository,
+    private val articleRepository: ArticleRepository,
 ) : ViewModel() {
 
     val uiState = SearchUiState()
+
+    private var page = 0
+    private var curKeyWord: String? = null
 
     init {
         viewModelScope.launch(SupervisorJob()) {
@@ -61,20 +72,58 @@ class SearchViewModel @Inject constructor(
         }
     }
 
+    private var loadMoreJob: Job? = null
+
+    fun loadMore(
+        keyWord: String? = null,
+    ) {
+        loadMoreJob?.cancel()
+
+        loadMoreJob = viewModelScope.launch {
+            if (keyWord != null && keyWord != curKeyWord) {
+                page = 0
+                uiState.clearArticleState()
+                curKeyWord = keyWord
+            }
+
+            if (curKeyWord == null || !uiState.canLoadMore) {
+                return@launch
+            }
+
+            uiState.isLoadingMore = true
+
+            val result = articleRepository.searchArticle(
+                page = page,
+                curKeyWord!!
+            )
+
+            if (result.isSuccess()) {
+                val data = result.body.requireData()
+                uiState.canLoadMore = data.curPage <= data.pageCount
+                uiState.articleList.addAll(data.datas.map { it.toArticleUiBean() })
+                page = data.curPage + 1
+            }
+        }.apply {
+            invokeOnCompletion { uiState.isLoadingMore = false }
+        }
+    }
+
     private val mutex = Mutex()
 
-    fun onSearchInputChanged(input: String) {
+    fun onSearchInputChanged(input: TextFieldValue) {
         uiState.searchInputString = input
     }
 
     fun onSearch(input: String? = null) {
         if (input != null) {
-            uiState.searchInputString = input
+            uiState.searchInputString = TextFieldValue(input, selection = TextRange(input.length))
         }
-        if (uiState.searchInputString.isEmpty()) {
+        if (uiState.searchInputString.text.isEmpty()) {
             return
         }
-        addSearchItem(uiState.searchInputString, TYPE_HISTORY)
+        uiState.searchPageType = ResultPage
+        addSearchItem(uiState.searchInputString.text, TYPE_HISTORY)
+        loadMore(uiState.searchInputString.text)
     }
 
     fun clearHistory() {
@@ -141,7 +190,7 @@ class SearchViewModel @Inject constructor(
     @Stable
     class SearchUiState {
 
-        var searchInputString by mutableStateOf("")
+        var searchInputString by mutableStateOf(TextFieldValue(""))
 
         enum class SearchPageType {
             TipsPage,
@@ -152,6 +201,15 @@ class SearchViewModel @Inject constructor(
 
         val hotSearchList = mutableStateListOf<String>()
         val historySearchList = mutableStateListOf<String>()
+
+        val articleList = mutableStateListOf<ArticleList.ArticleUiBean>()
+        var isLoadingMore by mutableStateOf(false)
+        var canLoadMore by mutableStateOf(false)
+
+        fun clearArticleState() {
+            articleList.clear()
+            canLoadMore = true
+        }
 
     }
 

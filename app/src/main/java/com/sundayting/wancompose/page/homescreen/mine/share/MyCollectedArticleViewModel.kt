@@ -96,6 +96,7 @@ class MyCollectedArticleViewModel @Inject constructor(
                 repo.cachedArticleListSuccess = true
                 val data = result.body.requireData()
                 state.canLoadMore = data.curPage < data.pageCount
+                page = data.curPage + 1
                 val list = data.list.map { it.toArticleUiBean() }
                 state.addArticleList(list)
                 repo.cachedArticleList.addAll(list)
