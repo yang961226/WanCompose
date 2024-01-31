@@ -1,6 +1,10 @@
 package com.sundayting.wancompose.page.homescreen.article.repo
 
+import androidx.datastore.core.DataStore
+import androidx.datastore.preferences.core.Preferences
 import com.sundayting.wancompose.db.WanDatabase
+import com.sundayting.wancompose.page.setting.SettingViewModel
+import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -8,6 +12,7 @@ import javax.inject.Singleton
 class ArticleRepository @Inject constructor(
     private val articleService: ArticleService,
     private val wanDatabase: WanDatabase,
+    private val dataStore: DataStore<Preferences>,
 ) {
 
     suspend fun fetchHomePageTopArticle() = articleService.fetchTopArticleList()
@@ -20,6 +25,8 @@ class ArticleRepository @Inject constructor(
 
     suspend fun searchArticle(page: Int, keyWord: String) =
         articleService.searchArticle(page, keyWord)
+
+    val openBannerFlow = dataStore.data.map { it[SettingViewModel.openBannerKey] ?: true }
 
 //    suspend fun insertArticles(articleList: List<ArticleBean>) =
 //        wanDatabase.articleDao().insertArticles(articleList)

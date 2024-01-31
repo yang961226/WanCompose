@@ -74,4 +74,5 @@
     <string name="made_by_wan_compose">由玩Compose客户端生成</string>
     <string name="save_pic">保存相册</string>
     <string name="share_now">立即分享</string>
+    <string name="show_banner">首页展示Banner轮播</string>
 </resources>

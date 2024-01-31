@@ -313,90 +313,92 @@ private fun ArticleListContent(
                 .background(WanTheme.colors.level2BackgroundColor),
             state = lazyListState
         ) {
-            item(key = "Banner") {
-                val scope = rememberCoroutineScope()
-                val isDragging by pagerState.interactionSource.collectIsDraggedAsState()
-                LaunchedEffect(isDragging) {
-                    if (!isDragging) {
-                        while (true) {
-                            delay(3000L)
-                            scope.launch {
-                                pagerState.animateScrollToPage(pagerState.currentPage + 1)
-                            }.join()
+            if (articleState.isOpenBanner) {
+                item(key = "Banner") {
+                    val scope = rememberCoroutineScope()
+                    val isDragging by pagerState.interactionSource.collectIsDraggedAsState()
+                    LaunchedEffect(isDragging) {
+                        if (!isDragging) {
+                            while (true) {
+                                delay(3000L)
+                                scope.launch {
+                                    pagerState.animateScrollToPage(pagerState.currentPage + 1)
+                                }.join()
+                            }
                         }
-                    }
-                }
-
-                Box(
-                    Modifier
-                        .animateItemPlacement()
-                        .fillMaxWidth()
-                        .aspectRatio(2f / 1f)
-                ) {
-
-                    var curTitle by remember { mutableStateOf<String?>(null) }
-
-                    LaunchedEffect(Unit) {
-                        snapshotFlow { pagerState.currentPageInInfinitePage(articleState.bannerList.size) }.collect {
-                            curTitle = articleState.bannerList.getOrNull(it)?.title
-                        }
-                    }
-
-                    InfiniteLoopHorizontalPager(
-                        modifier = Modifier
-                            .matchParentSize()
-                            .background(WanTheme.colors.level1BackgroundColor),
-                        realPageCount = articleState.bannerList.size,
-                        state = pagerState
-                    ) {
-                        val banner = articleState.bannerList.getOrNull(it)
-                        if (banner != null) {
-                            AsyncImage(
-                                modifier = Modifier
-                                    .fillMaxSize()
-                                    .clickable(
-                                        interactionSource = remember { MutableInteractionSource() },
-                                        indication = rememberRipple()
-                                    ) {
-                                        onClickBanner(
-                                            articleState.bannerList[pagerState.currentPageInInfinitePage(
-                                                articleState.bannerList.size
-                                            )]
-                                        )
-                                    },
-                                model = ImageRequest
-                                    .Builder(LocalContext.current)
-                                    .diskCachePolicy(CachePolicy.ENABLED)
-                                    .crossfade(true)
-                                    .placeholder(R.drawable.ic_loading_pic)
-                                    .error(R.drawable.ic_loading_pic)
-                                    .fallback(R.drawable.ic_loading_pic)
-                                    .data(banner.imgUrl)
-                                    .build(),
-                                contentDescription = null,
-                                contentScale = ContentScale.Crop
-                            )
-                        }
-
                     }
 
                     Box(
                         Modifier
-                            .align(Alignment.BottomCenter)
-                            .background(WanTheme.colors.level4BackgroundColor)
-                            .padding(horizontal = 5.dp)
-                            .heightIn(min = 20.dp)
+                            .animateItemPlacement()
                             .fillMaxWidth()
+                            .aspectRatio(2f / 1f)
                     ) {
-                        Text(
-                            text = curTitle.orEmpty(),
-                            style = WanTheme.typography.h7.copy(
-                                color = WanTheme.colors.level3TextColor
-                            ),
-                            maxLines = 1,
-                            overflow = TextOverflow.Ellipsis,
-                            modifier = Modifier.fillMaxWidth(0.5f)
-                        )
+
+                        var curTitle by remember { mutableStateOf<String?>(null) }
+
+                        LaunchedEffect(Unit) {
+                            snapshotFlow { pagerState.currentPageInInfinitePage(articleState.bannerList.size) }.collect {
+                                curTitle = articleState.bannerList.getOrNull(it)?.title
+                            }
+                        }
+
+                        InfiniteLoopHorizontalPager(
+                            modifier = Modifier
+                                .matchParentSize()
+                                .background(WanTheme.colors.level1BackgroundColor),
+                            realPageCount = articleState.bannerList.size,
+                            state = pagerState
+                        ) {
+                            val banner = articleState.bannerList.getOrNull(it)
+                            if (banner != null) {
+                                AsyncImage(
+                                    modifier = Modifier
+                                        .fillMaxSize()
+                                        .clickable(
+                                            interactionSource = remember { MutableInteractionSource() },
+                                            indication = rememberRipple()
+                                        ) {
+                                            onClickBanner(
+                                                articleState.bannerList[pagerState.currentPageInInfinitePage(
+                                                    articleState.bannerList.size
+                                                )]
+                                            )
+                                        },
+                                    model = ImageRequest
+                                        .Builder(LocalContext.current)
+                                        .diskCachePolicy(CachePolicy.ENABLED)
+                                        .crossfade(true)
+                                        .placeholder(R.drawable.ic_loading_pic)
+                                        .error(R.drawable.ic_loading_pic)
+                                        .fallback(R.drawable.ic_loading_pic)
+                                        .data(banner.imgUrl)
+                                        .build(),
+                                    contentDescription = null,
+                                    contentScale = ContentScale.Crop
+                                )
+                            }
+
+                        }
+
+                        Box(
+                            Modifier
+                                .align(Alignment.BottomCenter)
+                                .background(WanTheme.colors.level4BackgroundColor)
+                                .padding(horizontal = 5.dp)
+                                .heightIn(min = 20.dp)
+                                .fillMaxWidth()
+                        ) {
+                            Text(
+                                text = curTitle.orEmpty(),
+                                style = WanTheme.typography.h7.copy(
+                                    color = WanTheme.colors.level3TextColor
+                                ),
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis,
+                                modifier = Modifier.fillMaxWidth(0.5f)
+                            )
+                        }
                     }
                 }
             }

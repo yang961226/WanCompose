@@ -21,6 +21,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Text
 import androidx.compose.material.ripple.rememberRipple
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -138,6 +139,18 @@ object SettingScreen : WanComposeDestination {
                         )
                     },
                     isSelected = isDarkModeFollowSystem
+                )
+
+                SettingSpacer()
+
+                val openBanner by viewModel.openBannerFlow.collectAsState(initial = true)
+
+                SwitchSettingLine(
+                    title = stringResource(id = R.string.show_banner),
+                    onClick = {
+                        viewModel.changedOpenBanner()
+                    },
+                    isSelected = openBanner
                 )
 
                 if (!isDarkModeFollowSystem) {

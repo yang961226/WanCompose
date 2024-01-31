@@ -49,6 +49,11 @@ class ArticleListViewModel @Inject constructor(
                 )
             }
         }
+        viewModelScope.launch {
+            repo.openBannerFlow.collect {
+                state.isOpenBanner = it
+            }
+        }
     }
 
     @Stable
@@ -56,6 +61,7 @@ class ArticleListViewModel @Inject constructor(
         list: List<ArticleList.ArticleUiBean> = listOf(),
     ) {
 
+        var isOpenBanner by mutableStateOf(true)
         var isShowLoadingBox by mutableStateOf(true)
 
         private val _articleList = mutableStateListOf<ArticleList.ArticleUiBean>().apply {
