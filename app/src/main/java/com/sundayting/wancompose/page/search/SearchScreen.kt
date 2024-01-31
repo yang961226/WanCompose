@@ -47,10 +47,12 @@ import com.sundayting.wancompose.common.ui.ktx.onBottomReached
 import com.sundayting.wancompose.common.ui.textfield.WanTextField
 import com.sundayting.wancompose.common.ui.title.TitleBarWithBackButtonContent
 import com.sundayting.wancompose.common.ui.title.TitleBarWithContent
+import com.sundayting.wancompose.page.homescreen.article.ui.ArticleList
 import com.sundayting.wancompose.page.homescreen.article.ui.ArticleListSingleBean
 import com.sundayting.wancompose.page.search.SearchScreen.Content
 import com.sundayting.wancompose.page.search.SearchViewModel.SearchUiState.SearchPageType.ResultPage
 import com.sundayting.wancompose.page.search.SearchViewModel.SearchUiState.SearchPageType.TipsPage
+import com.sundayting.wancompose.page.webscreen.WebViewScreen.navigateToWebViewScreen
 import com.sundayting.wancompose.theme.WanTheme
 
 object SearchScreen : WanComposeDestination {
@@ -87,6 +89,12 @@ object SearchScreen : WanComposeDestination {
             },
             onLoadMore = {
                 viewModel.loadMore()
+            },
+            onClickArticle = {
+                navController.navigateToWebViewScreen(it)
+            },
+            onCollect = {
+                viewModel.collectOrUnCollectArticle(it)
             }
         )
     }
@@ -101,6 +109,8 @@ object SearchScreen : WanComposeDestination {
         onClickBack: () -> Unit = {},
         onClickClear: () -> Unit = {},
         onLoadMore: () -> Unit = {},
+        onClickArticle: (ArticleList.ArticleUiBean) -> Unit,
+        onCollect: (ArticleList.ArticleUiBean) -> Unit,
     ) {
 
         BackHandler(enabled = state.searchPageType == ResultPage) {
@@ -181,7 +191,9 @@ object SearchScreen : WanComposeDestination {
                             state = state,
                             onLoadMore = {
                                 onLoadMore()
-                            }
+                            },
+                            onClickArticle = onClickArticle,
+                            onCollect = onCollect
                         )
                     }
                 }
@@ -260,6 +272,8 @@ object SearchScreen : WanComposeDestination {
         modifier: Modifier = Modifier,
         state: SearchViewModel.SearchUiState,
         onLoadMore: () -> Unit,
+        onClickArticle: (ArticleList.ArticleUiBean) -> Unit,
+        onCollect: (ArticleList.ArticleUiBean) -> Unit,
     ) {
         val lazyListState = rememberLazyListState()
         lazyListState.onBottomReached {
@@ -279,11 +293,11 @@ object SearchScreen : WanComposeDestination {
                             interactionSource = remember { MutableInteractionSource() },
                             indication = rememberRipple()
                         ) {
-//                            onClickArticle(it)
+                            onClickArticle(it)
                         }
                         .padding(10.dp),
                     bean = it,
-//                    onCollect = onCollect
+                    onCollect = onCollect
                 )
                 Divider(Modifier.fillMaxWidth(), color = WanTheme.colors.level4BackgroundColor)
             }
@@ -343,6 +357,12 @@ private fun PreviewContent() {
             }
         },
         onClickBack = {
+
+        },
+        onClickArticle = {
+
+        },
+        onCollect = {
 
         }
     )
