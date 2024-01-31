@@ -167,6 +167,8 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.2")
     implementation("androidx.constraintlayout:constraintlayout-compose:1.0.1")
 
+    implementation("com.google.zxing:core:3.3.3")
+
     val ktorfitVersion = "1.10.2"
     implementation("de.jensklingenberg.ktorfit:ktorfit-lib:$ktorfitVersion")
     ksp("de.jensklingenberg.ktorfit:ktorfit-ksp:$ktorfitVersion")
@@ -206,7 +208,7 @@ dependencies {
     implementation("androidx.lifecycle:lifecycle-viewmodel-savedstate:$lifecycleVersion")
     kapt("androidx.lifecycle:lifecycle-common-java8:$lifecycleVersion")
 
-    val cameraxVersion = "1.4.0-alpha03"
+    val cameraxVersion = "1.4.0-alpha04"
     // The following line is optional, as the core library is included indirectly by camera-camera2
     implementation("androidx.camera:camera-core:${cameraxVersion}")
     implementation("androidx.camera:camera-camera2:${cameraxVersion}")

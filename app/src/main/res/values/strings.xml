@@ -69,4 +69,9 @@
     <string name="hot_search">热门搜索</string>
     <string name="history_search">历史搜索</string>
     <string name="clear">清除</string>
+    <string name="wan_android_suffix">%s -玩Android - wanandroid.com</string>
+    <string name="wan_compose_desc">玩Compose是一个以玩安卓网站的开源api为基础，基于纯Compose技术开发的App</string>
+    <string name="made_by_wan_compose">由玩Compose客户端生成</string>
+    <string name="save_pic">保存相册</string>
+    <string name="share_now">立即分享</string>
 </resources>

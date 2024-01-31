@@ -90,10 +90,9 @@ import com.google.accompanist.web.WebViewNavigator
 import com.google.accompanist.web.rememberWebViewNavigator
 import com.sundayting.wancompose.R
 import com.sundayting.wancompose.WanComposeDestination
-import com.sundayting.wancompose.common.event.EventManager
-import com.sundayting.wancompose.common.event.emitToast
 import com.sundayting.wancompose.common.helper.LocalDarkMode
 import com.sundayting.wancompose.common.helper.LocalVibratorHelper
+import com.sundayting.wancompose.common.ui.dialog.ShareArticleDialog
 import com.sundayting.wancompose.common.ui.title.TitleBarWithContent
 import com.sundayting.wancompose.page.homescreen.article.ui.ArticleList
 import com.sundayting.wancompose.theme.CollectColor
@@ -284,6 +283,20 @@ object WebViewScreen : WanComposeDestination {
 
                 val vibratorHelper = LocalVibratorHelper.current
 
+                var showShareDialog by remember {
+                    mutableStateOf(false)
+                }
+
+                if (showShareDialog) {
+                    ShareArticleDialog(
+                        title = viewModel.webViewUiState.articleUiBean.title,
+                        qrString = "哈哈哈哈厕所",
+                        onDismissRequest = {
+                            showShareDialog = false
+                        }
+                    )
+                }
+
                 WebToolWidget(
                     Modifier
                         .constrainAs(webToolContent) {
@@ -304,8 +317,9 @@ object WebViewScreen : WanComposeDestination {
                     },
                     onClick = {
                         when (it) {
-                            WebToolWidgetEnum.Share -> EventManager.getInstance()
-                                .emitToast("开发中")
+                            WebToolWidgetEnum.Share -> {
+                                showShareDialog = true
+                            }
 
                             WebToolWidgetEnum.Browser -> context.startActivity(
                                 Intent(
