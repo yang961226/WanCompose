@@ -12,7 +12,7 @@ import javax.inject.Singleton
 class ArticleRepository @Inject constructor(
     private val articleService: ArticleService,
     private val wanDatabase: WanDatabase,
-    private val dataStore: DataStore<Preferences>,
+    dataStore: DataStore<Preferences>,
 ) {
 
     suspend fun fetchHomePageTopArticle() = articleService.fetchTopArticleList()

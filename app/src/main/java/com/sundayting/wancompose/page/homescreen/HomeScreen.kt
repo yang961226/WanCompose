@@ -8,20 +8,31 @@ import androidx.compose.animation.ExitTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.material3.BottomAppBar
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBarsPadding
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.constraintlayout.compose.ConstraintLayout
+import androidx.constraintlayout.compose.Dimension
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
@@ -30,16 +41,6 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.navigation
 import com.sundayting.wancompose.R
 import com.sundayting.wancompose.WanComposeDestination
-import com.sundayting.wancompose.page.examplewidgetscreen.ExampleWidget
-import com.sundayting.wancompose.page.examplewidgetscreen.ExampleWidgetNavGraph
-import com.sundayting.wancompose.page.examplewidgetscreen.pointinput.PointInput
-import com.sundayting.wancompose.page.examplewidgetscreen.pointinput.PointInput.navigateToPointInput
-import com.sundayting.wancompose.page.examplewidgetscreen.scrollaletabrow.TabRowScreen
-import com.sundayting.wancompose.page.examplewidgetscreen.scrollaletabrow.TabRowScreen.navigateToTabRowScreen
-import com.sundayting.wancompose.page.examplewidgetscreen.tantancard.TanTanSwipeCardScreen
-import com.sundayting.wancompose.page.examplewidgetscreen.tantancard.TanTanSwipeCardScreen.navigateToTanTanSwipeCardScreen
-import com.sundayting.wancompose.page.examplewidgetscreen.viewpager.ViewPagerHorizontalPagerNestScroll
-import com.sundayting.wancompose.page.examplewidgetscreen.viewpager.ViewPagerHorizontalPagerNestScroll.navigateToViewPagerHorizontalPagerNestScroll
 import com.sundayting.wancompose.page.homescreen.article.ui.ArticleList
 import com.sundayting.wancompose.page.homescreen.mine.MineGraph
 import com.sundayting.wancompose.page.homescreen.mine.MineScreen
@@ -92,26 +93,89 @@ object HomeScreen : WanComposeDestination {
                 entry?.destination?.route
             }
         }
-        BottomAppBar(
-            containerColor = WanTheme.colors.level3BackgroundColor,
-            tonalElevation = 16.dp,
-        ) {
-            pageList.forEach { bottomItem ->
-                IconButton(
-                    onClick = {
-                        onClickBottom(bottomItem)
-                    },
-                ) {
-                    Icon(
-                        painter = painterResource(id = bottomItem.resId),
-                        contentDescription = stringResource(id = bottomItem.titleId),
-                        modifier = Modifier
-                            .size(25.dp)
-                            .padding(bottom = 5.dp),
+        Column {
+            HorizontalDivider(color = WanTheme.colors.level3BackgroundColor)
+            Row(
+                Modifier
+                    .background(WanTheme.colors.level2BackgroundColor)
+                    .navigationBarsPadding()
+                    .height(60.dp)
+            ) {
+                pageList.forEach { bottomItem ->
+                    NavigationItem(
+                        Modifier
+                            .fillMaxWidth()
+                            .weight(1f, false),
+                        bean = bottomItem,
+                        isSelected = curRoute == bottomItem.page.route,
+                        onClickItem = {
+                            onClickBottom(bottomItem)
+                        }
                     )
                 }
             }
         }
+
+    }
+
+    @Composable
+    private fun NavigationItem(
+        modifier: Modifier = Modifier,
+        bean: HomeScreenPage.BottomItem,
+        isSelected: Boolean,
+        onClickItem: () -> Unit,
+    ) {
+
+        ConstraintLayout(
+            modifier
+                .clickable(
+                    interactionSource = remember { MutableInteractionSource() },
+                    indication = null
+                ) {
+                    onClickItem()
+                }
+        ) {
+
+            val (
+                imageContent,
+                textContent,
+            ) = createRefs()
+
+            val color =
+                if (isSelected) WanTheme.colors.level2TextColor else WanTheme.colors.level4TextColor
+
+            Box(
+                modifier = Modifier
+                    .constrainAs(imageContent) {
+                        centerHorizontallyTo(parent)
+                        top.linkTo(parent.top, 10.dp)
+                        width = Dimension.value(24.dp)
+                        height = Dimension.value(24.dp)
+                    },
+            ) {
+                Image(
+                    painter = painterResource(bean.resId),
+                    modifier = Modifier.fillMaxSize(),
+                    contentDescription = null,
+                    contentScale = ContentScale.Fit,
+                    colorFilter = ColorFilter.tint(color)
+                )
+            }
+
+
+            Text(
+                modifier = Modifier.constrainAs(textContent) {
+                    top.linkTo(imageContent.bottom, 2.5.dp)
+                    centerHorizontallyTo(parent)
+                    bottom.linkTo(parent.bottom, 10.dp)
+                },
+                text = stringResource(id = bean.titleId),
+                style = WanTheme.typography.h8,
+                color = color,
+                maxLines = 1
+            )
+        }
+
     }
 
     /**
@@ -199,6 +263,7 @@ object HomeScreen : WanComposeDestination {
             popEnterTransition = DEFAULT_POP_ENTER_TRANSITION,
             popExitTransition = DEFAULT_POP_EXIT_TRANSITION
         ) {
+
             composable(ArticleList.route) {
                 ArticleList.Screen(
                     modifier = Modifier.fillMaxSize(),
@@ -206,60 +271,11 @@ object HomeScreen : WanComposeDestination {
                 )
             }
 
-            navigation(
-                route = ExampleWidgetNavGraph.route,
-                startDestination = ExampleWidget.route
-            ) {
-                composable(ExampleWidget.route) {
-                    ExampleWidget.Screen(
-                        Modifier
-                            .fillMaxSize(),
-                        onClick = { bean ->
-                            when (bean.name) {
-                                TanTanSwipeCardScreen.exampleCardBean.name -> navController.navigateToTanTanSwipeCardScreen()
-                                PointInput.exampleCardBean.name -> navController.navigateToPointInput()
-//                                NestScroll.exampleCardBean.name -> navController.navigateToNestScroll()
-                                ViewPagerHorizontalPagerNestScroll.exampleCardBean.name -> navController.navigateToViewPagerHorizontalPagerNestScroll()
-                                TabRowScreen.exampleCardBean.name -> navController.navigateToTabRowScreen()
-                            }
-                        }
-                    )
-                }
-
-                composable(TanTanSwipeCardScreen.route) {
-                    TanTanSwipeCardScreen.Screen(Modifier.fillMaxSize())
-                }
-                composable(PointInput.route) {
-                    PointInput.Screen(Modifier.fillMaxSize(), onClickBackButton = {
-                        navController.popBackStack()
-                    })
-                }
-//                composable(NestScroll.route) {
-//                    NestScroll.Screen(Modifier.fillMaxSize(), onClickBackButton = {
-//                        navController.popBackStack()
-//                    })
-//                }
-
-                composable(ViewPagerHorizontalPagerNestScroll.route) {
-                    ViewPagerHorizontalPagerNestScroll.Screen(
-                        Modifier.fillMaxSize(),
-                        onClickBackButton = {
-                            navController.popBackStack()
-                        })
-                }
-
-                composable(TabRowScreen.route) {
-                    TabRowScreen.Screen(Modifier.fillMaxSize(), onClickBackButton = {
-                        navController.popBackStack()
-                    })
-                }
-
-                composable(SearchScreen.route) {
-                    SearchScreen.Screen(
-                        modifier = Modifier.fillMaxSize(),
-                        navController = navController
-                    )
-                }
+            composable(SearchScreen.route) {
+                SearchScreen.Screen(
+                    modifier = Modifier.fillMaxSize(),
+                    navController = navController
+                )
             }
 
             with(MineGraph) {
