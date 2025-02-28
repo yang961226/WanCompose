@@ -26,13 +26,11 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.CircularProgressIndicator
-import androidx.compose.material.Divider
-import androidx.compose.material.Text
-import androidx.compose.material.pullrefresh.PullRefreshIndicator
-import androidx.compose.material.pullrefresh.pullRefresh
-import androidx.compose.material.pullrefresh.rememberPullRefreshState
-import androidx.compose.material.ripple.rememberRipple
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Divider
+import androidx.compose.material3.Text
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
+import androidx.compose.material3.ripple
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
@@ -143,8 +141,6 @@ object ArticleList : HomeScreen.HomeScreenPage {
         CompositionLocalProvider(
             LocalLoadingBoxIsLoading provides viewModel.state.isShowLoadingBox
         ) {
-            val pullRefreshState =
-                rememberPullRefreshState(viewModel.state.refreshing, viewModel::refresh)
 
             TitleBarWithContent(
                 modifier,
@@ -185,10 +181,11 @@ object ArticleList : HomeScreen.HomeScreenPage {
                     )
                 }
             ) {
-                Box(
-                    Modifier
-                        .fillMaxSize()
-                        .pullRefresh(pullRefreshState)
+                PullToRefreshBox(
+                    modifier = Modifier
+                        .fillMaxSize(),
+                    isRefreshing = viewModel.state.refreshing,
+                    onRefresh = viewModel::refresh
                 ) {
                     val lazyListState = rememberLazyListState()
                     lazyListState.onBottomReached {
@@ -207,12 +204,6 @@ object ArticleList : HomeScreen.HomeScreenPage {
                         onCollect = {
                             viewModel.collectOrUnCollectArticle(it)
                         }
-                    )
-                    PullRefreshIndicator(
-                        refreshing = viewModel.state.refreshing,
-                        state = pullRefreshState,
-                        modifier = Modifier.align(Alignment.TopCenter),
-                        contentColor = WanTheme.colors.primaryColor
                     )
                 }
             }
@@ -357,7 +348,7 @@ private fun ArticleListContent(
                                         .fillMaxSize()
                                         .clickable(
                                             interactionSource = remember { MutableInteractionSource() },
-                                            indication = rememberRipple()
+                                            indication = ripple()
                                         ) {
                                             onClickBanner(
                                                 articleState.bannerList[pagerState.currentPageInInfinitePage(
@@ -409,7 +400,7 @@ private fun ArticleListContent(
                         .fillMaxWidth()
                         .clickable(
                             interactionSource = remember { MutableInteractionSource() },
-                            indication = rememberRipple()
+                            indication = ripple()
                         ) {
                             onClickArticle(it)
                         }
@@ -584,7 +575,7 @@ fun ArticleListSingleBean(
             }
             .clickable(
                 interactionSource = remember { MutableInteractionSource() },
-                indication = rememberRipple(bounded = false)
+                indication = ripple(bounded = false)
             ) { onCollect?.invoke(bean) }
         ) { isCollect ->
             Image(

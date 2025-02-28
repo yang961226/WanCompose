@@ -21,10 +21,10 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.CircularProgressIndicator
-import androidx.compose.material.Divider
-import androidx.compose.material.Text
-import androidx.compose.material.ripple.rememberRipple
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Divider
+import androidx.compose.material3.Text
+import androidx.compose.material3.ripple
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -291,7 +291,7 @@ object SearchScreen : WanComposeDestination {
                         .fillMaxWidth()
                         .clickable(
                             interactionSource = remember { MutableInteractionSource() },
-                            indication = rememberRipple()
+                            indication = ripple()
                         ) {
                             onClickArticle(it)
                         }
@@ -334,7 +334,7 @@ object SearchScreen : WanComposeDestination {
                 .background(WanTheme.colors.level2BackgroundColor)
                 .clickable(
                     interactionSource = remember { MutableInteractionSource() },
-                    indication = rememberRipple()
+                    indication = ripple()
                 ) { onClick(text) }
                 .padding(horizontal = 10.dp, vertical = 4.dp)
         )

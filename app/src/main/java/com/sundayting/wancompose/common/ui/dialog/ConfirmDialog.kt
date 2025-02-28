@@ -15,9 +15,9 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.Divider
-import androidx.compose.material.Text
-import androidx.compose.material.ripple.rememberRipple
+import androidx.compose.material3.Divider
+import androidx.compose.material3.Text
+import androidx.compose.material3.ripple
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.ReadOnlyComposable
 import androidx.compose.runtime.remember
@@ -113,7 +113,7 @@ fun ConfirmDialogContent(
                     .weight(1f, false)
                     .clickable(
                         interactionSource = remember { MutableInteractionSource() },
-                        indication = rememberRipple()
+                        indication = ripple()
                     ) { onCancel() },
                 contentAlignment = Alignment.Center
             ) {
@@ -136,7 +136,7 @@ fun ConfirmDialogContent(
                     .weight(1f, false)
                     .clickable(
                         interactionSource = remember { MutableInteractionSource() },
-                        indication = rememberRipple()
+                        indication = ripple()
                     ) { onConfirm() }, contentAlignment = Alignment.Center
             ) {
                 Text(

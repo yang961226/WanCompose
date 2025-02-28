@@ -2,7 +2,6 @@ package com.sundayting.wancompose.common.ui.infinitepager
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.Orientation
-import androidx.compose.foundation.gestures.snapping.SnapFlingBehavior
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.aspectRatio
@@ -46,7 +45,6 @@ fun InfiniteLoopHorizontalPager(
     beyondBoundsPageCount: Int = 0,
     pageSpacing: Dp = 0.dp,
     verticalAlignment: Alignment.Vertical = Alignment.CenterVertically,
-    flingBehavior: SnapFlingBehavior = PagerDefaults.flingBehavior(state = state),
     userScrollEnabled: Boolean = true,
     reverseLayout: Boolean = false,
     key: ((index: Int) -> Any)? = null,
@@ -61,10 +59,9 @@ fun InfiniteLoopHorizontalPager(
         state = state,
         contentPadding = contentPadding,
         pageSize = pageSize,
-        beyondBoundsPageCount = beyondBoundsPageCount,
+        beyondViewportPageCount = beyondBoundsPageCount,
         pageSpacing = pageSpacing,
         verticalAlignment = verticalAlignment,
-        flingBehavior = flingBehavior,
         userScrollEnabled = userScrollEnabled,
         reverseLayout = reverseLayout,
         key = key,

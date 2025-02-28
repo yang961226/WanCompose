@@ -7,7 +7,6 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.gestures.animateTo
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -18,21 +17,18 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.material.CircularProgressIndicator
-import androidx.compose.material.Divider
-import androidx.compose.material.Text
-import androidx.compose.material.ripple.rememberRipple
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Text
+import androidx.compose.material3.ripple
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
-import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ColorFilter
@@ -47,9 +43,6 @@ import com.sundayting.wancompose.WanComposeDestination
 import com.sundayting.wancompose.common.ui.dialog.NormalConfirmDialog
 import com.sundayting.wancompose.common.ui.ktx.onBottomReached
 import com.sundayting.wancompose.common.ui.loading.LoadingIndicator
-import com.sundayting.wancompose.common.ui.scrolldelete.DragValue
-import com.sundayting.wancompose.common.ui.scrolldelete.ScrollToDelete
-import com.sundayting.wancompose.common.ui.scrolldelete.rememberScrollToDeleteState
 import com.sundayting.wancompose.common.ui.title.TitleBarWithBackButtonContent
 import com.sundayting.wancompose.common.ui.title.TitleBarWithContent
 import com.sundayting.wancompose.page.homescreen.article.ui.ArticleList
@@ -58,8 +51,6 @@ import com.sundayting.wancompose.page.share.ShareScreen.navigateToShareScreen
 import com.sundayting.wancompose.page.webscreen.WebViewScreen.navigateToWebViewScreen
 import com.sundayting.wancompose.theme.TitleTextStyle
 import com.sundayting.wancompose.theme.WanTheme
-import kotlinx.coroutines.flow.drop
-import kotlinx.coroutines.launch
 
 object MyShareScreen : WanComposeDestination {
 
@@ -198,10 +189,7 @@ object MyShareScreen : WanComposeDestination {
         ) { isLoading ->
             if (isLoading) {
                 Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                    CircularProgressIndicator(
-                        modifier = Modifier.size(50.dp),
-                        color = WanTheme.colors.primaryColor
-                    )
+                    CircularProgressIndicator()
                 }
             } else {
                 var isDraggableId by rememberSaveable { mutableLongStateOf(0L) }
@@ -211,54 +199,17 @@ object MyShareScreen : WanComposeDestination {
                         state = lazyListState
                     ) {
                         items(state.articleList, key = { it.id }) { articleBean ->
-                            val anchoredDraggableState = rememberScrollToDeleteState()
-                            val scope = rememberCoroutineScope()
-                            LaunchedEffect(anchoredDraggableState) {
-                                launch {
-                                    snapshotFlow { isListScroll }.collect {
-                                        if (it) {
-                                            scope.launch {
-                                                anchoredDraggableState.animateTo(DragValue.IDLE)
-                                            }
-                                        }
-                                    }
-                                }
-                                launch {
-                                    snapshotFlow { anchoredDraggableState.targetValue }.collect {
-                                        if (it == DragValue.SHOW) {
-                                            isDraggableId = articleBean.id
-                                        }
-                                    }
-                                }
-                                launch {
-                                    snapshotFlow { isDraggableId }.drop(1).collect {
-                                        if (it != articleBean.id) {
-                                            scope.launch {
-                                                anchoredDraggableState.animateTo(DragValue.IDLE)
-                                            }
-                                        }
-                                    }
-                                }
-
-                            }
                             Column(
                                 Modifier
                                     .fillMaxWidth()
-                                    .animateItemPlacement()
+                                    .animateItem()
                             ) {
-                                ScrollToDelete(
-                                    Modifier.fillMaxWidth(),
-                                    onClickDelete = {
-                                        deleteArticle = articleBean
-                                    },
-                                    state = anchoredDraggableState
-                                ) {
                                     ArticleListSingleBean(
                                         modifier = Modifier
                                             .background(WanTheme.colors.level2BackgroundColor)
                                             .clickable(
                                                 interactionSource = remember { MutableInteractionSource() },
-                                                indication = rememberRipple()
+                                                indication = ripple()
                                             ) {
                                                 onClickArticle(articleBean)
                                             }
@@ -273,9 +224,8 @@ object MyShareScreen : WanComposeDestination {
                                             }
                                         }
                                     )
-                                }
 
-                                Divider(
+                                HorizontalDivider(
                                     Modifier.fillMaxWidth(),
                                     color = WanTheme.colors.level4BackgroundColor
                                 )

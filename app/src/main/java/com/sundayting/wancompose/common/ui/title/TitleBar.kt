@@ -11,8 +11,8 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
-import androidx.compose.material.Surface
-import androidx.compose.material.ripple.rememberRipple
+import androidx.compose.material3.Surface
+import androidx.compose.material3.ripple
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -41,7 +41,7 @@ fun BoxScope.TitleBarWithBackButtonContent(
             .size(25.dp)
             .clickable(
                 interactionSource = remember { MutableInteractionSource() },
-                indication = rememberRipple(radius = 25.dp, bounded = false),
+                indication = ripple(radius = 25.dp, bounded = false),
             ) { onClickBackButton() },
         colorFilter = ColorFilter.tint(WanTheme.colors.level1TextColor)
     )
@@ -54,10 +54,8 @@ fun TitleBar(
     properties: TitleBarProperties = DEFAULT_PROPERTIES,
     content: @Composable BoxScope.() -> Unit,
 ) {
-
-
     Surface(
-        elevation = properties.elevation,
+        shadowElevation = properties.elevation,
         modifier = modifier,
     ) {
         Box(

@@ -25,8 +25,8 @@ import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.Text
-import androidx.compose.material.ripple.rememberRipple
+import androidx.compose.material3.Text
+import androidx.compose.material3.ripple
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.remember
@@ -337,7 +337,7 @@ object AboutMe : WanComposeDestination {
                     }
                     .clickable(
                         interactionSource = remember { MutableInteractionSource() },
-                        indication = rememberRipple()
+                        indication = ripple()
                     ) { onClickAlipay(pictureAlipay) },
                 contentScale = ContentScale.FillWidth
             )
@@ -379,7 +379,7 @@ object AboutMe : WanComposeDestination {
                     }
                     .clickable(
                         interactionSource = remember { MutableInteractionSource() },
-                        indication = rememberRipple()
+                        indication = ripple()
                     ) { onClickWeChat(pictureWeChat) },
                 contentScale = ContentScale.FillWidth
             )

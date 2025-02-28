@@ -1,7 +1,5 @@
 package com.sundayting.wancompose.page.examplewidgetscreen.pointinput
 
-import androidx.compose.animation.core.Animatable
-import androidx.compose.animation.core.AnimationVector1D
 import androidx.compose.foundation.LocalIndication
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -10,15 +8,12 @@ import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.gestures.detectTransformGestures
-import androidx.compose.foundation.gestures.draggable
-import androidx.compose.foundation.gestures.rememberDraggableState
 import androidx.compose.foundation.gestures.rememberScrollableState
 import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
-import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -37,12 +32,9 @@ import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.selection.toggleable
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.Divider
-import androidx.compose.material.FractionalThreshold
-import androidx.compose.material.Text
-import androidx.compose.material.rememberSwipeableState
-import androidx.compose.material.ripple.rememberRipple
-import androidx.compose.material.swipeable
+import androidx.compose.material3.Divider
+import androidx.compose.material3.Text
+import androidx.compose.material3.ripple
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
@@ -60,7 +52,6 @@ import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.onSizeChanged
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
@@ -122,7 +113,7 @@ object PointInput : WanComposeDestination {
                 val state = rememberPagerState { 5 }
                 val scope = rememberCoroutineScope()
                 CompositionLocalProvider(
-                    LocalIndication provides rememberRipple()
+                    LocalIndication provides ripple()
                 ) {
                     HorizontalPager(
                         modifier = Modifier
@@ -136,7 +127,7 @@ object PointInput : WanComposeDestination {
                         when (page) {
                             0 -> ClickablePage(Modifier.fillMaxSize())
                             1 -> ScrollPage(Modifier.fillMaxSize())
-                            2 -> DragPage(Modifier.fillMaxSize())
+                            2 -> Box {}
                             3 -> Transformable(Modifier.fillMaxSize())
                             4 -> CustomPointInput1(Modifier.fillMaxSize())
                         }
@@ -436,104 +427,104 @@ object PointInput : WanComposeDestination {
             }
         }
     }
-
-    @Composable
-    private fun DragPage(
-        modifier: Modifier = Modifier,
-    ) {
-        Column(modifier, verticalArrangement = Arrangement.spacedBy(10.dp)) {
-            val commonModifier = remember {
-                Modifier
-                    .fillMaxSize()
-                    .weight(1f, false)
-            }
-            PointInputItem(commonModifier, title = "draggable") {
-                var max by remember { mutableStateOf(0.dp) }
-                val min = 0.dp
-                val (minPx, maxPx) = with(LocalDensity.current) { min.toPx() to max.toPx() }
-                var offsetPosition by remember { mutableFloatStateOf(0f) }
-                val state = rememberDraggableState { delta ->
-                    val newValue = offsetPosition + delta
-                    offsetPosition = newValue.coerceIn(minPx, maxPx)
-                }
-                val density = LocalDensity.current
-                var curAnimatable: Animatable<Float, AnimationVector1D>? = null
-                BoxWithConstraints(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .draggable(
-                            orientation = Orientation.Horizontal,
-                            state = state,
-//                            onDragStarted = {
-//                                curAnimatable?.stop()
-//                            },
-//                            onDragStopped = { velocity ->
-//                                state.drag {
-//                                    var latestValue = offsetPosition
-//                                    curAnimatable = Animatable(initialValue = latestValue).apply {
-//                                        //滑动到边界的时候停止动画
-//                                        updateBounds(minPx, maxPx)
-//                                        //衰减停止
-//                                        animateDecay(
-//                                            initialVelocity = velocity,
-//                                            animationSpec = splineBasedDecay(density)
-//                                        ) {
-//                                            dragBy(this.value - latestValue)
-//                                            latestValue = this.value
-//                                        }
-//                                    }
-//                                }
-//                            }
-                        )
-                        .background(Color.Black)
-                ) {
-                    max = maxWidth - 50.dp
-                    Box(
-                        Modifier
-                            .offset { IntOffset(offsetPosition.roundToInt(), 0) }
-                            .size(50.dp)
-                            .background(Color.Red)
-                    )
-                }
-            }
-            PointInputItem(commonModifier, title = "swipeable") {
-
-                val squareSize = 48.dp
-                val width = squareSize * 3
-
-                val swipeableState = rememberSwipeableState(0)
-                val sizePx = with(LocalDensity.current) { squareSize.toPx() }
-                val anchors = mapOf(
-                    sizePx * 0 to 0,
-                    sizePx * 1 to 1,
-                    sizePx * 2 to 2
-                ) // Maps anchor points (in px) to states
-
-                Column {
-                    Box(
-                        modifier = Modifier
-                            .width(width)
-                            .swipeable(
-                                state = swipeableState,
-                                anchors = anchors,
-                                thresholds = { _, _ -> FractionalThreshold(0.3f) },
-                                orientation = Orientation.Horizontal
-                            )
-                            .background(Color.LightGray)
-                    ) {
-                        Box(
-                            Modifier
-                                .offset { IntOffset(swipeableState.offset.value.roundToInt(), 0) }
-                                .size(squareSize)
-                                .background(Color.DarkGray)
-                        )
-                    }
-                    Text("当前位置：${swipeableState.currentValue}")
-                }
-
-            }
-        }
-    }
+//
+//    @Composable
+//    private fun DragPage(
+//        modifier: Modifier = Modifier,
+//    ) {
+//        Column(modifier, verticalArrangement = Arrangement.spacedBy(10.dp)) {
+//            val commonModifier = remember {
+//                Modifier
+//                    .fillMaxSize()
+//                    .weight(1f, false)
+//            }
+//            PointInputItem(commonModifier, title = "draggable") {
+//                var max by remember { mutableStateOf(0.dp) }
+//                val min = 0.dp
+//                val (minPx, maxPx) = with(LocalDensity.current) { min.toPx() to max.toPx() }
+//                var offsetPosition by remember { mutableFloatStateOf(0f) }
+//                val state = rememberDraggableState { delta ->
+//                    val newValue = offsetPosition + delta
+//                    offsetPosition = newValue.coerceIn(minPx, maxPx)
+//                }
+//                val density = LocalDensity.current
+//                var curAnimatable: Animatable<Float, AnimationVector1D>? = null
+//                BoxWithConstraints(
+//                    modifier = Modifier
+//                        .fillMaxWidth()
+//                        .draggable(
+//                            orientation = Orientation.Horizontal,
+//                            state = state,
+////                            onDragStarted = {
+////                                curAnimatable?.stop()
+////                            },
+////                            onDragStopped = { velocity ->
+////                                state.drag {
+////                                    var latestValue = offsetPosition
+////                                    curAnimatable = Animatable(initialValue = latestValue).apply {
+////                                        //滑动到边界的时候停止动画
+////                                        updateBounds(minPx, maxPx)
+////                                        //衰减停止
+////                                        animateDecay(
+////                                            initialVelocity = velocity,
+////                                            animationSpec = splineBasedDecay(density)
+////                                        ) {
+////                                            dragBy(this.value - latestValue)
+////                                            latestValue = this.value
+////                                        }
+////                                    }
+////                                }
+////                            }
+//                        )
+//                        .background(Color.Black)
+//                ) {
+//                    max = maxWidth - 50.dp
+//                    Box(
+//                        Modifier
+//                            .offset { IntOffset(offsetPosition.roundToInt(), 0) }
+//                            .size(50.dp)
+//                            .background(Color.Red)
+//                    )
+//                }
+//            }
+//            PointInputItem(commonModifier, title = "swipeable") {
+//
+//                val squareSize = 48.dp
+//                val width = squareSize * 3
+//
+//                val swipeableState = rememberSwipeableState(0)
+//                val sizePx = with(LocalDensity.current) { squareSize.toPx() }
+//                val anchors = mapOf(
+//                    sizePx * 0 to 0,
+//                    sizePx * 1 to 1,
+//                    sizePx * 2 to 2
+//                ) // Maps anchor points (in px) to states
+//
+//                Column {
+//                    Box(
+//                        modifier = Modifier
+//                            .width(width)
+//                            .swipeable(
+//                                state = swipeableState,
+//                                anchors = anchors,
+//                                thresholds = { _, _ -> FractionalThreshold(0.3f) },
+//                                orientation = Orientation.Horizontal
+//                            )
+//                            .background(Color.LightGray)
+//                    ) {
+//                        Box(
+//                            Modifier
+//                                .offset { IntOffset(swipeableState.offset.value.roundToInt(), 0) }
+//                                .size(squareSize)
+//                                .background(Color.DarkGray)
+//                        )
+//                    }
+//                    Text("当前位置：${swipeableState.currentValue}")
+//                }
+//
+//            }
+//        }
+//    }
 
     @Composable
     private fun Transformable(

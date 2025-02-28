@@ -18,8 +18,8 @@ import androidx.compose.foundation.lazy.staggeredgrid.LazyVerticalStaggeredGrid
 import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
 import androidx.compose.foundation.lazy.staggeredgrid.items
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.Text
-import androidx.compose.material.ripple.rememberRipple
+import androidx.compose.material3.Text
+import androidx.compose.material3.ripple
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -31,7 +31,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.sundayting.wancompose.R
 import com.sundayting.wancompose.common.ui.title.TitleBarWithContent
-import com.sundayting.wancompose.page.examplewidgetscreen.nestscroll.NestScroll
 import com.sundayting.wancompose.page.examplewidgetscreen.pointinput.PointInput
 import com.sundayting.wancompose.page.examplewidgetscreen.scrollaletabrow.TabRowScreen
 import com.sundayting.wancompose.page.examplewidgetscreen.tantancard.TanTanSwipeCardScreen
@@ -62,7 +61,7 @@ private fun ExampleCardItem(
             )
             .clickable(
                 interactionSource = remember { MutableInteractionSource() },
-                indication = rememberRipple()
+                indication = ripple()
             ) { onClick(bean) }
             .padding(10.dp),
         horizontalAlignment = Alignment.CenterHorizontally
@@ -90,7 +89,7 @@ object ExampleWidget : HomeScreen.HomeScreenPage {
     private val exampleList = listOf(
         TanTanSwipeCardScreen.exampleCardBean,
         PointInput.exampleCardBean,
-        NestScroll.exampleCardBean,
+//        NestScroll.exampleCardBean,
         ViewPagerHorizontalPagerNestScroll.exampleCardBean,
         TabRowScreen.exampleCardBean
     )

@@ -89,7 +89,7 @@ class DataStoreCookieJar @Inject constructor(
                                     .setPath(cookie.path.orEmpty())
                                     .setSecure(cookie.secure)
                                     .setHttpOnly(cookie.httpOnly)
-                                    .setMaxAge(cookie.maxAge)
+                                    .setMaxAge(cookie.maxAge ?: 0)
                                     .build()
                             )
                         }
@@ -120,7 +120,8 @@ class DataStoreCookieJar @Inject constructor(
                 dataStore.data.map { it.cookiesForHostMap[host] }.firstOrNull() ?: return
             dataStore.updateData { cookiesProto ->
                 cookiesProto.toBuilder()
-                    .putCookiesForHost(host, CookieMap.newBuilder()
+                    .putCookiesForHost(
+                        host, CookieMap.newBuilder()
                         .apply {
                             cookies.cookiesMap
                                 //过滤掉所有过期的

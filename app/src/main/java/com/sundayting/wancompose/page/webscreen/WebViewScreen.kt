@@ -34,10 +34,10 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.CircularProgressIndicator
-import androidx.compose.material.Surface
-import androidx.compose.material.Text
-import androidx.compose.material.ripple.rememberRipple
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
+import androidx.compose.material3.ripple
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
@@ -98,7 +98,6 @@ import com.sundayting.wancompose.page.homescreen.article.ui.ArticleList
 import com.sundayting.wancompose.theme.CollectColor
 import com.sundayting.wancompose.theme.TitleTextStyle
 import com.sundayting.wancompose.theme.WanTheme
-import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import java.net.URLEncoder
 import java.nio.charset.StandardCharsets
@@ -390,7 +389,7 @@ object WebViewScreen : WanComposeDestination {
                             .clip(RoundedCornerShape(50))
                             .clickable(
                                 interactionSource = remember { MutableInteractionSource() },
-                                indication = rememberRipple()
+                                indication = ripple()
                             ) {
                                 viewModel.webViewUiState.needShowGuide = false
                             }
@@ -435,7 +434,7 @@ private fun BoxScope.WebTitle(title: String, navController: NavController) {
             .size(25.dp)
             .clickable(
                 interactionSource = remember { MutableInteractionSource() },
-                indication = rememberRipple(radius = 25.dp, bounded = false),
+                indication = ripple(radius = 25.dp, bounded = false),
             ) { navController.popBackStack() },
         colorFilter = ColorFilter.tint(TitleTextStyle.color)
     )
@@ -523,7 +522,7 @@ private fun WebToolWidget(
                         .clickable(
                             enabled = openValue,
                             interactionSource = remember { MutableInteractionSource() },
-                            indication = rememberRipple(
+                            indication = ripple(
                                 radius = 25.dp
                             )
                         ) { onClick(enum) },
@@ -554,7 +553,7 @@ private fun WebToolWidget(
                 .combinedClickable(
                     enabled = openTransition.isRunning.not(),
                     interactionSource = remember { MutableInteractionSource() },
-                    indication = rememberRipple(
+                    indication = ripple(
                         radius = 25.dp
                     ),
                     onLongClick = {
@@ -601,7 +600,7 @@ private fun WebToolButton(
     Surface(
         modifier.size(buttonSize),
         shape = CircleShape,
-        elevation = 2.dp,
+        shadowElevation = 2.dp,
         color = backgroundColor
     ) {
         Image(

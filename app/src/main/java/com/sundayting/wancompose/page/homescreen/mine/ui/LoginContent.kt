@@ -28,14 +28,14 @@ import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material.Button
-import androidx.compose.material.ButtonDefaults
-import androidx.compose.material.Icon
-import androidx.compose.material.OutlinedTextField
-import androidx.compose.material.Text
-import androidx.compose.material.TextFieldColors
-import androidx.compose.material.TextFieldDefaults
-import androidx.compose.material.ripple.rememberRipple
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Icon
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextFieldColors
+import androidx.compose.material3.TextFieldDefaults
+import androidx.compose.material3.ripple
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.derivedStateOf
@@ -211,13 +211,10 @@ private fun String.removeEmptyAndNewLine(): String {
 
 @Composable
 fun textFieldColors(): TextFieldColors {
-    return TextFieldDefaults.outlinedTextFieldColors(
-        backgroundColor = Color.Transparent,
+    return TextFieldDefaults.colors(
         cursorColor = WanTheme.colors.primaryColor,
         focusedLabelColor = WanTheme.colors.primaryColor,
-        focusedBorderColor = WanTheme.colors.primaryColor,
-        unfocusedBorderColor = WanTheme.colors.level4BackgroundColor,
-        textColor = WanTheme.colors.level1TextColor,
+        focusedTextColor = WanTheme.colors.level1TextColor
     )
 }
 
@@ -236,7 +233,7 @@ private fun LoginPage(
             verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier.clickable(
                 interactionSource = remember { MutableInteractionSource() },
-                indication = rememberRipple()
+                indication = ripple()
             ) { onToRegister() }
         ) {
             Text(
@@ -353,8 +350,8 @@ private fun LoginPage(
             onClick = {
                 onClickConfirm(username, password)
             }, colors = ButtonDefaults.buttonColors(
-                backgroundColor = WanTheme.colors.primaryColor,
-                disabledBackgroundColor = WanTheme.colors.level4BackgroundColor
+                containerColor = WanTheme.colors.primaryColor,
+                disabledContainerColor = WanTheme.colors.level4BackgroundColor,
             ),
             shape = RoundedCornerShape(50),
             contentPadding = PaddingValues(horizontal = 100.dp, vertical = 10.dp)
@@ -382,7 +379,7 @@ private fun RegisterPage(
             verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier.clickable(
                 interactionSource = remember { MutableInteractionSource() },
-                indication = rememberRipple()
+                indication = ripple()
             ) { onToLogin() }
         ) {
             Image(
@@ -506,8 +503,8 @@ private fun RegisterPage(
             onClick = {
                 onClickConfirm(username, password, passwordAgain)
             }, colors = ButtonDefaults.buttonColors(
-                backgroundColor = WanTheme.colors.primaryColor,
-                disabledBackgroundColor = WanTheme.colors.level4BackgroundColor
+                containerColor = WanTheme.colors.primaryColor,
+                disabledContainerColor = WanTheme.colors.level4BackgroundColor
             ),
             enabled = buttonEnable && state.isLoading.not(),
             shape = RoundedCornerShape(50),

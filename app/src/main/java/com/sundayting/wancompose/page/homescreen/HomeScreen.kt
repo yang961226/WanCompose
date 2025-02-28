@@ -9,19 +9,16 @@ import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.material.BottomNavigation
-import androidx.compose.material.BottomNavigationItem
-import androidx.compose.material.Icon
-import androidx.compose.material.Text
+import androidx.compose.material3.BottomAppBar
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -33,11 +30,8 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.navigation
 import com.sundayting.wancompose.R
 import com.sundayting.wancompose.WanComposeDestination
-import com.sundayting.wancompose.common.helper.LocalDarkMode
 import com.sundayting.wancompose.page.examplewidgetscreen.ExampleWidget
 import com.sundayting.wancompose.page.examplewidgetscreen.ExampleWidgetNavGraph
-import com.sundayting.wancompose.page.examplewidgetscreen.nestscroll.NestScroll
-import com.sundayting.wancompose.page.examplewidgetscreen.nestscroll.NestScroll.navigateToNestScroll
 import com.sundayting.wancompose.page.examplewidgetscreen.pointinput.PointInput
 import com.sundayting.wancompose.page.examplewidgetscreen.pointinput.PointInput.navigateToPointInput
 import com.sundayting.wancompose.page.examplewidgetscreen.scrollaletabrow.TabRowScreen
@@ -74,11 +68,11 @@ object HomeScreen : WanComposeDestination {
             titleId = R.string.bottom_tab_home,
             page = ArticleList
         ),
-        HomeScreenPage.BottomItem(
-            resId = R.drawable.ic_example,
-            titleId = R.string.bottom_tab_example,
-            page = ExampleWidget
-        ),
+//        HomeScreenPage.BottomItem(
+//            resId = R.drawable.ic_example,
+//            titleId = R.string.bottom_tab_example,
+//            page = ExampleWidget
+//        ),
         HomeScreenPage.BottomItem(
             resId = R.drawable.ic_mine,
             titleId = R.string.bottom_tab_mine,
@@ -98,39 +92,24 @@ object HomeScreen : WanComposeDestination {
                 entry?.destination?.route
             }
         }
-        BottomNavigation(
-            modifier = Modifier
-                .height(50.dp),
-            backgroundColor = WanTheme.colors.level3BackgroundColor,
-            elevation = 16.dp
+        BottomAppBar(
+            containerColor = WanTheme.colors.level3BackgroundColor,
+            tonalElevation = 16.dp,
         ) {
             pageList.forEach { bottomItem ->
-                BottomNavigationItem(
-                    selectedContentColor = Color(0xFF446DF6),
-                    unselectedContentColor = if (LocalDarkMode.current) Color.White else Color(
-                        0xFF424242
-                    ),
-                    selected = bottomItem.page.route == curRoute,
+                IconButton(
                     onClick = {
                         onClickBottom(bottomItem)
                     },
-                    icon = {
-                        Icon(
-                            painter = painterResource(id = bottomItem.resId),
-                            contentDescription = null,
-                            modifier = Modifier
-                                .size(25.dp)
-                                .padding(bottom = 5.dp),
-                        )
-                    },
-                    label = {
-                        Text(
-                            modifier = Modifier,
-                            text = stringResource(id = bottomItem.titleId),
-                            style = WanTheme.typography.h8
-                        )
-                    }
-                )
+                ) {
+                    Icon(
+                        painter = painterResource(id = bottomItem.resId),
+                        contentDescription = stringResource(id = bottomItem.titleId),
+                        modifier = Modifier
+                            .size(25.dp)
+                            .padding(bottom = 5.dp),
+                    )
+                }
             }
         }
     }
@@ -239,7 +218,7 @@ object HomeScreen : WanComposeDestination {
                             when (bean.name) {
                                 TanTanSwipeCardScreen.exampleCardBean.name -> navController.navigateToTanTanSwipeCardScreen()
                                 PointInput.exampleCardBean.name -> navController.navigateToPointInput()
-                                NestScroll.exampleCardBean.name -> navController.navigateToNestScroll()
+//                                NestScroll.exampleCardBean.name -> navController.navigateToNestScroll()
                                 ViewPagerHorizontalPagerNestScroll.exampleCardBean.name -> navController.navigateToViewPagerHorizontalPagerNestScroll()
                                 TabRowScreen.exampleCardBean.name -> navController.navigateToTabRowScreen()
                             }
@@ -255,11 +234,11 @@ object HomeScreen : WanComposeDestination {
                         navController.popBackStack()
                     })
                 }
-                composable(NestScroll.route) {
-                    NestScroll.Screen(Modifier.fillMaxSize(), onClickBackButton = {
-                        navController.popBackStack()
-                    })
-                }
+//                composable(NestScroll.route) {
+//                    NestScroll.Screen(Modifier.fillMaxSize(), onClickBackButton = {
+//                        navController.popBackStack()
+//                    })
+//                }
 
                 composable(ViewPagerHorizontalPagerNestScroll.route) {
                     ViewPagerHorizontalPagerNestScroll.Screen(
