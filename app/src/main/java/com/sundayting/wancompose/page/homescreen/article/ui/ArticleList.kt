@@ -47,7 +47,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
@@ -57,8 +56,6 @@ import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import coil.compose.AsyncImage
-import coil.request.CachePolicy
-import coil.request.ImageRequest
 import com.sundayting.wancompose.R
 import com.sundayting.wancompose.common.ui.infinitepager.InfiniteLoopHorizontalPager
 import com.sundayting.wancompose.common.ui.infinitepager.currentPageInInfinitePage
@@ -356,20 +353,13 @@ private fun ArticleListContent(
                                                 )]
                                             )
                                         },
-                                    model = ImageRequest
-                                        .Builder(LocalContext.current)
-                                        .diskCachePolicy(CachePolicy.ENABLED)
-                                        .crossfade(true)
-                                        .placeholder(R.drawable.ic_loading_pic)
-                                        .error(R.drawable.ic_loading_pic)
-                                        .fallback(R.drawable.ic_loading_pic)
-                                        .data(banner.imgUrl)
-                                        .build(),
+                                    model = banner.imgUrl,
                                     contentDescription = null,
-                                    contentScale = ContentScale.Crop
+                                    contentScale = ContentScale.Crop,
+                                    placeholder = painterResource(R.drawable.ic_loading_pic),
+                                    fallback = painterResource(R.drawable.ic_loading_pic),
                                 )
                             }
-
                         }
 
                         Box(

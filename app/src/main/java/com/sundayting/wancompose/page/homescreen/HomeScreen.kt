@@ -142,7 +142,7 @@ object HomeScreen : WanComposeDestination {
             ) = createRefs()
 
             val color =
-                if (isSelected) WanTheme.colors.level2TextColor else WanTheme.colors.level4TextColor
+                if (isSelected) WanTheme.colors.level1TextColor else WanTheme.colors.level3TextColor
 
             Box(
                 modifier = Modifier

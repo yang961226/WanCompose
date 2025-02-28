@@ -1,8 +1,6 @@
 package com.sundayting.wancompose.page.aboutme
 
-import android.content.Intent
 import android.graphics.Picture
-import android.net.Uri
 import androidx.annotation.DrawableRes
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -80,66 +78,63 @@ object AboutMe : WanComposeDestination {
         aboutMeViewModel: AboutMeViewModel = hiltViewModel(),
     ) {
 
-        WanTheme {
-            TitleBarWithContent(
-                modifier = modifier,
-                titleBarContent = {
-                    TitleBarWithBackButtonContent(onClickBackButton = {
-                        navController.popBackStack()
-                    }) {
-                        Text(
-                            text = stringResource(id = R.string.about_me),
-                            style = TitleTextStyle,
-                            modifier = Modifier.align(Alignment.Center)
-                        )
-                    }
+        TitleBarWithContent(
+            modifier = modifier,
+            titleBarContent = {
+                TitleBarWithBackButtonContent(onClickBackButton = {
+                    navController.popBackStack()
+                }) {
+                    Text(
+                        text = stringResource(id = R.string.about_me),
+                        style = TitleTextStyle,
+                        modifier = Modifier.align(Alignment.Center)
+                    )
                 }
+            }
+        ) {
+
+            Box(
+                Modifier
+                    .fillMaxSize()
             ) {
-
-                Box(
-                    Modifier
-                        .fillMaxSize()
-                ) {
-                    Box(Modifier.blur(radius = 100.dp)) {
-                        Image(
-                            painter = painterResource(id = R.drawable.ic_my_head),
-                            modifier = Modifier
-                                .fillMaxSize(),
-                            contentDescription = null,
-                            contentScale = ContentScale.Crop
-                        )
-                        Box(
-                            Modifier
-                                .matchParentSize()
-                                .background(Color.Black.copy(0.3f))
-                        )
-                    }
-                    val pagerState = rememberPagerState { 2 }
-                    VerticalPager(
+                Box(Modifier.blur(radius = 100.dp)) {
+                    Image(
+                        painter = painterResource(id = R.drawable.ic_my_head),
+                        modifier = Modifier
+                            .fillMaxSize(),
+                        contentDescription = null,
+                        contentScale = ContentScale.Crop
+                    )
+                    Box(
+                        Modifier
+                            .matchParentSize()
+                            .background(Color.Black.copy(0.3f))
+                    )
+                }
+                val pagerState = rememberPagerState { 2 }
+                VerticalPager(
+                    state = pagerState,
+                    flingBehavior = PagerDefaults.flingBehavior(
                         state = pagerState,
-                        flingBehavior = PagerDefaults.flingBehavior(
-                            state = pagerState,
-                            snapPositionalThreshold = 0.1f
-                        )
-                    ) { page ->
-                        when (page) {
-                            0 -> AboutMePage(Modifier.fillMaxSize())
+                        snapPositionalThreshold = 0.1f
+                    )
+                ) { page ->
+                    when (page) {
+                        0 -> AboutMePage(Modifier.fillMaxSize())
 
-                            else -> SponsorPage(
-                                Modifier.fillMaxSize(),
-                                onClickAlipay = {
-                                    aboutMeViewModel.saveAlipayPic(it)
-                                },
-                                onClickWeChat = {
-                                    aboutMeViewModel.saveWeChatPic(it)
-                                }
-                            )
-                        }
+                        else -> SponsorPage(
+                            Modifier.fillMaxSize(),
+                            onClickAlipay = {
+                                aboutMeViewModel.saveAlipayPic(it)
+                            },
+                            onClickWeChat = {
+                                aboutMeViewModel.saveWeChatPic(it)
+                            }
+                        )
                     }
                 }
             }
         }
-
 
     }
 
@@ -181,37 +176,37 @@ object AboutMe : WanComposeDestination {
                     )
                 )
 
-                Spacer(Modifier.height(60.dp))
-
-                InfoLine(
-                    iconResId = R.drawable.ic_juejin,
-                    title = stringResource(id = R.string.title_juejin),
-                    data = "https://juejin.cn/user/114798491603527",
-                    onClickData = {
-                        context.startActivity(
-                            Intent(
-                                Intent.ACTION_VIEW,
-                                Uri.parse("https://juejin.cn/user/114798491603527")
-                            )
-                        )
-                    }
-                )
-
-                Spacer(Modifier.height(20.dp))
-
-                InfoLine(
-                    iconResId = R.drawable.ic_blog,
-                    title = stringResource(id = R.string.title_blog),
-                    data = "https://yang961226.github.io/",
-                    onClickData = {
-                        context.startActivity(
-                            Intent(
-                                Intent.ACTION_VIEW,
-                                Uri.parse("https://yang961226.github.io/")
-                            )
-                        )
-                    }
-                )
+//                Spacer(Modifier.height(60.dp))
+//
+//                InfoLine(
+//                    iconResId = R.drawable.ic_juejin,
+//                    title = stringResource(id = R.string.title_juejin),
+//                    data = "https://juejin.cn/user/114798491603527",
+//                    onClickData = {
+//                        context.startActivity(
+//                            Intent(
+//                                Intent.ACTION_VIEW,
+//                                "https://juejin.cn/user/114798491603527".toUri()
+//                            )
+//                        )
+//                    }
+//                )
+//
+//                Spacer(Modifier.height(20.dp))
+//
+//                InfoLine(
+//                    iconResId = R.drawable.ic_blog,
+//                    title = stringResource(id = R.string.title_blog),
+//                    data = "https://yang961226.github.io/",
+//                    onClickData = {
+//                        context.startActivity(
+//                            Intent(
+//                                Intent.ACTION_VIEW,
+//                                "https://yang961226.github.io/".toUri()
+//                            )
+//                        )
+//                    }
+//                )
 
                 Spacer(
                     Modifier
