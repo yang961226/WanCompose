@@ -5,7 +5,6 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.animation.AnimatedContentTransitionScope
-import androidx.compose.animation.core.snap
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Column
@@ -47,13 +46,19 @@ import com.sundayting.wancompose.common.helper.LocalDarkModeHelper
 import com.sundayting.wancompose.common.helper.LocalSetToDarkMode
 import com.sundayting.wancompose.common.helper.LocalVibratorHelper
 import com.sundayting.wancompose.common.helper.VibratorHelper
-import com.sundayting.wancompose.common.helper.VibratorHelper.Companion.SMALL_VIBRATE
 import com.sundayting.wancompose.function.UserLoginFunction.UserEntity
+import com.sundayting.wancompose.page.aboutme.AboutMe
 import com.sundayting.wancompose.page.homescreen.HomeScreen
 import com.sundayting.wancompose.page.homescreen.mine.MineScreen
+import com.sundayting.wancompose.page.homescreen.mine.point.PointScreen
+import com.sundayting.wancompose.page.homescreen.mine.share.MyCollectedArticle
+import com.sundayting.wancompose.page.myshare.MyShareScreen
 import com.sundayting.wancompose.page.scan.ScanScreen
+import com.sundayting.wancompose.page.search.SearchScreen
 import com.sundayting.wancompose.page.setting.SettingScreen
+import com.sundayting.wancompose.page.share.ShareScreen
 import com.sundayting.wancompose.page.webscreen.WebViewScreen
+import com.sundayting.wancompose.page.webscreen.WebViewScreen.navigateToWebViewScreen
 import com.sundayting.wancompose.theme.WanTheme
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.filterIsInstance
@@ -172,13 +177,6 @@ fun WanComposeApp(
         val navController = rememberNavController()
         val navBackStackEntry by navController.currentBackStackEntryAsState()
 
-        //在主页
-        val isInMainPage by remember {
-            derivedStateOf {
-                HomeScreen.pageList.any { it.page.route == navBackStackEntry?.destination?.route }
-            }
-        }
-
         val isInPageNeedLogin by remember {
             derivedStateOf {
                 navBackStackEntry?.destination?.route?.let { route ->
@@ -226,12 +224,64 @@ fun WanComposeApp(
                     slideOutOfContainer(AnimatedContentTransitionScope.SlideDirection.Right)
                 }
             ) {
-                with(HomeScreen) { homeNavGraph(navController) }
+                composable(
+                    route = HomeScreen.route
+                ) {
+                    HomeScreen.Screen(
+                        Modifier.fillMaxSize(),
+                        navController = navController
+                    )
+                }
+
+                composable(PointScreen.route) {
+                    PointScreen.Screen(
+                        modifier = Modifier.fillMaxSize(),
+                        onClickBackButton = navController::popBackStack
+                    )
+                }
+                composable(MyCollectedArticle.route) {
+                    MyCollectedArticle.Screen(
+                        modifier = Modifier.fillMaxSize(),
+                        onClickBackButton = navController::popBackStack,
+                        onClickArticle = {
+
+                            navController.navigateToWebViewScreen(it)
+                        }
+                    )
+                }
+                composable(AboutMe.route) {
+                    AboutMe.Screen(
+                        Modifier.fillMaxSize(),
+                        navController = navController
+                    )
+                }
+
+                composable(MyShareScreen.route) {
+                    MyShareScreen.Screen(
+                        Modifier.fillMaxSize(),
+                        navController = navController,
+                    )
+                }
+
+                composable(ShareScreen.route) {
+                    ShareScreen.Screen(
+                        Modifier.fillMaxSize(),
+                        navController = navController,
+                    )
+                }
+
                 composable(
                     route = SettingScreen.route,
                 ) {
                     SettingScreen.Screen(
                         Modifier.fillMaxSize(),
+                        navController = navController
+                    )
+                }
+
+                composable(SearchScreen.route) {
+                    SearchScreen.Screen(
+                        modifier = Modifier.fillMaxSize(),
                         navController = navController
                     )
                 }
@@ -270,42 +320,6 @@ fun WanComposeApp(
                         navController = navController
                     )
                 }
-            }
-
-            val vibratorHelper = LocalVibratorHelper.current
-            if (isInMainPage) {
-                HomeScreen.WanBottomNavigation(
-                    navController = navController,
-                    onClickBottom = { bottomItem ->
-
-                        vibratorHelper.vibrateClick(SMALL_VIBRATE)
-
-                        fun toDestination(route: String) {
-                            navController.navigate(route) {
-                                popUpTo(navController.graph.findStartDestination().id) {
-                                    saveState = true
-                                }
-                                launchSingleTop = true
-                                restoreState = true
-                            }
-                        }
-
-                        if (bottomItem.page == MineScreen) {
-                            if (isLogin) {
-                                toDestination(bottomItem.page.route)
-                            } else {
-                                coroutineScope.launch {
-                                    bottomSheetPagerState.animateScrollToPage(
-                                        0,
-                                        animationSpec = snap()
-                                    )
-                                    modalSheetState.show()
-                                }
-                            }
-                        } else {
-                            toDestination(bottomItem.page.route)
-                        }
-                    })
             }
         }
 

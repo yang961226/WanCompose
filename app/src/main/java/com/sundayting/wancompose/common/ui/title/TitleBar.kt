@@ -84,8 +84,6 @@ fun TitleBarWithContent(
     titleBarContent: @Composable (BoxScope.() -> Unit)? = null,
     content: @Composable BoxScope.() -> Unit,
 ) {
-
-
     ConstraintLayout(modifier) {
         val (
             titleBarBodyContent,

@@ -28,8 +28,8 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Divider
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Text
-import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.material3.ripple
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
@@ -48,31 +48,22 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.compose.ConstraintLayout
-import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.navigation.NavHostController
 import coil.compose.AsyncImage
 import com.sundayting.wancompose.R
 import com.sundayting.wancompose.common.ui.infinitepager.InfiniteLoopHorizontalPager
 import com.sundayting.wancompose.common.ui.infinitepager.currentPageInInfinitePage
 import com.sundayting.wancompose.common.ui.infinitepager.rememberInfiniteLoopPagerState
-import com.sundayting.wancompose.common.ui.ktx.onBottomReached
 import com.sundayting.wancompose.common.ui.loading.LoadingBox
 import com.sundayting.wancompose.common.ui.loading.LocalLoadingBoxIsLoading
-import com.sundayting.wancompose.common.ui.title.TitleBarWithContent
 import com.sundayting.wancompose.page.homescreen.HomeScreen
-import com.sundayting.wancompose.page.homescreen.article.ArticleListViewModel
-import com.sundayting.wancompose.page.scan.ScanScreen.navigateToScanScreen
-import com.sundayting.wancompose.page.search.SearchScreen.navigateToSearchScreen
-import com.sundayting.wancompose.page.webscreen.WebViewScreen.navigateToWebViewScreen
+import com.sundayting.wancompose.page.homescreen.article.ArticlePageState
 import com.sundayting.wancompose.theme.CollectColor
 import com.sundayting.wancompose.theme.DarkColors
 import com.sundayting.wancompose.theme.LightColors
-import com.sundayting.wancompose.theme.TitleTextStyle
 import com.sundayting.wancompose.theme.WanTheme
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -128,93 +119,16 @@ object ArticleList : HomeScreen.HomeScreenPage {
         val title: String,
     )
 
-    @Composable
-    fun Screen(
-        modifier: Modifier = Modifier,
-        viewModel: ArticleListViewModel = hiltViewModel(),
-        navController: NavHostController,
-    ) {
 
-        CompositionLocalProvider(
-            LocalLoadingBoxIsLoading provides viewModel.state.isShowLoadingBox
-        ) {
-
-            TitleBarWithContent(
-                modifier,
-                titleBarContent = {
-                    Image(
-                        painter = painterResource(id = R.drawable.ic_scan),
-                        contentDescription = null,
-                        modifier = Modifier
-                            .align(Alignment.CenterStart)
-                            .padding(start = 15.dp)
-                            .size(20.dp)
-                            .clickable(
-                                interactionSource = remember { MutableInteractionSource() },
-                                indication = null
-                            ) {
-                                navController.navigateToScanScreen()
-                            },
-                        contentScale = ContentScale.Fit,
-                        colorFilter = ColorFilter.tint(WanTheme.colors.level1TextColor)
-                    )
-                    Text(
-                        stringResource(id = R.string.bottom_tab_home),
-                        style = TitleTextStyle,
-                        modifier = Modifier.align(Alignment.Center)
-                    )
-                    Image(
-                        painterResource(id = R.drawable.ic_search),
-                        contentDescription = null,
-                        modifier = Modifier
-                            .padding(end = 20.dp)
-                            .size(25.dp)
-                            .clickable(
-                                interactionSource = remember { MutableInteractionSource() },
-                                indication = null
-                            ) { navController.navigateToSearchScreen() }
-                            .align(Alignment.CenterEnd),
-                        colorFilter = ColorFilter.tint(WanTheme.colors.level1TextColor)
-                    )
-                }
-            ) {
-                PullToRefreshBox(
-                    modifier = Modifier
-                        .fillMaxSize(),
-                    isRefreshing = viewModel.state.refreshing,
-                    onRefresh = viewModel::refresh
-                ) {
-                    val lazyListState = rememberLazyListState()
-                    lazyListState.onBottomReached {
-                        viewModel.loadMore()
-                    }
-                    ArticleListContent(
-                        modifier = Modifier.matchParentSize(),
-                        articleState = viewModel.state,
-                        lazyListState = lazyListState,
-                        onClickArticle = {
-                            navController.navigateToWebViewScreen(it)
-                        },
-                        onClickBanner = {
-                            navController.navigateToWebViewScreen(it)
-                        },
-                        onCollect = {
-                            viewModel.collectOrUnCollectArticle(it)
-                        }
-                    )
-                }
-            }
-        }
-    }
 }
 
 val NewColor = Color(0xFF789bc5)
 val StickColor = Color(0xFFeab38d)
 
 @Composable
-private fun ArticleListContent(
+fun ArticleListContent(
     modifier: Modifier = Modifier,
-    articleState: ArticleListViewModel.ArticleState,
+    articleState: ArticlePageState,
     lazyListState: LazyListState = rememberLazyListState(),
     onClickArticle: (article: ArticleList.ArticleUiBean) -> Unit = {},
     onClickBanner: (banner: ArticleList.BannerUiBean) -> Unit = {},
@@ -318,7 +232,7 @@ private fun ArticleListContent(
 
                     Box(
                         Modifier
-                            .animateItemPlacement()
+                            .animateItem()
                             .fillMaxWidth()
                             .aspectRatio(2f / 1f)
                     ) {
@@ -398,7 +312,10 @@ private fun ArticleListContent(
                     bean = it,
                     onCollect = onCollect
                 )
-                Divider(Modifier.fillMaxWidth(), color = WanTheme.colors.level4BackgroundColor)
+                HorizontalDivider(
+                    Modifier.fillMaxWidth(),
+                    color = WanTheme.colors.level4BackgroundColor
+                )
             }
             if (articleState.loadingMore) {
                 item(key = "加载框") {
@@ -558,15 +475,16 @@ fun ArticleListSingleBean(
                 )
             )
         }
-        Crossfade(targetState = bean.isCollect, label = "", modifier = Modifier
-            .constrainAs(bottomEndContent) {
-                end.linkTo(parent.end)
-                bottom.linkTo(parent.bottom)
-            }
-            .clickable(
-                interactionSource = remember { MutableInteractionSource() },
-                indication = ripple(bounded = false)
-            ) { onCollect?.invoke(bean) }
+        Crossfade(
+            targetState = bean.isCollect, label = "", modifier = Modifier
+                .constrainAs(bottomEndContent) {
+                    end.linkTo(parent.end)
+                    bottom.linkTo(parent.bottom)
+                }
+                .clickable(
+                    interactionSource = remember { MutableInteractionSource() },
+                    indication = ripple(bounded = false)
+                ) { onCollect?.invoke(bean) }
         ) { isCollect ->
             Image(
                 painter = painterResource(id = if (isCollect) R.drawable.ic_like2 else R.drawable.ic_like),
@@ -588,7 +506,7 @@ private fun PreviewArticleListContent() {
         LocalLoadingBoxIsLoading provides true
     ) {
         ArticleListContent(Modifier.fillMaxSize(), articleState = remember {
-            ArticleListViewModel.ArticleState()
+            ArticlePageState()
         })
     }
 
@@ -602,8 +520,8 @@ private fun PreviewArticleListContent2() {
             LocalLoadingBoxIsLoading provides false
         ) {
             ArticleListContent(Modifier.fillMaxSize(), articleState = remember {
-                ArticleListViewModel.ArticleState(
-                    (0L..100L).map {
+                ArticlePageState().apply {
+                    addArticle((0L..100L).map {
                         ArticleList.ArticleUiBean(
                             title = "我是标题我是标题我是标题我是标题我是标题我是标题",
                             date = "1小时之前",
@@ -620,8 +538,8 @@ private fun PreviewArticleListContent2() {
                             isCollect = (it % 2) == 0L,
                             desc = "我是描述我是描述我是描述我是描述我是描述我是描述我是描述我是描述我是描述我是描述我是描述我是描述我是描述我是描述我是描述我是描述我是描述我是描述我是描述我是描述我是描述我是描述我是描述我是描述"
                         )
-                    }
-                )
+                    })
+                }
             })
         }
     }
@@ -635,33 +553,35 @@ private fun PreviewArticleListContent3() {
             LocalLoadingBoxIsLoading provides false
         ) {
             ArticleListContent(Modifier.fillMaxSize(), articleState = remember {
-                ArticleListViewModel.ArticleState(
-                    (0L..100L).map {
-                        ArticleList.ArticleUiBean(
-                            envelopePic = if ((it % 2).toInt() == 0) " " else null,
-                            title = "我是标题我是标题我是标题我是标题我是标题我是标题",
-                            date = "1小时之前",
-                            isNew = true,
-                            isStick = true,
-                            chapter = ArticleList.ArticleUiBean.Chapter(
-                                superChapterName = "广场Tab",
-                                chapterName = "自助"
-                            ),
-                            authorOrSharedUser = ArticleList.ArticleUiBean.AuthorOrSharedUser(
-                                author = "小茗同学",
-                            ),
-                            id = it,
-                            isCollect = (it % 2) == 0L,
-                            desc = "我是描述我是描述我是描述我是描述我是描述我是描述我是描述我是描述我是描述我是描述我是描述我是描述我是描述我是描述我是描述我是描述我是描述我是描述我是描述我是描述我是描述我是描述我是描述我是描述我是描述我是描述我是描述我是描述我是描述我是描述我是描述我是描述",
-                            tags = listOf(
-                                ArticleList.ArticleUiBean.Tag(
-                                    name = "哈哈哈",
-                                    url = "134"
+                ArticlePageState().apply {
+                    addArticle(
+                        (0L..100L).map {
+                            ArticleList.ArticleUiBean(
+                                envelopePic = if ((it % 2).toInt() == 0) " " else null,
+                                title = "我是标题我是标题我是标题我是标题我是标题我是标题",
+                                date = "1小时之前",
+                                isNew = true,
+                                isStick = true,
+                                chapter = ArticleList.ArticleUiBean.Chapter(
+                                    superChapterName = "广场Tab",
+                                    chapterName = "自助"
+                                ),
+                                authorOrSharedUser = ArticleList.ArticleUiBean.AuthorOrSharedUser(
+                                    author = "小茗同学",
+                                ),
+                                id = it,
+                                isCollect = (it % 2) == 0L,
+                                desc = "我是描述我是描述我是描述我是描述我是描述我是描述我是描述我是描述我是描述我是描述我是描述我是描述我是描述我是描述我是描述我是描述我是描述我是描述我是描述我是描述我是描述我是描述我是描述我是描述我是描述我是描述我是描述我是描述我是描述我是描述我是描述我是描述",
+                                tags = listOf(
+                                    ArticleList.ArticleUiBean.Tag(
+                                        name = "哈哈哈",
+                                        url = "134"
+                                    )
                                 )
                             )
-                        )
-                    }
-                )
+                        }
+                    )
+                }
             })
         }
     }
