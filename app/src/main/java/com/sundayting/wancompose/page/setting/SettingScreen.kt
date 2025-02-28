@@ -21,7 +21,6 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Text
 import androidx.compose.material3.ripple
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -78,14 +77,6 @@ object SettingScreen : WanComposeDestination {
         viewModel: SettingViewModel = hiltViewModel(),
         navController: NavController = rememberNavController(),
     ) {
-
-        if (LocalLoginUser.current != null) {
-            DisposableEffect(navController) {
-                onDispose {
-                    navController.popBackStack()
-                }
-            }
-        }
 
         var isShowLogoutDialog by remember { mutableStateOf(false) }
         if (isShowLogoutDialog) {

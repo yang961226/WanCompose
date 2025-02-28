@@ -8,7 +8,10 @@ import androidx.compose.animation.AnimatedContentTransitionScope
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.SheetValue
 import androidx.compose.material3.rememberModalBottomSheetState
@@ -298,6 +301,7 @@ fun WanComposeApp(
 
         if (isShowBottomSheet) {
             ModalBottomSheet(
+                modifier = Modifier.consumeWindowInsets(WindowInsets.navigationBars),
                 onDismissRequest = {
                     scope.launch {
                         modalSheetState.hide()
