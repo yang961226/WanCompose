@@ -24,6 +24,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
@@ -41,6 +42,8 @@ import androidx.navigation.compose.rememberNavController
 import com.sundayting.wancompose.LocalLoginUser
 import com.sundayting.wancompose.R
 import com.sundayting.wancompose.WanComposeDestination
+import com.sundayting.wancompose.common.event.LocalEventManager
+import com.sundayting.wancompose.common.event.ShowLoginPageEvent
 import com.sundayting.wancompose.common.ui.ktx.onBottomReached
 import com.sundayting.wancompose.common.ui.loading.LocalLoadingBoxIsLoading
 import com.sundayting.wancompose.common.ui.title.TitleBarWithContent
@@ -53,6 +56,7 @@ import com.sundayting.wancompose.page.search.SearchScreen.navigateToSearchScreen
 import com.sundayting.wancompose.page.webscreen.WebViewScreen
 import com.sundayting.wancompose.theme.TitleTextStyle
 import com.sundayting.wancompose.theme.WanTheme
+import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.launch
 
 object HomeScreen : WanComposeDestination {
@@ -190,6 +194,11 @@ object HomeScreen : WanComposeDestination {
                     pagerState.scrollToPage(0)
                 }
             }
+        }
+
+        val eventManager = LocalEventManager.current
+        LaunchedEffect(Unit) {
+            eventManager.eventFlow.filterIsInstance<ShowLoginPageEvent>()
         }
 
         Column(

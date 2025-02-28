@@ -64,8 +64,9 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.sundayting.wancompose.R
 import com.sundayting.wancompose.WanViewModel
+import com.sundayting.wancompose.common.event.LocalEventManager
+import com.sundayting.wancompose.common.event.emitToast
 import com.sundayting.wancompose.common.helper.LocalDarkMode
-import com.sundayting.wancompose.theme.ReverseDarkModeArea
 import com.sundayting.wancompose.theme.WanTheme
 import kotlinx.coroutines.launch
 
@@ -76,12 +77,11 @@ fun LoginContent(
     pagerState: PagerState = rememberPagerState { 2 },
     onClickLogin: (username: String, password: String) -> Unit = { _, _ -> },
     onClickRegister: (username: String, password: String, passwordAgain: String) -> Unit = { _, _, _ -> },
-    onPasswordNotRight: () -> Unit = {},
 ) {
     Box(
         modifier
             .fillMaxWidth()
-            .background(WanTheme.colors.level1BackgroundColor)
+            .background(WanTheme.colors.level4BackgroundColor)
     ) {
         val primaryColor = WanTheme.colors.primaryColor
         Canvas(
@@ -180,6 +180,8 @@ fun LoginContent(
                     }
 
                     1 -> {
+
+                        val eventManager = LocalEventManager.current
                         RegisterPage(
                             Modifier.fillMaxSize(),
                             state = loginOrRegisterState,
@@ -190,7 +192,7 @@ fun LoginContent(
                             },
                             onClickConfirm = { username, password, passwordAgain ->
                                 if (password != passwordAgain) {
-                                    onPasswordNotRight()
+                                    eventManager.emitToast(R.string.password_not_same)
                                 } else {
                                     onClickRegister(username, password, passwordAgain)
                                 }
@@ -212,9 +214,14 @@ private fun String.removeEmptyAndNewLine(): String {
 @Composable
 fun textFieldColors(): TextFieldColors {
     return TextFieldDefaults.colors(
-        cursorColor = WanTheme.colors.primaryColor,
+        cursorColor = WanTheme.colors.tipColor,
         focusedLabelColor = WanTheme.colors.primaryColor,
-        focusedTextColor = WanTheme.colors.level1TextColor
+        focusedTextColor = WanTheme.colors.level1TextColor,
+        unfocusedTextColor = WanTheme.colors.level3TextColor,
+        disabledTextColor = WanTheme.colors.level3TextColor,
+        focusedContainerColor = WanTheme.colors.level4BackgroundColor,
+        unfocusedContainerColor = WanTheme.colors.level2BackgroundColor,
+        disabledContainerColor = WanTheme.colors.level2BackgroundColor,
     )
 }
 
@@ -238,8 +245,8 @@ private fun LoginPage(
         ) {
             Text(
                 text = stringResource(id = R.string.to_register),
-                style = WanTheme.typography.h7.copy(
-                    color = WanTheme.colors.primaryColor
+                style = WanTheme.typography.h6.copy(
+                    color = WanTheme.colors.tipColor
                 )
             )
             Spacer(Modifier.width(5.dp))
@@ -247,7 +254,7 @@ private fun LoginPage(
                 painter = painterResource(id = R.drawable.ic_direction_right),
                 contentDescription = null,
                 modifier = Modifier.size(15.dp),
-                colorFilter = ColorFilter.tint(WanTheme.colors.primaryColor)
+                colorFilter = ColorFilter.tint(WanTheme.colors.tipColor)
             )
         }
 
@@ -259,7 +266,6 @@ private fun LoginPage(
                 username.isNotEmpty() && password.isNotEmpty()
             }
         }
-
 
         val focusRequester = remember { FocusRequester() }
 
@@ -273,14 +279,11 @@ private fun LoginPage(
             singleLine = true,
             enabled = state.isLoading.not(),
             label = {
-                ReverseDarkModeArea {
-                    Text(
-                        stringResource(id = R.string.please_input_account),
-                        style = WanTheme.typography.h7.copy(
-                            color = WanTheme.colors.level3TextColor
-                        )
-                    )
-                }
+                Text(
+                    stringResource(id = R.string.please_input_account),
+                    style = WanTheme.typography.h7,
+                    color = WanTheme.colors.level3TextColor
+                )
             },
             keyboardOptions = KeyboardOptions(
                 keyboardType = KeyboardType.Text,
@@ -310,14 +313,12 @@ private fun LoginPage(
             singleLine = true,
             enabled = state.isLoading.not(),
             label = {
-                ReverseDarkModeArea {
-                    Text(
-                        stringResource(id = R.string.please_input_password),
-                        style = WanTheme.typography.h7.copy(
-                            color = WanTheme.colors.level3TextColor
-                        )
+                Text(
+                    stringResource(id = R.string.please_input_password),
+                    style = WanTheme.typography.h7.copy(
+                        color = WanTheme.colors.level3TextColor
                     )
-                }
+                )
             },
             keyboardOptions = KeyboardOptions(
                 keyboardType = KeyboardType.Password,
@@ -349,17 +350,19 @@ private fun LoginPage(
             enabled = inputFinished && state.isLoading.not(),
             onClick = {
                 onClickConfirm(username, password)
-            }, colors = ButtonDefaults.buttonColors(
+            },
+            colors = ButtonDefaults.buttonColors(
                 containerColor = WanTheme.colors.primaryColor,
-                disabledContainerColor = WanTheme.colors.level4BackgroundColor,
+                disabledContainerColor = WanTheme.colors.level1BackgroundColor,
+                contentColor = Color.White,
+                disabledContentColor = WanTheme.colors.level3TextColor
             ),
             shape = RoundedCornerShape(50),
             contentPadding = PaddingValues(horizontal = 100.dp, vertical = 10.dp)
         ) {
             Text(
-                stringResource(id = R.string.to_login), style = WanTheme.typography.h6.copy(
-                    color = Color.White
-                )
+                stringResource(id = R.string.to_login),
+                style = WanTheme.typography.h6,
             )
         }
 
@@ -386,13 +389,13 @@ private fun RegisterPage(
                 painter = painterResource(id = R.drawable.ic_direction_left),
                 contentDescription = null,
                 modifier = Modifier.size(15.dp),
-                colorFilter = ColorFilter.tint(WanTheme.colors.primaryColor)
+                colorFilter = ColorFilter.tint(WanTheme.colors.tipColor)
             )
             Spacer(Modifier.width(5.dp))
             Text(
                 text = stringResource(id = R.string.to_login),
-                style = WanTheme.typography.h7.copy(
-                    color = WanTheme.colors.primaryColor
+                style = WanTheme.typography.h6.copy(
+                    color = WanTheme.colors.tipColor
                 )
             )
         }
@@ -408,14 +411,12 @@ private fun RegisterPage(
             singleLine = true,
             enabled = state.isLoading.not(),
             label = {
-                ReverseDarkModeArea {
-                    Text(
-                        stringResource(id = R.string.please_input_account),
-                        style = WanTheme.typography.h7.copy(
-                            color = WanTheme.colors.level3TextColor
-                        )
+                Text(
+                    stringResource(id = R.string.please_input_account),
+                    style = WanTheme.typography.h7.copy(
+                        color = WanTheme.colors.level3TextColor
                     )
-                }
+                )
             },
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
             leadingIcon = {
@@ -436,15 +437,12 @@ private fun RegisterPage(
             singleLine = true,
             enabled = state.isLoading.not(),
             label = {
-                ReverseDarkModeArea {
-                    Text(
-                        stringResource(id = R.string.please_input_password),
-                        style = WanTheme.typography.h7.copy(
-                            color = WanTheme.colors.level3TextColor
-                        )
+                Text(
+                    stringResource(id = R.string.please_input_password),
+                    style = WanTheme.typography.h7.copy(
+                        color = WanTheme.colors.level3TextColor
                     )
-                }
-
+                )
             },
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
             visualTransformation = PasswordVisualTransformation(),
@@ -467,14 +465,12 @@ private fun RegisterPage(
             singleLine = true,
             enabled = state.isLoading.not(),
             label = {
-                ReverseDarkModeArea {
-                    Text(
-                        stringResource(id = R.string.please_input_password_again),
-                        style = WanTheme.typography.h7.copy(
-                            color = WanTheme.colors.level3TextColor
-                        )
+                Text(
+                    stringResource(id = R.string.please_input_password_again),
+                    style = WanTheme.typography.h7.copy(
+                        color = WanTheme.colors.level3TextColor
                     )
-                }
+                )
             },
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
             visualTransformation = PasswordVisualTransformation(),
@@ -512,9 +508,8 @@ private fun RegisterPage(
         ) {
             Text(
                 stringResource(id = if (state.isLoading) R.string.waiting else R.string.to_register),
-                style = WanTheme.typography.h6.copy(
-                    color = Color.White
-                )
+                style = WanTheme.typography.h6,
+                color = Color.White
             )
         }
     }
@@ -524,6 +519,19 @@ private fun RegisterPage(
 @Preview
 private fun PreviewLoginContent() {
     CompositionLocalProvider(LocalDarkMode provides true) {
+        WanTheme {
+            LoginContent(
+                loginOrRegisterState = WanViewModel.LoginOrRegisterState()
+            )
+        }
+    }
+
+}
+
+@Composable
+@Preview
+private fun PreviewLoginContent2() {
+    CompositionLocalProvider(LocalDarkMode provides false) {
         WanTheme {
             LoginContent(
                 loginOrRegisterState = WanViewModel.LoginOrRegisterState()

@@ -21,6 +21,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Text
 import androidx.compose.material3.ripple
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -35,6 +36,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
+import com.sundayting.wancompose.LocalLoginUser
 import com.sundayting.wancompose.R
 import com.sundayting.wancompose.WanComposeDestination
 import com.sundayting.wancompose.common.helper.LocalDarkMode
@@ -76,6 +78,14 @@ object SettingScreen : WanComposeDestination {
         viewModel: SettingViewModel = hiltViewModel(),
         navController: NavController = rememberNavController(),
     ) {
+
+        if (LocalLoginUser.current != null) {
+            DisposableEffect(navController) {
+                onDispose {
+                    navController.popBackStack()
+                }
+            }
+        }
 
         var isShowLogoutDialog by remember { mutableStateOf(false) }
         if (isShowLogoutDialog) {
@@ -166,14 +176,16 @@ object SettingScreen : WanComposeDestination {
                     )
                 }
 
-                SettingSpacer()
+                if (LocalLoginUser.current != null) {
+                    SettingSpacer()
 
-                NormalSettingLine(
-                    title = stringResource(id = R.string.logout),
-                    onClick = {
-                        isShowLogoutDialog = true
-                    }
-                )
+                    NormalSettingLine(
+                        title = stringResource(id = R.string.logout),
+                        onClick = {
+                            isShowLogoutDialog = true
+                        }
+                    )
+                }
             }
 
             AnimatedVisibility(

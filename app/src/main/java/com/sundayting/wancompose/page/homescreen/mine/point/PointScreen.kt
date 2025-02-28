@@ -102,7 +102,8 @@ object PointScreen : WanComposeDestination {
             ),
             titleBarContent = {
                 TitleBarWithBackButtonContent(
-                    onClickBackButton = onClickBackButton
+                    onClickBackButton = onClickBackButton,
+                    backButtonColor = Color.White
                 ) {
                     Text(
                         stringResource(id = R.string.my_points),

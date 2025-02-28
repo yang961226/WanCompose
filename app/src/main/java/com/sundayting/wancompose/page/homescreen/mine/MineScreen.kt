@@ -9,6 +9,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Spacer
@@ -20,7 +21,10 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.ripple
 import androidx.compose.runtime.Composable
@@ -48,6 +52,8 @@ import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.sundayting.wancompose.R
+import com.sundayting.wancompose.common.event.LocalEventManager
+import com.sundayting.wancompose.common.event.ShowLoginPageEvent
 import com.sundayting.wancompose.common.helper.LocalVibratorHelper
 import com.sundayting.wancompose.common.helper.VibratorHelper
 import com.sundayting.wancompose.function.UserLoginFunction.UserEntity
@@ -128,73 +134,96 @@ object MineScreen : HomeScreen.HomeScreenPage {
                     contentDescription = null
                 )
 
-                Text(
-                    text = userEntity?.nick.orEmpty(),
-                    style = TextStyle(
-                        color = Color.White,
-                        fontSize = 18.sp
-                    ),
-                    modifier = Modifier.constrainAs(nickContent) {
-                        centerHorizontallyTo(parent)
-                        top.linkTo(headContent.bottom, 15.dp)
-                    }
-                )
-
-                Row(
-                    Modifier.constrainAs(levelContent) {
-                        centerHorizontallyTo(parent)
-                        top.linkTo(nickContent.bottom, 5.dp)
-                    }
-                ) {
+                if (userEntity != null) {
                     Text(
-                        text = stringResource(id = R.string.level_d, userEntity?.level ?: 0),
+                        text = userEntity.nick,
                         style = TextStyle(
-                            fontSize = 14.sp,
-                            color = Color.White.copy(0.8f)
-                        )
+                            color = Color.White,
+                            fontSize = 18.sp
+                        ),
+                        modifier = Modifier.constrainAs(nickContent) {
+                            centerHorizontallyTo(parent)
+                            top.linkTo(headContent.bottom, 15.dp)
+                        }
                     )
 
-                    Spacer(Modifier.width(5.dp))
-
-                    Text(
-                        text = stringResource(id = R.string.rank_d, userEntity?.rank ?: 0),
-                        style = TextStyle(
-                            fontSize = 14.sp,
-                            color = Color.White.copy(0.8f)
+                    Row(
+                        Modifier.constrainAs(levelContent) {
+                            centerHorizontallyTo(parent)
+                            top.linkTo(nickContent.bottom, 5.dp)
+                        }
+                    ) {
+                        Text(
+                            text = stringResource(id = R.string.level_d, userEntity.level),
+                            style = TextStyle(
+                                fontSize = 14.sp,
+                                color = Color.White.copy(0.8f)
+                            )
                         )
-                    )
+
+                        Spacer(Modifier.width(5.dp))
+
+                        Text(
+                            text = stringResource(id = R.string.rank_d, userEntity.rank),
+                            style = TextStyle(
+                                fontSize = 14.sp,
+                                color = Color.White.copy(0.8f)
+                            )
+                        )
+                    }
+                } else {
+                    val eventManager = LocalEventManager.current
+                    Button(
+                        onClick = {
+                            eventManager.emitEvent(ShowLoginPageEvent)
+                        },
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = WanTheme.colors.tipColor,
+                        ),
+                        shape = RoundedCornerShape(50),
+                        contentPadding = PaddingValues(horizontal = 50.dp, vertical = 10.dp),
+                        modifier = Modifier.constrainAs(createRef()) {
+                            top.linkTo(headContent.bottom, 10.dp)
+                            centerHorizontallyTo(headContent)
+                        }
+                    ) {
+                        Text(stringResource(R.string.to_login))
+                    }
                 }
             }
-            MineScreenSingleLine(
-                title = stringResource(id = R.string.my_points),
-                resId = R.drawable.ic_point,
-                endContent = {
-                    Text(
-                        modifier = Modifier.padding(end = 10.dp),
-                        text = (userEntity?.coinCount ?: 0).toString(),
-                        style = WanTheme.typography.h7.copy(
-                            color = WanTheme.colors.level3TextColor
+            if (userEntity != null) {
+                MineScreenSingleLine(
+                    title = stringResource(id = R.string.my_points),
+                    resId = R.drawable.ic_point,
+                    endContent = {
+                        Text(
+                            modifier = Modifier.padding(end = 10.dp),
+                            text = (userEntity.coinCount).toString(),
+                            style = WanTheme.typography.h7.copy(
+                                color = WanTheme.colors.level3TextColor
+                            )
                         )
-                    )
-                },
-                onClick = {
-                    navController.navigateToPointScreen()
-                }
-            )
-            MineScreenSingleLine(
-                title = stringResource(id = R.string.my_share),
-                resId = R.drawable.ic_share,
-                onClick = {
-                    navController.navigateToMyShareScreen()
-                }
-            )
-            MineScreenSingleLine(
-                title = stringResource(id = R.string.my_collect),
-                resId = R.drawable.ic_like,
-                onClick = {
-                    navController.navigateToMyCollectedScreen()
-                }
-            )
+                    },
+                    onClick = {
+                        navController.navigateToPointScreen()
+                    }
+                )
+                MineScreenSingleLine(
+                    title = stringResource(id = R.string.my_share),
+                    resId = R.drawable.ic_share,
+                    onClick = {
+                        navController.navigateToMyShareScreen()
+                    }
+                )
+                MineScreenSingleLine(
+                    title = stringResource(id = R.string.my_collect),
+                    resId = R.drawable.ic_like,
+                    onClick = {
+                        navController.navigateToMyCollectedScreen()
+                    }
+                )
+            }
+
             MineScreenSingleLine(
                 title = stringResource(id = R.string.about_me),
                 resId = R.drawable.ic_about,
@@ -224,12 +253,6 @@ object MineScreen : HomeScreen.HomeScreenPage {
 }
 
 @Composable
-@Preview(showBackground = true)
-private fun PreviewMineScreenSingleLine() {
-    MineScreenSingleLine(title = "我是标题", resId = R.drawable.ic_login_icon)
-}
-
-@Composable
 private fun MineScreenSingleLine(
     modifier: Modifier = Modifier,
     title: String,
@@ -241,7 +264,7 @@ private fun MineScreenSingleLine(
     Row(
         modifier
             .clickable(
-                interactionSource = remember { MutableInteractionSource() },
+                interactionSource = null,
                 indication = ripple()
             ) { onClick() }
             .padding(15.dp),
@@ -299,6 +322,23 @@ private fun PreviewMineScreen() {
                     rank = 1000
                 )
             }
+        )
+    }
+
+}
+
+@Composable
+@Preview
+private fun PreviewMineScreen2() {
+    val context = LocalContext.current
+    CompositionLocalProvider(
+        LocalVibratorHelper provides remember {
+            VibratorHelper(context)
+        }
+    ) {
+        MineScreen.Screen(
+            modifier = Modifier.fillMaxSize(),
+            null
         )
     }
 

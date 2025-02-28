@@ -30,6 +30,7 @@ import com.sundayting.wancompose.theme.WanTheme
 @Composable
 fun BoxScope.TitleBarWithBackButtonContent(
     onClickBackButton: () -> Unit,
+    backButtonColor: Color? = null,
     content: @Composable BoxScope.() -> Unit,
 ) {
     Image(
@@ -43,7 +44,7 @@ fun BoxScope.TitleBarWithBackButtonContent(
                 interactionSource = remember { MutableInteractionSource() },
                 indication = ripple(radius = 25.dp, bounded = false),
             ) { onClickBackButton() },
-        colorFilter = ColorFilter.tint(WanTheme.colors.level1TextColor)
+        colorFilter = ColorFilter.tint(backButtonColor ?: WanTheme.colors.level1TextColor)
     )
     content()
 }

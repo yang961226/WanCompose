@@ -9,7 +9,7 @@ import androidx.compose.animation.core.tween
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.pager.rememberPagerState
+import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.SheetValue
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
@@ -18,8 +18,10 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.Modifier
@@ -30,10 +32,8 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.sundayting.wancompose.common.event.EventManager
 import com.sundayting.wancompose.common.event.LocalEventManager
@@ -49,9 +49,9 @@ import com.sundayting.wancompose.common.helper.VibratorHelper
 import com.sundayting.wancompose.function.UserLoginFunction.UserEntity
 import com.sundayting.wancompose.page.aboutme.AboutMe
 import com.sundayting.wancompose.page.homescreen.HomeScreen
-import com.sundayting.wancompose.page.homescreen.mine.MineScreen
 import com.sundayting.wancompose.page.homescreen.mine.point.PointScreen
 import com.sundayting.wancompose.page.homescreen.mine.share.MyCollectedArticle
+import com.sundayting.wancompose.page.homescreen.mine.ui.LoginContent
 import com.sundayting.wancompose.page.myshare.MyShareScreen
 import com.sundayting.wancompose.page.scan.ScanScreen
 import com.sundayting.wancompose.page.search.SearchScreen
@@ -61,6 +61,7 @@ import com.sundayting.wancompose.page.webscreen.WebViewScreen
 import com.sundayting.wancompose.page.webscreen.WebViewScreen.navigateToWebViewScreen
 import com.sundayting.wancompose.theme.WanTheme
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -88,6 +89,7 @@ class MainActivity : AppCompatActivity() {
                     )
                     val isDarkMode =
                         if (darkModeFollowSystem) isSystemInDarkTheme() else setToDarkMode
+
 
                     CompositionLocalProvider(
                         LocalEventManager provides eventManager,
@@ -140,7 +142,9 @@ fun WanComposeApp(
         derivedStateOf { loginUser != null }
     }
 
-    val coroutineScope = rememberCoroutineScope()
+    val scope = rememberCoroutineScope()
+
+    var isShowBottomSheet by remember { mutableStateOf(false) }
 
     val modalSheetState = rememberModalBottomSheetState(
         skipPartiallyExpanded = true,
@@ -148,20 +152,19 @@ fun WanComposeApp(
             it != SheetValue.PartiallyExpanded
         }
     )
-//    val modalSheetState = rememberModalBottomSheetState(
-//        initialValue = ModalBottomSheetValue.Hidden,
-//        confirmValueChange = { it != ModalBottomSheetValue.HalfExpanded },
-//        skipHalfExpanded = true
-//    )
-    val bottomSheetPagerState = rememberPagerState { 2 }
 
-//    LaunchedEffect(Unit) {
-//        snapshotFlow { isLogin }.collect {
-//            if (it) {
-//                modalSheetState.hide()
-//            }
-//        }
-//    }
+    LaunchedEffect(Unit) {
+        snapshotFlow { isLogin }.collectLatest {
+            if (it && isShowBottomSheet) {
+                scope.launch {
+                    modalSheetState.hide()
+                }.invokeOnCompletion {
+                    isShowBottomSheet = false
+                }
+            }
+        }
+    }
+
     CompositionLocalProvider(
         LocalLoginUser provides loginUser,
     ) {
@@ -170,39 +173,11 @@ fun WanComposeApp(
                 .eventFlow
                 .filterIsInstance<ShowLoginPageEvent>()
                 .collect {
-//                    modalSheetState.show()
+                    isShowBottomSheet = true
                 }
         }
 
         val navController = rememberNavController()
-        val navBackStackEntry by navController.currentBackStackEntryAsState()
-
-        val isInPageNeedLogin by remember {
-            derivedStateOf {
-                navBackStackEntry?.destination?.route?.let { route ->
-                    route == MineScreen.route || route == SettingScreen.route
-                } == true
-            }
-        }
-        LaunchedEffect(Unit) {
-            snapshotFlow {
-                isLogin to isInPageNeedLogin
-            }.collect {
-                val isLoginInner = it.first
-                val isInPageNeedLoginInner = it.second
-                //如果当前不在主页而且在个人页的情况下，就会返回主页
-                if (!isLoginInner && isInPageNeedLoginInner) {
-                    val startDestination = navController.graph.findStartDestination()
-                    navController.navigate(startDestination.route!!) {
-                        popUpTo(startDestination.id) {
-                            saveState = false
-                        }
-                        launchSingleTop = true
-                        restoreState = false
-                    }
-                }
-            }
-        }
 
         Column(Modifier.fillMaxSize()) {
             NavHost(
@@ -270,9 +245,7 @@ fun WanComposeApp(
                     )
                 }
 
-                composable(
-                    route = SettingScreen.route,
-                ) {
+                composable(SettingScreen.route) {
                     SettingScreen.Screen(
                         Modifier.fillMaxSize(),
                         navController = navController
@@ -323,6 +296,25 @@ fun WanComposeApp(
             }
         }
 
+        if (isShowBottomSheet) {
+            ModalBottomSheet(
+                onDismissRequest = {
+                    scope.launch {
+                        modalSheetState.hide()
+                    }.invokeOnCompletion {
+                        isShowBottomSheet = false
+                    }
+                },
+                sheetState = modalSheetState,
+                dragHandle = null
+            ) {
+                LoginContent(
+                    loginOrRegisterState = viewModel.loginOrRegisterState,
+                    onClickLogin = viewModel::login,
+                    onClickRegister = viewModel::register,
+                )
+            }
+        }
     }
 
 }
