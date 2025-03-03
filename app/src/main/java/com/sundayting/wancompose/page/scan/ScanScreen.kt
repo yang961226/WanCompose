@@ -83,6 +83,7 @@ import com.sundayting.wancompose.R
 import com.sundayting.wancompose.WanComposeDestination
 import com.sundayting.wancompose.common.helper.LocalVibratorHelper
 import com.sundayting.wancompose.common.helper.PermissionCheckHelper
+import com.sundayting.wancompose.common.helper.PermissionCheckHelper.PermissionStatus
 import com.sundayting.wancompose.theme.WanTheme
 
 object ScanScreen : WanComposeDestination {
@@ -106,7 +107,7 @@ object ScanScreen : WanComposeDestination {
         val context = LocalContext.current
 
         var permissionStatus by remember {
-            mutableStateOf(PermissionCheckHelper.PermissionStatus.Denied)
+            mutableStateOf(PermissionStatus.Denied)
         }
 
         val requestPermissionLauncher =
@@ -131,7 +132,7 @@ object ScanScreen : WanComposeDestination {
                 .pointerInput(Unit) {}
         ) {
 
-            if (permissionStatus == PermissionCheckHelper.PermissionStatus.Granted) {
+            if (permissionStatus == PermissionStatus.Granted) {
                 ScanContent()
             } else {
                 Column(
@@ -145,19 +146,15 @@ object ScanScreen : WanComposeDestination {
                             indication = null
                         ) {
                             when (permissionStatus) {
-                                PermissionCheckHelper.PermissionStatus.PermanentDenied -> {
+                                PermissionStatus.PermanentDenied -> {
                                     toSettingLauncher.launch(Intent().apply {
                                         action = Settings.ACTION_APPLICATION_DETAILS_SETTINGS
                                         data = Uri.fromParts("package", context.packageName, null)
                                     })
                                 }
 
-                                PermissionCheckHelper.PermissionStatus.Granted -> {
+                                PermissionStatus.Denied, PermissionStatus.Granted -> {
                                     requestPermissionLauncher.launch(needPermission)
-                                }
-
-                                else -> {
-
                                 }
 
                             }
@@ -165,7 +162,7 @@ object ScanScreen : WanComposeDestination {
                 ) {
 
                     when (permissionStatus) {
-                        PermissionCheckHelper.PermissionStatus.Denied -> {
+                        PermissionStatus.Denied -> {
                             Text(
                                 text = stringResource(id = R.string.scan_need_camera_permission),
                                 style = TextStyle(
@@ -185,7 +182,7 @@ object ScanScreen : WanComposeDestination {
                             )
                         }
 
-                        PermissionCheckHelper.PermissionStatus.PermanentDenied -> {
+                        PermissionStatus.PermanentDenied -> {
                             Text(
                                 text = stringResource(id = R.string.camera_permission_permanent_denied),
                                 style = TextStyle(

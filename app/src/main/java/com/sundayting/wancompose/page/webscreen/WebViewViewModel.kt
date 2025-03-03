@@ -1,10 +1,13 @@
 package com.sundayting.wancompose.page.webscreen
 
+import android.content.Context
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.graphics.asAndroidBitmap
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.booleanPreferencesKey
@@ -12,14 +15,19 @@ import androidx.datastore.preferences.core.edit
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.sundayting.wancompose.R
 import com.sundayting.wancompose.common.event.EventManager
 import com.sundayting.wancompose.common.event.ShowLoginPageEvent
 import com.sundayting.wancompose.common.event.emitCollectArticleEvent
+import com.sundayting.wancompose.common.event.emitToast
+import com.sundayting.wancompose.common.helper.MediaStoreHelper
+import com.sundayting.wancompose.common.helper.ShareHelper
 import com.sundayting.wancompose.network.isSuccess
 import com.sundayting.wancompose.page.homescreen.article.repo.ArticleRepository
 import com.sundayting.wancompose.page.homescreen.article.ui.ArticleList
 import com.sundayting.wancompose.page.homescreen.mine.repo.MineRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.map
@@ -36,6 +44,9 @@ class WebViewViewModel @Inject constructor(
     private val mineRepo: MineRepository,
     private val eventManager: EventManager,
     private val dataStore: DataStore<Preferences>,
+    private val mediaStoreHelper: MediaStoreHelper,
+    private val shareHelper: ShareHelper,
+    @ApplicationContext context: Context
 ) : ViewModel() {
 
     companion object {
@@ -43,6 +54,8 @@ class WebViewViewModel @Inject constructor(
         private val IS_SHOW_GUIDE_KEY = booleanPreferencesKey("是否显示过新手引导")
 
     }
+
+    private val contentResolver = context.contentResolver
 
     val webViewUiState = Json.decodeFromString<ArticleList.ArticleUiBean>(
         savedStateHandle.get<String>(WebViewScreen.ARGS_KEY)?.let {
@@ -114,6 +127,22 @@ class WebViewViewModel @Inject constructor(
             }
         }
 
+    }
+
+    fun saveShareCard(imageBitmap: ImageBitmap) {
+        viewModelScope.launch {
+            mediaStoreHelper.saveBitmap(
+                contentResolver,
+                imageBitmap.asAndroidBitmap()
+            )
+            eventManager.emitToast(R.string.save_success)
+        }
+    }
+
+    fun shareNow(context: Context, imageBitmap: ImageBitmap) {
+        viewModelScope.launch {
+            shareHelper.shareBitmap(context, imageBitmap.asAndroidBitmap())
+        }
     }
 
 }

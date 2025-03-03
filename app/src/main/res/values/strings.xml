@@ -50,7 +50,7 @@
     <string name="my_slogan">我想拥抱全人类，因为我的双臂像地球一样伟大</string>
     <string name="title_juejin">掘金</string>
     <string name="title_blog">个人博客</string>
-    <string name="aboue_me_next_page_tips">哟~\nApp做的不错呀\n请你喝咖啡\n\n上滑</string>
+    <string name="about_me_next_page_tips">哟~\nApp做的不错呀\n请你喝咖啡\n\n上滑</string>
     <string name="click_to_save_pic">点击保存相册</string>
     <string name="delete_tip">是否要你分享的文章：\n「 %s 」</string>
     <string name="delete">删除</string>
@@ -70,10 +70,11 @@
     <string name="hot_search">热门搜索</string>
     <string name="history_search">历史搜索</string>
     <string name="clear">清除</string>
-    <string name="wan_android_suffix">%s -玩Android - wanandroid.com</string>
+    <string name="wan_android_suffix">%s -玩Compose</string>
     <string name="wan_compose_desc">玩Compose是一个以玩安卓网站的开源api为基础，基于纯Compose技术开发的App</string>
     <string name="made_by_wan_compose">由玩Compose客户端生成</string>
     <string name="save_pic">保存相册</string>
     <string name="share_now">立即分享</string>
     <string name="show_banner">首页展示Banner轮播</string>
+    <string name="save_success">保存成功！</string>
 </resources>

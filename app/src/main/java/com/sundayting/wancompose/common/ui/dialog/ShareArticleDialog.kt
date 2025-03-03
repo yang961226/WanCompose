@@ -1,6 +1,5 @@
 package com.sundayting.wancompose.common.ui.dialog
 
-import android.graphics.Bitmap
 import androidx.annotation.DrawableRes
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -26,13 +25,17 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.drawWithCache
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.graphics.layer.drawLayer
+import androidx.compose.ui.graphics.rememberGraphicsLayer
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
@@ -40,35 +43,61 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
 import androidx.constraintlayout.compose.ConstraintLayout
+import androidx.core.graphics.createBitmap
 import com.google.zxing.BarcodeFormat
 import com.google.zxing.EncodeHintType
 import com.google.zxing.qrcode.QRCodeWriter
 import com.sundayting.wancompose.R
+import com.sundayting.wancompose.page.homescreen.article.ui.ArticleList
+import com.sundayting.wancompose.page.homescreen.article.ui.getShareQrString
 import com.sundayting.wancompose.theme.AlwaysLightModeArea
 import com.sundayting.wancompose.theme.WanTheme
+import kotlinx.coroutines.launch
 import java.util.Hashtable
 
 @Composable
 fun ShareArticleDialog(
     modifier: Modifier = Modifier,
-    title: String,
-    qrString: String,
+    articleUiBean: ArticleList.ArticleUiBean,
     onDismissRequest: () -> Unit,
+    onClickSave: (ImageBitmap) -> Unit,
+    onClickShareNow: (ImageBitmap) -> Unit,
 ) {
 
     Dialog(
-        onDismissRequest = onDismissRequest
+        onDismissRequest = onDismissRequest,
+        properties = DialogProperties(
+            dismissOnBackPress = true,
+            dismissOnClickOutside = false
+        )
     ) {
+
+        val graphicsLayer = rememberGraphicsLayer()
+        val scope = rememberCoroutineScope()
+
         ConstraintLayout(modifier.fillMaxSize()) {
             MainContent(
-                modifier = Modifier.constrainAs(createRef()) {
-                    centerHorizontallyTo(parent)
-                    centerVerticallyTo(parent, 0.4f)
-                },
-                title = title,
-                qrString = qrString
+                modifier = Modifier
+                    .constrainAs(createRef()) {
+                        centerHorizontallyTo(parent)
+                        centerVerticallyTo(parent, 0.4f)
+                    }
+                    .drawWithCache {
+                        onDrawWithContent {
+                            graphicsLayer.record {
+                                this@onDrawWithContent.drawContent()
+                            }
+                            drawLayer(graphicsLayer)
+                        }
+                    },
+                title = articleUiBean.title,
+                qrString = remember(articleUiBean) {
+                    articleUiBean.getShareQrString()
+                }
             )
+
             Row(Modifier.constrainAs(createRef()) {
                 bottom.linkTo(parent.bottom, 25.dp)
                 centerHorizontallyTo(parent)
@@ -77,14 +106,18 @@ fun ShareArticleDialog(
                     title = stringResource(id = R.string.save_pic),
                     iconId = R.drawable.ic_photo,
                     onClick = {
-
+                        scope.launch {
+                            onClickSave(graphicsLayer.toImageBitmap())
+                        }
                     }
                 )
                 Button(
                     title = stringResource(id = R.string.share_now),
                     iconId = R.drawable.ic_share,
                     onClick = {
-
+                        scope.launch {
+                            onClickShareNow(graphicsLayer.toImageBitmap())
+                        }
                     }
                 )
             }
@@ -126,7 +159,7 @@ private fun MainContent(
                         }
                     }
                 }
-                imageBitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888).apply {
+                imageBitmap = createBitmap(width, height).apply {
                     setPixels(pixels, 0, width, 0, 0, width, height)
                 }.asImageBitmap()
             }
@@ -135,7 +168,7 @@ private fun MainContent(
         Column(
             modifier
                 .fillMaxWidth()
-                .background(WanTheme.colors.level1BackgroundColor)
+                .background(WanTheme.colors.level1BackgroundColor, RoundedCornerShape(8.dp))
                 .padding(horizontal = 10.dp)
         ) {
             Text(
@@ -164,7 +197,7 @@ private fun MainContent(
                     Image(
                         bitmap = it,
                         contentDescription = null,
-                        modifier = Modifier.size(50.dp)
+                        modifier = Modifier.size(70.dp)
                     )
                 }
             }

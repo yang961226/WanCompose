@@ -79,13 +79,13 @@ object ArticleList : HomeScreen.HomeScreenPage {
     data class ArticleUiBean(
         val title: String,
         val envelopePic: String? = null,
-        val desc: String,
-        val date: String,
+        val desc: String = "",
+        val date: String = "",
         val id: Long,
         val isStick: Boolean = false,
         val isNew: Boolean = false,
-        val chapter: Chapter,
-        val authorOrSharedUser: AuthorOrSharedUser,
+        val chapter: Chapter? = null,
+        val authorOrSharedUser: AuthorOrSharedUser? = null,
         val link: String = "",
         val isCollect: Boolean = false,
         val tags: List<Tag> = emptyList(),
@@ -370,10 +370,15 @@ fun ArticleListSingleBean(
             }
             Text(
                 text = remember(bean.authorOrSharedUser) {
-                    if (bean.authorOrSharedUser.author.isNotEmpty()) {
-                        "作者：${bean.authorOrSharedUser.author}"
+                    val authorOrUser = bean.authorOrSharedUser
+                    if (authorOrUser != null) {
+                        if (authorOrUser.author.isNotEmpty()) {
+                            "作者：${authorOrUser.author}"
+                        } else {
+                            "分享者：${authorOrUser.sharedUser}"
+                        }
                     } else {
-                        "分享者：${bean.authorOrSharedUser.sharedUser}"
+                        ""
                     }
                 },
                 style = WanTheme.typography.h8.copy(
@@ -468,7 +473,11 @@ fun ArticleListSingleBean(
             }
             Text(
                 text = remember(bean.chapter) {
-                    "分类：${bean.chapter.superChapterName} / ${bean.chapter.chapterName}"
+                    if (bean.chapter != null) {
+                        "分类：${bean.chapter.superChapterName} / ${bean.chapter.chapterName}"
+                    } else {
+                        ""
+                    }
                 },
                 style = WanTheme.typography.h8.copy(
                     color = WanTheme.colors.level3TextColor

@@ -215,7 +215,7 @@ object AboutMe : WanComposeDestination {
                 )
 
                 Text(
-                    text = stringResource(id = R.string.aboue_me_next_page_tips),
+                    text = stringResource(id = R.string.about_me_next_page_tips),
                     style = WanTheme.typography.h7.copy(
                         color = WanTheme.colors.level2TextColor
                     ),

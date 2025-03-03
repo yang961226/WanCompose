@@ -33,7 +33,7 @@ class MediaStoreHelper @Inject constructor() {
         suspendCancellableCoroutine {
             try {
                 val realDisplayName =
-                    displayName?.replace(".png", "") ?: System.currentTimeMillis().toString()
+                    displayName ?: System.currentTimeMillis().toString()
                 val values = ContentValues().apply {
                     //设置文件的 MimeType
                     put(MediaStore.Images.Media.MIME_TYPE, "image/png")
@@ -47,7 +47,6 @@ class MediaStoreHelper @Inject constructor() {
                     //通过outputStream将图片文件内容写入Url
                     contentResolver.openOutputStream(insertUri)?.use { outputStream ->
                         bitmap.compress(Bitmap.CompressFormat.PNG, 100, outputStream)
-                        outputStream.flush()
                     }
                 }
             } catch (e: Exception) {

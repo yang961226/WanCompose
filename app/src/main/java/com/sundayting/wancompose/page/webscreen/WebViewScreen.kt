@@ -287,10 +287,17 @@ object WebViewScreen : WanComposeDestination {
 
             if (showShareDialog) {
                 ShareArticleDialog(
-                    title = viewModel.webViewUiState.articleUiBean.title,
-                    qrString = "哈哈哈哈厕所",
+                    articleUiBean = viewModel.webViewUiState.articleUiBean,
                     onDismissRequest = {
                         showShareDialog = false
+                    },
+                    onClickSave = {
+                        viewModel.saveShareCard(it)
+                    },
+                    onClickShareNow = {
+                        viewModel.shareNow(
+                            context, it
+                        )
                     }
                 )
             }

@@ -4,6 +4,7 @@ import android.content.Context
 import android.graphics.Picture
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.sundayting.wancompose.R
 import com.sundayting.wancompose.common.event.EventManager
 import com.sundayting.wancompose.common.event.emitToast
 import com.sundayting.wancompose.common.helper.MediaStoreHelper
@@ -36,7 +37,7 @@ class AboutMeViewModel @Inject constructor(
                 picture.saveToBitmap(),
                 displayName = name
             )
-            eventManager.emitToast("保存成功！")
+            eventManager.emitToast(R.string.save_success)
         }
     }
 
