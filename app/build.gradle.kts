@@ -150,8 +150,6 @@ dependencies {
     debugImplementation("androidx.compose.ui:ui-tooling")
     debugImplementation("androidx.compose.ui:ui-test-manifest")
 
-    implementation("com.google.accompanist:accompanist-webview:0.30.1")
-
     implementation("com.google.accompanist:accompanist-systemuicontroller:0.32.0")
 
     implementation("io.coil-kt:coil-compose:2.6.0")

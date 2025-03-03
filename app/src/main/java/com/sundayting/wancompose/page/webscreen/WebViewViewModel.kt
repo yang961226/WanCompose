@@ -12,8 +12,6 @@ import androidx.datastore.preferences.core.edit
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.google.accompanist.web.WebContent
-import com.google.accompanist.web.WebViewState
 import com.sundayting.wancompose.common.event.EventManager
 import com.sundayting.wancompose.common.event.ShowLoginPageEvent
 import com.sundayting.wancompose.common.event.emitCollectArticleEvent
@@ -47,7 +45,7 @@ class WebViewViewModel @Inject constructor(
     }
 
     val webViewUiState = Json.decodeFromString<ArticleList.ArticleUiBean>(
-        savedStateHandle.get<String>(WebViewScreen.argumentKey)?.let {
+        savedStateHandle.get<String>(WebViewScreen.ARGS_KEY)?.let {
             URLDecoder.decode(it, StandardCharsets.UTF_8.toString())
         } ?: error("没有参数！")
     ).let {
@@ -82,7 +80,7 @@ class WebViewViewModel @Inject constructor(
 
         var articleUiBean by mutableStateOf(articleUiBean)
 
-        val webViewState = WebViewState(WebContent.Url(articleUiBean.link))
+        var targetUrl by mutableStateOf(articleUiBean.link)
 
         private val _toolList = mutableStateListOf<WebToolWidgetEnum>().apply {
             addAll(toolList)

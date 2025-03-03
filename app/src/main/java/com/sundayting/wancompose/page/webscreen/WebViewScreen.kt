@@ -2,12 +2,14 @@ package com.sundayting.wancompose.page.webscreen
 
 import android.annotation.SuppressLint
 import android.content.Intent
-import android.net.Uri
 import android.os.Build
 import android.webkit.CookieManager
+import android.webkit.WebChromeClient
 import android.webkit.WebResourceRequest
 import android.webkit.WebSettings
 import android.webkit.WebView
+import android.webkit.WebViewClient
+import androidx.activity.compose.BackHandler
 import androidx.annotation.DrawableRes
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.Crossfade
@@ -31,6 +33,7 @@ import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -40,9 +43,9 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.ripple
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -76,24 +79,20 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.viewinterop.AndroidView
 import androidx.constraintlayout.compose.ConstraintLayout
+import androidx.core.net.toUri
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import androidx.navigation.NavType
 import androidx.navigation.navArgument
 import androidx.webkit.WebSettingsCompat
 import androidx.webkit.WebViewFeature
-import com.google.accompanist.web.AccompanistWebViewClient
-import com.google.accompanist.web.LoadingState
-import com.google.accompanist.web.WebView
-import com.google.accompanist.web.WebViewNavigator
-import com.google.accompanist.web.rememberWebViewNavigator
 import com.sundayting.wancompose.R
 import com.sundayting.wancompose.WanComposeDestination
 import com.sundayting.wancompose.common.helper.LocalDarkMode
 import com.sundayting.wancompose.common.helper.LocalVibratorHelper
 import com.sundayting.wancompose.common.ui.dialog.ShareArticleDialog
-import com.sundayting.wancompose.common.ui.title.TitleBarWithContent
 import com.sundayting.wancompose.page.homescreen.article.ui.ArticleList
 import com.sundayting.wancompose.theme.CollectColor
 import com.sundayting.wancompose.theme.TitleTextStyle
@@ -107,12 +106,12 @@ object WebViewScreen : WanComposeDestination {
     override val route: String
         get() = "浏览器"
 
-    const val argumentKey = "argumentKey"
+    const val ARGS_KEY = "argumentKey"
 
-    val routeWithArgs = "$route/{$argumentKey}"
+    val routeWithArgs = "$route/{$ARGS_KEY}"
 
     val arguments = listOf(
-        navArgument(argumentKey) { type = NavType.StringType },
+        navArgument(ARGS_KEY) { type = NavType.StringType },
     )
 
 
@@ -170,181 +169,184 @@ object WebViewScreen : WanComposeDestination {
             mutableStateOf(Offset.Zero)
         }
 
-        TitleBarWithContent(
-            modifier = modifier.navigationBarsPadding(),
-            titleBarContent = {
-                WebTitle(title, navController)
-            },
+        ConstraintLayout(
+            modifier
+                .fillMaxSize()
+                .statusBarsPadding()
+                .navigationBarsPadding()
         ) {
-            val client = remember(context) {
-                object : AccompanistWebViewClient() {
-                    override fun shouldOverrideUrlLoading(
-                        view: WebView,
-                        request: WebResourceRequest,
-                    ): Boolean {
-                        var uri = request.url
-                        val scheme = uri.scheme
-                        if (scheme == "http") {
-                            uri = Uri.parse("https://" + uri.host + uri.path)
-                        }
-                        if (uri.scheme != "https" && uri.scheme != "http") {
-                            val intent = Intent(Intent.ACTION_VIEW, uri)
-                            if (intent.resolveActivity(context.packageManager) != null) {
-                                context.startActivity(intent)
-                            }
-                        } else {
-                            view.loadUrl(uri.toString())
-                        }
-                        return true
+            val (
+                webViewContent,
+                webToolContent,
+            ) = createRefs()
+
+            var cachedWebView by remember { mutableStateOf<WebView?>(null) }
+            val isDarkMode = LocalDarkMode.current
+
+            cachedWebView?.let { webView ->
+                BackHandler {
+                    if (webView.canGoBack()) {
+                        webView.goBack()
+                    } else {
+                        navController.popBackStack()
                     }
+                }
 
+                LaunchedEffect(webView, viewModel.webViewUiState.targetUrl) {
+                    webView.loadUrl(viewModel.webViewUiState.targetUrl)
+                }
 
-                    override fun onPageFinished(view: WebView?, url: String?) {
-                        title = view?.title.orEmpty()
+                LaunchedEffect(isDarkMode, webView) {
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                        if (WebViewFeature.isFeatureSupported(WebViewFeature.ALGORITHMIC_DARKENING)) {
+                            WebSettingsCompat.setAlgorithmicDarkeningAllowed(
+                                webView.settings,
+                                isDarkMode
+                            )
+                        }
+                    } else {
+                        if (WebViewFeature.isFeatureSupported(WebViewFeature.FORCE_DARK)) {
+                            WebSettingsCompat.setForceDark(
+                                webView.settings,
+                                if (isDarkMode) WebSettingsCompat.FORCE_DARK_ON else WebSettingsCompat.FORCE_DARK_OFF
+                            )
+                        }
                     }
                 }
             }
-            val navigator: WebViewNavigator = rememberWebViewNavigator()
-            ConstraintLayout(
-                Modifier
-                    .fillMaxSize()
-            ) {
-                val (
-                    webViewContent,
-                    webToolContent,
-                ) = createRefs()
 
-                var cachedWebView by remember { mutableStateOf<WebView?>(null) }
-                val isDarkMode = LocalDarkMode.current
+            var webProgress by remember { mutableIntStateOf(0) }
 
-                cachedWebView?.let { webView ->
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                        LaunchedEffect(isDarkMode, webView) {
-                            if (WebViewFeature.isFeatureSupported(WebViewFeature.ALGORITHMIC_DARKENING)) {
-                                WebSettingsCompat.setAlgorithmicDarkeningAllowed(
-                                    webView.settings,
-                                    isDarkMode
-                                )
-                            }
-                        }
-                    } else {
-                        LaunchedEffect(isDarkMode, webView) {
-                            if (WebViewFeature.isFeatureSupported(WebViewFeature.FORCE_DARK)) {
-                                WebSettingsCompat.setForceDark(
-                                    webView.settings,
-                                    if (isDarkMode) WebSettingsCompat.FORCE_DARK_ON else WebSettingsCompat.FORCE_DARK_OFF
-                                )
-                            }
-                        }
-                    }
-
-                }
-
-
-
-
-                WebView(
-                    navigator = navigator,
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .pointerInput(Unit) {
-                            awaitEachGesture {
-                                while (true) {
-                                    val event = awaitPointerEvent()
-                                    if (event.type == PointerEventType.Move) {
-                                        isOpenToolBoxOpen = false
+            AndroidView(
+                {
+                    WebView(it).apply {
+                        settings.javaScriptEnabled = true
+                        settings.javaScriptCanOpenWindowsAutomatically = true
+                        settings.allowFileAccess = true
+                        settings.domStorageEnabled = true
+                        settings.setGeolocationEnabled(true)
+                        settings.cacheMode = WebSettings.LOAD_DEFAULT
+                        settings.mixedContentMode = WebSettings.MIXED_CONTENT_ALWAYS_ALLOW
+                        CookieManager.getInstance()
+                            .setAcceptThirdPartyCookies(this, true)
+                        webViewClient = object : WebViewClient() {
+                            override fun shouldOverrideUrlLoading(
+                                view: WebView,
+                                request: WebResourceRequest,
+                            ): Boolean {
+                                var uri = request.url
+                                val scheme = uri.scheme
+                                if (scheme == "http") {
+                                    uri = ("https://" + uri.host + uri.path).toUri()
+                                }
+                                if (uri.scheme != "https" && uri.scheme != "http") {
+                                    val intent = Intent(Intent.ACTION_VIEW, uri)
+                                    if (intent.resolveActivity(context.packageManager) != null) {
+                                        context.startActivity(intent)
                                     }
+                                    return true
+                                } else {
+                                    view.loadUrl(uri.toString())
+                                    return false
+                                }
+                            }
+
+
+                            override fun onPageFinished(view: WebView?, url: String?) {
+                                title = view?.title.orEmpty()
+                            }
+
+                        }
+                        webChromeClient = object : WebChromeClient() {
+                            override fun onProgressChanged(view: WebView?, newProgress: Int) {
+                                webProgress = newProgress
+                            }
+                        }
+
+                        cachedWebView = this
+                    }
+                },
+                modifier = Modifier
+                    .fillMaxSize()
+                    .pointerInput(Unit) {
+                        awaitEachGesture {
+                            while (true) {
+                                val event = awaitPointerEvent()
+                                if (event.type == PointerEventType.Move) {
+                                    isOpenToolBoxOpen = false
                                 }
                             }
                         }
-                        .constrainAs(webViewContent) {
-                            centerTo(parent)
-                        },
-                    factory = {
-                        WebView(it).also { webView ->
-                            cachedWebView = webView
-                            webView.settings.apply {
-                                javaScriptEnabled = true
-                                javaScriptCanOpenWindowsAutomatically = false
-                                allowFileAccess = true
-                                domStorageEnabled = true
-                                setGeolocationEnabled(true)
-                                cacheMode = WebSettings.LOAD_DEFAULT
-                                mixedContentMode = WebSettings.MIXED_CONTENT_ALWAYS_ALLOW
-                                CookieManager.getInstance()
-                                    .setAcceptThirdPartyCookies(webView, true);
-                            }
-                        }
-                    },
-                    state = viewModel.webViewUiState.webViewState,
-                    client = client
-                )
+                    }
+                    .constrainAs(webViewContent) {
+                        centerTo(parent)
+                    }
+            )
 
-                val vibratorHelper = LocalVibratorHelper.current
+            val vibratorHelper = LocalVibratorHelper.current
 
-                var showShareDialog by remember {
-                    mutableStateOf(false)
-                }
+            var showShareDialog by remember {
+                mutableStateOf(false)
+            }
 
-                if (showShareDialog) {
-                    ShareArticleDialog(
-                        title = viewModel.webViewUiState.articleUiBean.title,
-                        qrString = "哈哈哈哈厕所",
-                        onDismissRequest = {
-                            showShareDialog = false
-                        }
-                    )
-                }
-
-                WebToolWidget(
-                    Modifier
-                        .constrainAs(webToolContent) {
-                            start.linkTo(parent.start, 30.dp)
-                            bottom.linkTo(parent.bottom, 60.dp)
-                        },
-                    loadingProgress = remember {
-                        derivedStateOf { (viewModel.webViewUiState.webViewState.loadingState as? LoadingState.Loading)?.progress }
-                    }.value,
-                    toolList = viewModel.webViewUiState.toolList,
-                    isCollect = viewModel.webViewUiState.articleUiBean.isCollect,
-                    openProvide = { isOpenToolBoxOpen },
-                    onOpenChanged = {
-                        if (it) {
-                            vibratorHelper.vibrateClick()
-                        }
-                        isOpenToolBoxOpen = it
-                    },
-                    onClick = {
-                        when (it) {
-                            WebToolWidgetEnum.Share -> {
-                                showShareDialog = true
-                            }
-
-                            WebToolWidgetEnum.Browser -> context.startActivity(
-                                Intent(
-                                    Intent.ACTION_VIEW,
-                                    Uri.parse(viewModel.webViewUiState.webViewState.lastLoadedUrl)
-                                )
-                            )
-
-                            WebToolWidgetEnum.Collect -> viewModel.collectOrUnCollectArticle()
-
-                            WebToolWidgetEnum.Back -> if (navigator.canGoBack) {
-                                navigator.navigateBack()
-                            } else {
-                                navController.popBackStack()
-                            }
-                        }
-                    },
-                    onCloseButtonPositionChanged = {
-                        toolPosition = it
+            if (showShareDialog) {
+                ShareArticleDialog(
+                    title = viewModel.webViewUiState.articleUiBean.title,
+                    qrString = "哈哈哈哈厕所",
+                    onDismissRequest = {
+                        showShareDialog = false
                     }
                 )
-
             }
+
+            WebToolWidget(
+                Modifier
+                    .constrainAs(webToolContent) {
+                        start.linkTo(parent.start, 30.dp)
+                        bottom.linkTo(parent.bottom, 60.dp)
+                    },
+                loadingProgressProvider = { webProgress },
+                toolList = viewModel.webViewUiState.toolList,
+                isCollect = viewModel.webViewUiState.articleUiBean.isCollect,
+                openProvide = { isOpenToolBoxOpen },
+                onOpenChanged = {
+                    if (it) {
+                        vibratorHelper.vibrateClick()
+                    }
+                    isOpenToolBoxOpen = it
+                },
+                onClick = {
+                    when (it) {
+                        WebToolWidgetEnum.Share -> {
+                            showShareDialog = true
+                        }
+
+                        WebToolWidgetEnum.Browser -> context.startActivity(
+                            Intent(
+                                Intent.ACTION_VIEW,
+                                viewModel.webViewUiState.targetUrl.toUri()
+                            )
+                        )
+
+                        WebToolWidgetEnum.Collect -> viewModel.collectOrUnCollectArticle()
+
+                        WebToolWidgetEnum.Back -> if (cachedWebView?.canGoBack() == true) {
+                            cachedWebView?.goBack()
+                        } else {
+                            navController.popBackStack()
+                        }
+                    }
+                },
+                onCloseButtonPositionChanged = {
+                    toolPosition = it
+                }
+            )
+
         }
 
-        Crossfade(targetState = viewModel.webViewUiState.needShowGuide, label = "") { isVisible ->
+
+        Crossfade(targetState = viewModel.webViewUiState.needShowGuide, label = "")
+        { isVisible ->
             if (isVisible) {
                 Box(Modifier.fillMaxSize()) {
                     Canvas(
@@ -460,7 +462,8 @@ private fun PreviewWebToolWidget() {
             },
             onOpenChanged = {
 
-            }
+            },
+            loadingProgressProvider = { 10 }
         )
     }
 
@@ -480,7 +483,7 @@ private fun WebToolWidget(
     modifier: Modifier = Modifier,
     openProvide: () -> Boolean,
     onOpenChanged: (Boolean) -> Unit,
-    loadingProgress: Float? = null,
+    loadingProgressProvider: () -> Int,
     toolList: List<WebToolWidgetEnum>,
     isCollect: Boolean = false,
     onClick: (WebToolWidgetEnum) -> Unit = {},
@@ -502,12 +505,13 @@ private fun WebToolWidget(
         AnimatedVisibility(
             enter = fadeIn(),
             exit = fadeOut(),
-            visible = loadingProgress != null && loadingProgress != 1f
+            visible = loadingProgressProvider() < 100
         ) {
             CircularProgressIndicator(
+                progress = { loadingProgressProvider() / 100f },
                 modifier = Modifier.size(60.dp),
-                color = WanTheme.colors.primaryColor,
-                progress = loadingProgress ?: 0f,
+                color = WanTheme.colors.tipColor,
+                trackColor = Color.Transparent
             )
         }
         toolList.forEachIndexed { index, enum ->
