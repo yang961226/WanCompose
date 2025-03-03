@@ -86,19 +86,13 @@ class MainActivity : AppCompatActivity() {
             override fun onCreate(owner: LifecycleOwner) {
                 enableEdgeToEdge()
                 setContent {
-                    val setToDarkMode by darkModeHelper.darkModeSettingFlow.collectAsState(false)
-                    val darkModeFollowSystem by darkModeHelper.darkModeFollowSystemFlow.collectAsState(
-                        true
-                    )
+                    val setToDarkMode by darkModeHelper.darkModeSettingFlow.collectAsState()
+                    val darkModeFollowSystem by darkModeHelper.darkModeFollowSystemFlow.collectAsState()
                     val isDarkMode =
                         if (darkModeFollowSystem) isSystemInDarkTheme() else setToDarkMode
-
-
                     CompositionLocalProvider(
                         LocalEventManager provides eventManager,
                         LocalVibratorHelper provides vibratorHelper,
-
-                        // TODO: 合并一下暗夜模式的属性
                         LocalDarkMode provides isDarkMode,
                         LocalDarkModeHelper provides darkModeHelper,
                         LocalDarkModeFollowSystem provides darkModeFollowSystem,

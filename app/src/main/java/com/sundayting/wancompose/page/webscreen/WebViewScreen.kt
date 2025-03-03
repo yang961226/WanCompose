@@ -2,7 +2,6 @@ package com.sundayting.wancompose.page.webscreen
 
 import android.annotation.SuppressLint
 import android.content.Intent
-import android.os.Build
 import android.webkit.CookieManager
 import android.webkit.WebChromeClient
 import android.webkit.WebResourceRequest
@@ -86,8 +85,6 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import androidx.navigation.NavType
 import androidx.navigation.navArgument
-import androidx.webkit.WebSettingsCompat
-import androidx.webkit.WebViewFeature
 import com.sundayting.wancompose.R
 import com.sundayting.wancompose.WanComposeDestination
 import com.sundayting.wancompose.common.helper.LocalDarkMode
@@ -172,6 +169,7 @@ object WebViewScreen : WanComposeDestination {
         ConstraintLayout(
             modifier
                 .fillMaxSize()
+                .background(WanTheme.colors.level1BackgroundColor)
                 .statusBarsPadding()
                 .navigationBarsPadding()
         ) {
@@ -194,24 +192,6 @@ object WebViewScreen : WanComposeDestination {
 
                 LaunchedEffect(webView, viewModel.webViewUiState.targetUrl) {
                     webView.loadUrl(viewModel.webViewUiState.targetUrl)
-                }
-
-                LaunchedEffect(isDarkMode, webView) {
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                        if (WebViewFeature.isFeatureSupported(WebViewFeature.ALGORITHMIC_DARKENING)) {
-                            WebSettingsCompat.setAlgorithmicDarkeningAllowed(
-                                webView.settings,
-                                isDarkMode
-                            )
-                        }
-                    } else {
-                        if (WebViewFeature.isFeatureSupported(WebViewFeature.FORCE_DARK)) {
-                            WebSettingsCompat.setForceDark(
-                                webView.settings,
-                                if (isDarkMode) WebSettingsCompat.FORCE_DARK_ON else WebSettingsCompat.FORCE_DARK_OFF
-                            )
-                        }
-                    }
                 }
             }
 
@@ -264,6 +244,22 @@ object WebViewScreen : WanComposeDestination {
                         }
 
                         cachedWebView = this
+
+                        setOnLongClickListener { view ->
+                            val result = (view as WebView).hitTestResult
+                            val extra = when (result.type) {
+                                WebView.HitTestResult.SRC_IMAGE_ANCHOR_TYPE,
+                                WebView.HitTestResult.IMAGE_TYPE -> {
+                                    result.extra
+                                }
+
+                                else -> null
+                            }
+                            if (extra != null) {
+
+                            }
+                            true
+                        }
                     }
                 },
                 modifier = Modifier
