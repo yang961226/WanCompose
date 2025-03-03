@@ -35,12 +35,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.Stable
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
-import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -57,6 +55,7 @@ import com.sundayting.wancompose.R
 import com.sundayting.wancompose.common.ui.infinitepager.InfiniteLoopHorizontalPager
 import com.sundayting.wancompose.common.ui.infinitepager.currentPageInInfinitePage
 import com.sundayting.wancompose.common.ui.infinitepager.rememberInfiniteLoopPagerState
+import com.sundayting.wancompose.common.ui.infinitepager.resetToFirstPage
 import com.sundayting.wancompose.common.ui.loading.LoadingBox
 import com.sundayting.wancompose.common.ui.loading.LocalLoadingBoxIsLoading
 import com.sundayting.wancompose.page.homescreen.HomeScreen
@@ -237,12 +236,18 @@ fun ArticleListContent(
                             .aspectRatio(2f / 1f)
                     ) {
 
-                        var curTitle by remember { mutableStateOf<String?>(null) }
+                        val curTitle by remember {
+                            derivedStateOf {
+                                articleState.bannerList.getOrNull(
+                                    pagerState.currentPageInInfinitePage(
+                                        articleState.bannerList.size
+                                    )
+                                )?.title
+                            }
+                        }
 
                         LaunchedEffect(Unit) {
-                            snapshotFlow { pagerState.currentPageInInfinitePage(articleState.bannerList.size) }.collect {
-                                curTitle = articleState.bannerList.getOrNull(it)?.title
-                            }
+                            pagerState.resetToFirstPage()
                         }
 
                         InfiniteLoopHorizontalPager(

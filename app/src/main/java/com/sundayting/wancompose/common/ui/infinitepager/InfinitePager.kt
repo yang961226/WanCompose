@@ -72,6 +72,10 @@ fun InfiniteLoopHorizontalPager(
 
 }
 
+suspend fun PagerState.resetToFirstPage() {
+    scrollToPage(InfiniteInitialPage)
+}
+
 fun PagerState.currentPageInInfinitePage(pageCount: Int): Int {
     return (currentPage - InfiniteInitialPage).myMod(pageCount)
 }
