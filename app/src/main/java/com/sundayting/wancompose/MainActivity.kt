@@ -1,8 +1,11 @@
 package com.sundayting.wancompose
 
+import android.content.Intent
+import android.provider.Settings
 import android.widget.Toast
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.animation.AnimatedContentTransitionScope
 import androidx.compose.animation.core.tween
@@ -28,6 +31,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.Modifier
+import androidx.core.app.NotificationManagerCompat
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
@@ -62,6 +66,7 @@ import com.sundayting.wancompose.page.setting.SettingScreen
 import com.sundayting.wancompose.page.share.ShareScreen
 import com.sundayting.wancompose.page.webscreen.WebViewScreen
 import com.sundayting.wancompose.page.webscreen.WebViewScreen.navigateToWebViewScreen
+import com.sundayting.wancompose.service.WanService
 import com.sundayting.wancompose.theme.WanTheme
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collectLatest
@@ -81,9 +86,31 @@ class MainActivity : AppCompatActivity() {
     @Inject
     lateinit var darkModeHelper: DarkModeHelper
 
+    private val requestNotificationPermissionLauncher =
+        registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
+            if (isGranted) {
+                startForegroundService(Intent(this@MainActivity, WanService::class.java))
+                val channel = NotificationManagerCompat.from(this)
+                    .getNotificationChannel(WanService.CHANNEL_ID)
+                if (channel == null) {
+                    startActivity(
+                        Intent(Settings.ACTION_CHANNEL_NOTIFICATION_SETTINGS)
+                            .putExtra(Settings.EXTRA_APP_PACKAGE, packageName)
+                            .putExtra(Settings.EXTRA_CHANNEL_ID, WanService.CHANNEL_ID)
+                    )
+                }
+            }
+        }
+
     init {
         lifecycle.addObserver(object : DefaultLifecycleObserver {
             override fun onCreate(owner: LifecycleOwner) {
+//                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+//                    requestNotificationPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+//                } else {
+//                    startForegroundService(Intent(this@MainActivity, WanService::class.java))
+//                }
+
                 enableEdgeToEdge()
                 setContent {
                     val setToDarkMode by darkModeHelper.darkModeSettingFlow.collectAsState()

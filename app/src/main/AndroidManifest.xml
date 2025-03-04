@@ -7,9 +7,10 @@
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.VIBRATE" />
-    <!--    <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />-->
-    <!--    <user-permission android:name="android.permission.READ_MEDIA_VISUAL_USER_SELECTED"/>-->
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_DATA_SYNC" />
     <uses-permission android:name="android.permission.CAMERA" />
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <!--Android Q之后不需要存储权限，完全使用MediaStore API来实现-->
     <uses-permission
         android:name="android.permission.READ_EXTERNAL_STORAGE"
@@ -26,6 +27,11 @@
         android:roundIcon="@mipmap/ic_launcher"
         android:supportsRtl="true"
         android:theme="@style/Theme.WanCompose">
+
+        <service
+            android:name=".service.WanService"
+            android:exported="false"
+            android:foregroundServiceType="dataSync" />
 
         <provider
             android:name="androidx.core.content.FileProvider"
