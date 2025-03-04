@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -21,6 +22,8 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Divider
 import androidx.compose.material3.Text
@@ -33,6 +36,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
@@ -43,6 +47,7 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.sundayting.wancompose.R
 import com.sundayting.wancompose.WanComposeDestination
+import com.sundayting.wancompose.common.ui.inset.navigationHeight
 import com.sundayting.wancompose.common.ui.ktx.onBottomReached
 import com.sundayting.wancompose.common.ui.textfield.WanTextField
 import com.sundayting.wancompose.common.ui.title.TitleBarWithBackButtonContent
@@ -149,7 +154,15 @@ object SearchScreen : WanComposeDestination {
                             textStyle = WanTheme.typography.h7.copy(
                                 color = WanTheme.colors.level1TextColor
                             ),
-                            singleLine = true
+                            singleLine = true,
+                            keyboardActions = KeyboardActions(
+                                onSearch = {
+                                    onClickSearch()
+                                }
+                            ),
+                            keyboardOptions = KeyboardOptions(
+                                imeAction = ImeAction.Search
+                            )
                         )
                     }
                     Image(
@@ -162,6 +175,7 @@ object SearchScreen : WanComposeDestination {
                                 interactionSource = remember { MutableInteractionSource() },
                                 indication = null
                             ) { onClickSearch() }
+                            .padding(1.dp)
                             .align(Alignment.CenterEnd),
                         colorFilter = ColorFilter.tint(WanTheme.colors.level1TextColor)
                     )
@@ -211,7 +225,7 @@ object SearchScreen : WanComposeDestination {
         Column(modifier) {
             Text(
                 text = stringResource(id = R.string.hot_search),
-                style = WanTheme.typography.h6.copy(
+                style = WanTheme.typography.h7.copy(
                     color = WanTheme.colors.primaryColor
                 )
             )
@@ -231,7 +245,7 @@ object SearchScreen : WanComposeDestination {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text(
                     text = stringResource(id = R.string.history_search),
-                    style = WanTheme.typography.h6.copy(
+                    style = WanTheme.typography.h7.copy(
                         color = WanTheme.colors.primaryColor
                     )
                 )
@@ -279,10 +293,14 @@ object SearchScreen : WanComposeDestination {
         lazyListState.onBottomReached {
             onLoadMore()
         }
+
         LazyColumn(
             modifier
                 .fillMaxSize(),
-            state = lazyListState
+            state = lazyListState,
+            contentPadding = PaddingValues(
+                bottom = navigationHeight()
+            )
         ) {
             items(state.articleList, key = { it.id }) {
                 ArticleListSingleBean(

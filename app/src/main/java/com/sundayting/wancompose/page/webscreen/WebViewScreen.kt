@@ -87,7 +87,6 @@ import androidx.navigation.NavType
 import androidx.navigation.navArgument
 import com.sundayting.wancompose.R
 import com.sundayting.wancompose.WanComposeDestination
-import com.sundayting.wancompose.common.helper.LocalDarkMode
 import com.sundayting.wancompose.common.helper.LocalVibratorHelper
 import com.sundayting.wancompose.common.ui.dialog.ShareArticleDialog
 import com.sundayting.wancompose.page.homescreen.article.ui.ArticleList
@@ -179,7 +178,6 @@ object WebViewScreen : WanComposeDestination {
             ) = createRefs()
 
             var cachedWebView by remember { mutableStateOf<WebView?>(null) }
-            val isDarkMode = LocalDarkMode.current
 
             cachedWebView?.let { webView ->
                 BackHandler {
@@ -275,7 +273,6 @@ object WebViewScreen : WanComposeDestination {
                         }
                     }
                     .constrainAs(webViewContent) {
-                        centerTo(parent)
                     }
             )
 
