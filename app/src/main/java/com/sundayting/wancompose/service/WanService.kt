@@ -16,12 +16,6 @@ import com.sundayting.wancompose.common.service.ServiceIds.WAN_SERVICE_ID
 
 class WanService : LifecycleService() {
 
-    private val notificationManager by lazy {
-        NotificationManagerCompat.from(this)
-    }
-
-    private var runningSec = 0
-
     companion object {
         const val CHANNEL_ID = "wan_compose_test_channel"
         private const val CHANNEL_NAME = "玩Compose测试通知"
@@ -31,7 +25,7 @@ class WanService : LifecycleService() {
         return NotificationCompat
             .Builder(this, CHANNEL_ID)
             .setContentTitle("玩Compose测试通知")
-            .setContentText("已运行：${runningSec++}秒")
+            .setContentText("运行中...")
             .setOngoing(true)
             .setSmallIcon(R.drawable.modern_android_logo)
             .build()
@@ -63,7 +57,7 @@ class WanService : LifecycleService() {
             NotificationChannel(
                 CHANNEL_ID,
                 CHANNEL_NAME,
-                NotificationManager.IMPORTANCE_DEFAULT
+                NotificationManager.IMPORTANCE_HIGH
             )
         )
     }
@@ -71,18 +65,6 @@ class WanService : LifecycleService() {
     override fun onCreate() {
         super.onCreate()
         startForeground()
-//        if (PermissionChecker.checkSelfPermission(
-//                this,
-//                Manifest.permission.POST_NOTIFICATIONS
-//            ) == PermissionChecker.PERMISSION_GRANTED
-//        ) {
-//            lifecycleScope.launch {
-//                while (true) {
-//                    delay(1000)
-//                    notificationManager.notify(WAN_SERVICE_ID, buildNewNotification())
-//                }
-//            }
-//        }
 
     }
 
