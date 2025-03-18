@@ -1,8 +1,12 @@
 package com.sundayting.wancompose
 
 import android.Manifest
+import android.content.ComponentName
 import android.content.Intent
+import android.content.ServiceConnection
 import android.os.Build
+import android.os.IBinder
+import android.util.Log
 import android.widget.Toast
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -86,10 +90,37 @@ class MainActivity : AppCompatActivity() {
     @Inject
     lateinit var darkModeHelper: DarkModeHelper
 
+    private var wanServiceAidl: IWanServiceAidlInterface? = null
+
     private val requestNotificationPermissionLauncher =
         registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
             if (isGranted) {
                 startForegroundService(Intent(this@MainActivity, WanService::class.java))
+
+                val callback = object : IWanServiceCallbackListener.Stub() {
+
+                    override fun onCallback(str: String) {
+                        Log.d("临时测试", "Activity收到消息：${str}")
+                    }
+
+                }
+
+                bindService(Intent(this, WanService::class.java), object : ServiceConnection {
+                    override fun onServiceConnected(
+                        name: ComponentName,
+                        service: IBinder
+                    ) {
+                        wanServiceAidl = IWanServiceAidlInterface.Stub.asInterface(service).also {
+                            it.sendMsg("发送信息")
+                            it.registerListener(callback)
+                        }
+                    }
+
+                    override fun onServiceDisconnected(name: ComponentName) {
+                        wanServiceAidl?.unregisterListener(callback)
+                        wanServiceAidl = null
+                    }
+                }, BIND_AUTO_CREATE)
             }
         }
 

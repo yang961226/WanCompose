@@ -80,6 +80,7 @@ android {
     }
     buildFeatures {
         compose = true
+        aidl = true
     }
 
     packaging {
