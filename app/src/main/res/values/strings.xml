@@ -28,7 +28,7 @@
     <string name="welcome_back_tip">欢迎回来,%s</string>
     <string name="net_error">网络错误，请重试</string>
     <string name="level_d">等级：%d</string>
-    <string name="rank_d">排名：%d</string>
+    <string name="rank_s">排名：%s</string>
     <string name="my_points">我的积分</string>
     <string name="my_share">我的分享</string>
     <string name="my_collect">我的收藏</string>

@@ -164,7 +164,10 @@ object MineScreen : HomeScreen.HomeScreenPage {
                         Spacer(Modifier.width(5.dp))
 
                         Text(
-                            text = stringResource(id = R.string.rank_d, userEntity.rank),
+                            text = stringResource(
+                                id = R.string.rank_s,
+                                userEntity.rank.takeIf { it > 0 }?.toString() ?: "9999+"
+                            ),
                             style = TextStyle(
                                 fontSize = 14.sp,
                                 color = Color.White.copy(0.8f)
@@ -319,7 +322,7 @@ private fun PreviewMineScreen() {
                     nick = "我是名字",
                     coinCount = 0,
                     level = 0,
-                    rank = 1000
+                    rank = -1
                 )
             }
         )

@@ -31,7 +31,7 @@ object UserLoginFunction {
     data class CoinInfoBean(
         val coinCount: Int,
         val level: Int,
-        val rank: Int,
+        val rank: String,
     )
 
     @Serializable

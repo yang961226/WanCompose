@@ -99,7 +99,7 @@ class MineRepository @Inject constructor(
                                     nick = userInfoBean.userInfo.nickname,
                                     coinCount = userInfoBean.coinInfo.coinCount,
                                     level = userInfoBean.coinInfo.level,
-                                    rank = userInfoBean.coinInfo.rank
+                                    rank = userInfoBean.coinInfo.rank.toIntOrNull() ?: -1
                                 )
                             )
                         },
