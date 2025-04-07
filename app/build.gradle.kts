@@ -220,4 +220,6 @@ dependencies {
 
     implementation("androidx.viewpager2:viewpager2:1.1.0")
 
+    implementation("org.jsoup:jsoup:1.18.3")     // html解析
+
 }
