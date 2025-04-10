@@ -24,7 +24,6 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
@@ -42,11 +41,18 @@ import androidx.navigation.compose.rememberNavController
 import com.sundayting.wancompose.LocalLoginUser
 import com.sundayting.wancompose.R
 import com.sundayting.wancompose.WanComposeDestination
-import com.sundayting.wancompose.common.event.LocalEventManager
-import com.sundayting.wancompose.common.event.ShowLoginPageEvent
 import com.sundayting.wancompose.common.ui.ktx.onBottomReached
 import com.sundayting.wancompose.common.ui.loading.LocalLoadingBoxIsLoading
 import com.sundayting.wancompose.common.ui.title.TitleBarWithContent
+import com.sundayting.wancompose.page.examplewidgetscreen.ExampleWidget
+import com.sundayting.wancompose.page.examplewidgetscreen.pointinput.PointInput
+import com.sundayting.wancompose.page.examplewidgetscreen.pointinput.PointInput.navigateToPointInput
+import com.sundayting.wancompose.page.examplewidgetscreen.scrollaletabrow.TabRowScreen
+import com.sundayting.wancompose.page.examplewidgetscreen.scrollaletabrow.TabRowScreen.navigateToTabRowScreen
+import com.sundayting.wancompose.page.examplewidgetscreen.tantancard.TanTanSwipeCardScreen
+import com.sundayting.wancompose.page.examplewidgetscreen.tantancard.TanTanSwipeCardScreen.navigateToTanTanSwipeCardScreen
+import com.sundayting.wancompose.page.examplewidgetscreen.viewpager.ViewPagerHorizontalPagerNestScroll
+import com.sundayting.wancompose.page.examplewidgetscreen.viewpager.ViewPagerHorizontalPagerNestScroll.navigateToViewPagerHorizontalPagerNestScroll
 import com.sundayting.wancompose.page.homescreen.article.ArticlePageState
 import com.sundayting.wancompose.page.homescreen.article.ui.ArticleList
 import com.sundayting.wancompose.page.homescreen.article.ui.ArticleListContent
@@ -56,7 +62,6 @@ import com.sundayting.wancompose.page.search.SearchScreen.navigateToSearchScreen
 import com.sundayting.wancompose.page.webscreen.WebViewScreen
 import com.sundayting.wancompose.theme.TitleTextStyle
 import com.sundayting.wancompose.theme.WanTheme
-import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.launch
 
 object HomeScreen : WanComposeDestination {
@@ -77,6 +82,10 @@ object HomeScreen : WanComposeDestination {
         HomeScreenPage.BottomItem(
             resId = R.drawable.ic_home,
             titleId = R.string.bottom_tab_home,
+        ),
+        HomeScreenPage.BottomItem(
+            resId = R.drawable.ic_example,
+            titleId = R.string.bottom_tab_example,
         ),
         HomeScreenPage.BottomItem(
             resId = R.drawable.ic_mine,
@@ -196,11 +205,6 @@ object HomeScreen : WanComposeDestination {
             }
         }
 
-        val eventManager = LocalEventManager.current
-        LaunchedEffect(Unit) {
-            eventManager.eventFlow.filterIsInstance<ShowLoginPageEvent>()
-        }
-
         Column(
             modifier.fillMaxSize()
         ) {
@@ -228,6 +232,21 @@ object HomeScreen : WanComposeDestination {
                     }
 
                     1 -> {
+                        ExampleWidget.Screen(
+                            Modifier
+                                .fillMaxSize(),
+                            onClick = { bean ->
+                                when (bean.name) {
+                                    TanTanSwipeCardScreen.exampleCardBean.name -> navController.navigateToTanTanSwipeCardScreen()
+                                    PointInput.exampleCardBean.name -> navController.navigateToPointInput()
+                                    ViewPagerHorizontalPagerNestScroll.exampleCardBean.name -> navController.navigateToViewPagerHorizontalPagerNestScroll()
+                                    TabRowScreen.exampleCardBean.name -> navController.navigateToTabRowScreen()
+                                }
+                            }
+                        )
+                    }
+
+                    2 -> {
                         MineScreen.Screen(
                             modifier = Modifier.fillMaxSize(),
                             userEntity = LocalLoginUser.current,

@@ -59,6 +59,10 @@ import com.sundayting.wancompose.common.helper.LocalVibratorHelper
 import com.sundayting.wancompose.common.helper.VibratorHelper
 import com.sundayting.wancompose.function.UserLoginFunction.UserEntity
 import com.sundayting.wancompose.page.aboutme.AboutMe
+import com.sundayting.wancompose.page.examplewidgetscreen.pointinput.PointInput
+import com.sundayting.wancompose.page.examplewidgetscreen.scrollaletabrow.TabRowScreen
+import com.sundayting.wancompose.page.examplewidgetscreen.tantancard.TanTanSwipeCardScreen
+import com.sundayting.wancompose.page.examplewidgetscreen.viewpager.ViewPagerHorizontalPagerNestScroll
 import com.sundayting.wancompose.page.homescreen.HomeScreen
 import com.sundayting.wancompose.page.homescreen.mine.point.PointScreen
 import com.sundayting.wancompose.page.homescreen.mine.share.MyCollectedArticle
@@ -339,27 +343,50 @@ fun WanComposeApp(
                         navController = navController
                     )
                 }
-            }
-        }
 
-        if (isShowBottomSheet) {
-            ModalBottomSheet(
-                modifier = Modifier.consumeWindowInsets(WindowInsets.navigationBars),
-                onDismissRequest = {
-                    scope.launch {
-                        modalSheetState.hide()
-                    }.invokeOnCompletion {
-                        isShowBottomSheet = false
-                    }
-                },
-                sheetState = modalSheetState,
-                dragHandle = null
-            ) {
-                LoginContent(
-                    loginOrRegisterState = viewModel.loginOrRegisterState,
-                    onClickLogin = viewModel::login,
-                    onClickRegister = viewModel::register,
-                )
+                composable(TanTanSwipeCardScreen.route) {
+                    TanTanSwipeCardScreen.Screen(Modifier.fillMaxSize())
+                }
+                composable(PointInput.route) {
+                    PointInput.Screen(Modifier.fillMaxSize(), onClickBackButton = {
+                        navController.popBackStack()
+                    })
+                }
+
+                composable(ViewPagerHorizontalPagerNestScroll.route) {
+                    ViewPagerHorizontalPagerNestScroll.Screen(
+                        Modifier.fillMaxSize(),
+                        onClickBackButton = {
+                            navController.popBackStack()
+                        })
+                }
+
+                composable(TabRowScreen.route) {
+                    TabRowScreen.Screen(Modifier.fillMaxSize(), onClickBackButton = {
+                        navController.popBackStack()
+                    })
+                }
+            }
+
+            if (isShowBottomSheet) {
+                ModalBottomSheet(
+                    modifier = Modifier.consumeWindowInsets(WindowInsets.navigationBars),
+                    onDismissRequest = {
+                        scope.launch {
+                            modalSheetState.hide()
+                        }.invokeOnCompletion {
+                            isShowBottomSheet = false
+                        }
+                    },
+                    sheetState = modalSheetState,
+                    dragHandle = null
+                ) {
+                    LoginContent(
+                        loginOrRegisterState = viewModel.loginOrRegisterState,
+                        onClickLogin = viewModel::login,
+                        onClickRegister = viewModel::register,
+                    )
+                }
             }
         }
     }
