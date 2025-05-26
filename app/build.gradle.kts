@@ -130,7 +130,7 @@ kapt {
 
 dependencies {
 
-    val composeBomVersion = "2025.02.00"
+    val composeBomVersion = "2025.05.01"
 
     implementation("androidx.core:core-ktx:1.15.0")
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.8.7")
@@ -184,7 +184,7 @@ dependencies {
     implementation("androidx.hilt:hilt-navigation-compose:1.2.0")
 
 
-    val roomVersion = "2.7.0-rc01"
+    val roomVersion = "2.7.1"
     implementation("androidx.room:room-runtime:$roomVersion")
     ksp("androidx.room:room-compiler:$roomVersion")
     implementation("androidx.room:room-ktx:$roomVersion")
@@ -193,14 +193,14 @@ dependencies {
     // To use Kotlin Symbol Processing (KSP)
     ksp("androidx.room:room-compiler:$roomVersion")
 
-    val lifecycleVersion = "2.8.7"
+    val lifecycleVersion = "2.9.0"
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose:$lifecycleVersion")
     implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:$lifecycleVersion")
     implementation("androidx.lifecycle:lifecycle-runtime-compose:$lifecycleVersion")
     implementation("androidx.lifecycle:lifecycle-viewmodel-savedstate:$lifecycleVersion")
     kapt("androidx.lifecycle:lifecycle-common-java8:$lifecycleVersion")
 
-    val cameraxVersion = "1.4.1"
+    val cameraxVersion = "1.4.2"
     // The following line is optional, as the core library is included indirectly by camera-camera2
     implementation("androidx.camera:camera-core:${cameraxVersion}")
     implementation("androidx.camera:camera-camera2:${cameraxVersion}")
@@ -221,5 +221,7 @@ dependencies {
     implementation("androidx.viewpager2:viewpager2:1.1.0")
 
     implementation("org.jsoup:jsoup:1.18.3")     // html解析
+
+    implementation("com.tencent:mmkv:2.2.2")
 
 }

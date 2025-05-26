@@ -170,7 +170,7 @@ object PointScreen : WanComposeDestination {
                                 PointRecordContent(
                                     modifier = Modifier
                                         .fillMaxWidth()
-                                        .animateItemPlacement(),
+                                        .animateItem(),
                                     state = record
                                 )
                                 Divider(

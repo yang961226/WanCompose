@@ -139,7 +139,7 @@ object MyCollectedArticle : WanComposeDestination {
                                 Modifier
                                     .background(WanTheme.colors.level2BackgroundColor)
                                     .fillMaxWidth()
-                                    .animateItemPlacement()
+                                    .animateItem()
                             ) {
                                 ArticleListSingleBean(
                                     modifier = Modifier

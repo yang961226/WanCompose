@@ -305,7 +305,7 @@ fun ArticleListContent(
             items(articleState.articleList, key = { it.id }) {
                 ArticleListSingleBean(
                     modifier = Modifier
-                        .animateItemPlacement()
+                        .animateItem()
                         .fillMaxWidth()
                         .clickable(
                             interactionSource = remember { MutableInteractionSource() },

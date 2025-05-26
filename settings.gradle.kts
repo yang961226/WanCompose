@@ -10,6 +10,8 @@ dependencyResolutionManagement {
     repositories {
         google()
         mavenCentral()
+        maven { setUrl("https://dl.google.com/dl/android/maven2") }
+        maven { setUrl("https://jitpack.io") }
     }
 }
 

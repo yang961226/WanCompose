@@ -1,6 +1,7 @@
 package com.sundayting.wancompose
 
 import android.app.Application
+import com.tencent.mmkv.MMKV
 import dagger.hilt.android.HiltAndroidApp
 
 @HiltAndroidApp
@@ -15,10 +16,7 @@ class WanComposeApplication : Application() {
 
     override fun onCreate() {
         super.onCreate()
-        // TODO: 迁移至WorkManager
-//        MainScope().launch {
-//            dataStoreCookieJar.clearWanExpireCookie()
-//        }
+        MMKV.initialize(this)
         instance = this
     }
 

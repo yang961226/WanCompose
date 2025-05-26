@@ -3,6 +3,7 @@ package com.sundayting.wancompose.page.homescreen.mine.repo
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
+import com.sundayting.wancompose.WanComposeApplication
 import com.sundayting.wancompose.common.event.EventManager
 import com.sundayting.wancompose.common.event.NeedLoginAgainEvent
 import com.sundayting.wancompose.db.WanDatabase
@@ -12,6 +13,10 @@ import com.sundayting.wancompose.function.UserLoginFunction.UserInfoBean
 import com.sundayting.wancompose.function.UserLoginFunction.VISITOR_ID
 import com.sundayting.wancompose.network.isSuccess
 import com.sundayting.wancompose.network.requireData
+import dagger.hilt.EntryPoint
+import dagger.hilt.InstallIn
+import dagger.hilt.android.EntryPointAccessors
+import dagger.hilt.components.SingletonComponent
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.coroutineScope
@@ -34,6 +39,15 @@ class MineRepository @Inject constructor(
 ) {
 
     private val scope = CoroutineScope(SupervisorJob())
+
+    companion object {
+        fun getInstanceFromApp(): MineRepository {
+            return EntryPointAccessors.fromApplication(
+                WanComposeApplication.instance,
+                MineRepositoryProviderEntryPoint::class.java
+            ).mineRepo()
+        }
+    }
 
     init {
         scope.launch {
@@ -125,5 +139,14 @@ class MineRepository @Inject constructor(
         passwordAgain: String,
     ) = userService.register(username, password, passwordAgain)
 
+
+}
+
+
+@EntryPoint
+@InstallIn(SingletonComponent::class)
+interface MineRepositoryProviderEntryPoint {
+
+    fun mineRepo(): MineRepository
 
 }

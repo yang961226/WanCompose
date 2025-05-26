@@ -305,7 +305,7 @@ object SearchScreen : WanComposeDestination {
             items(state.articleList, key = { it.id }) {
                 ArticleListSingleBean(
                     modifier = Modifier
-                        .animateItemPlacement()
+                        .animateItem()
                         .fillMaxWidth()
                         .clickable(
                             interactionSource = remember { MutableInteractionSource() },
